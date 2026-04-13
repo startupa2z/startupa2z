@@ -28,7 +28,7 @@ const CTABanner = ({ title, description, primaryCTA = "Join Now", primaryLink = 
           <Link to={primaryLink}>{primaryCTA} <ArrowRight className="ml-2 w-4 h-4" /></Link>
         </Button>
         {secondaryCTA && secondaryLink && (
-          <Button asChild variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 rounded-full px-8 h-12 text-base">
+          <Button asChild variant="outline" className="border-primary-foreground/60 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-full px-8 h-12 text-base font-semibold">
             <Link to={secondaryLink}>{secondaryCTA}</Link>
           </Button>
         )}
