@@ -49,7 +49,7 @@ const Index = () => (
     {/* Hero */}
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
-      <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/70 to-navy/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/50 to-navy/75" />
       <div className="relative z-10 container-narrow px-4 text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
           <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-6 px-4 py-1.5 rounded-full bg-accent/20 text-teal-light">
