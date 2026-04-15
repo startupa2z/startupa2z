@@ -113,6 +113,39 @@ const HeroSection = () => (
           ))}
         </ul>
       </motion.div>
+
+        {/* Floating event card */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="hidden lg:block self-start mt-6"
+        >
+          <div className="bg-white/[0.96] backdrop-blur-[20px] backdrop-saturate-[1.8] p-[clamp(1.5rem,3vw,2rem)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.12)] border border-white/40">
+            <div className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-primary mb-3">
+              Next Meetup
+            </div>
+            <h3 className="text-[1.1rem] font-bold tracking-[-0.02em] text-foreground leading-snug mb-2">
+              {nextEvent.title}
+            </h3>
+            <div className="text-[0.82rem] text-muted-foreground leading-relaxed mb-1">
+              {nextEvent.date}
+            </div>
+            <div className="text-[0.82rem] text-muted-foreground mb-6">
+              {nextEvent.venue}
+            </div>
+            <div className="text-[0.75rem] font-semibold text-primary mb-4">
+              {nextEvent.spots} spots remaining
+            </div>
+            <Link
+              to="/events"
+              className="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all"
+            >
+              Reserve Your Spot
+            </Link>
+          </div>
+        </motion.div>
+      </div>
     </div>
   </section>
 );
