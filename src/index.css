@@ -120,6 +120,15 @@
   .gradient-hero {
     background: linear-gradient(100deg, rgba(12, 28, 20, 0.88) 0%, rgba(12, 28, 20, 0.65) 45%, rgba(12, 28, 20, 0.25) 100%);
   }
+  .gradient-hero-solid {
+    background: linear-gradient(135deg, hsl(152, 36%, 22%) 0%, hsl(152, 36%, 30%) 50%, hsl(160, 30%, 25%) 100%);
+  }
+  .gradient-navy {
+    background: linear-gradient(135deg, hsl(210, 10%, 11%) 0%, hsl(210, 12%, 18%) 100%);
+  }
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border rounded-2xl;
+  }
 }
 
 @layer utilities {

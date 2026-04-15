@@ -22,12 +22,12 @@ const Events = () => {
 
   return (
     <PageLayout>
-      <section className="section-padding gradient-hero text-center">
+      <section className="section-padding gradient-hero-solid text-center" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
         <div className="container-narrow">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-accent/20 text-teal-light">Events</span>
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground tracking-tight mb-6">Meetups & Events</h1>
-            <p className="text-lg text-primary-foreground/70 max-w-xl mx-auto">Network, learn, and pitch at Bay Area startup events designed for founders, investors, and builders.</p>
+            <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">Events</span>
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Meetups & Events</h1>
+            <p className="text-lg text-white/70 max-w-xl mx-auto">Network, learn, and pitch at Bay Area startup events designed for founders, investors, and builders.</p>
           </motion.div>
         </div>
       </section>
