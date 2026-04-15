@@ -3,6 +3,13 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
+const nextEvent = {
+  title: "Building Your Network: From Zero to 100 Connections",
+  date: "April 24, 2026 · 6:30 PM",
+  venue: "WeWork SOMA, 415 Mission St",
+  spots: 47,
+};
+
 const stats = [
   { value: "2,400", suffix: "+", label: "Active Members" },
   { value: "48", suffix: "", label: "Events This Year" },
