@@ -37,8 +37,13 @@ const HeroSection = () => (
     <div className="absolute inset-0 gradient-hero" />
 
     <div className="relative z-10 container-narrow px-[clamp(1.5rem,5vw,3rem)] w-full">
+      <div className="grid lg:grid-cols-[1fr_340px] gap-[clamp(3rem,5vw,5rem)] items-center">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-[720px]"
+      >
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-[720px]"
