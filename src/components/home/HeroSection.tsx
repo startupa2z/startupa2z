@@ -52,7 +52,7 @@ const HeroSection = () => (
 
         {/* Title */}
         <h1
-          className="text-[clamp(2.75rem,7vw,6.5rem)] font-black tracking-[-0.03em] leading-[1.0] text-white mb-6"
+          className="font-black tracking-[-0.03em] leading-[1.0] text-white mb-6 text-6xl"
           style={{ textShadow: "0 2px 20px rgba(0,0,0,0.25)" }}
         >
           Silicon Valley
