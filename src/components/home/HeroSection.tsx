@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -12,14 +11,21 @@ const nextEvent = {
 };
 
 const stats = [
-  { value: "2,500+", label: "Active Members" },
-  { value: "80+", label: "Events This Year" },
-  { value: "150+", label: "Ideas Shared" },
-  { value: "45+", label: "Investor Partners" },
+  { value: "2,500", suffix: "+", label: "Active Members" },
+  { value: "80", suffix: "+", label: "Events This Year" },
+  { value: "150", suffix: "+", label: "Ideas Shared" },
+  { value: "45", suffix: "+", label: "Investor Partners" },
 ];
 
 const HeroSection = () => (
-  <section className="relative min-h-[100vh] flex flex-col justify-center overflow-hidden">
+  <section
+    className="relative min-h-[100svh] flex items-center overflow-hidden"
+    style={{
+      paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))",
+      paddingBottom: "clamp(4rem, 7vw, 6rem)",
+    }}
+  >
+    {/* Background */}
     <img
       src={heroBg}
       alt=""
@@ -29,116 +35,101 @@ const HeroSection = () => (
     />
     <div className="absolute inset-0 gradient-hero" />
 
-    <div className="relative z-10 container-narrow px-4 pt-20">
-      <div className="grid lg:grid-cols-5 gap-10 items-center">
+    <div className="relative z-10 container-narrow px-[clamp(1.5rem,5vw,3rem)] w-full">
+      <div className="grid lg:grid-cols-[1fr_340px] gap-[clamp(3rem,5vw,5rem)] items-center">
         {/* Left content */}
-        <div className="lg:col-span-3">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase mb-8 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-white/90">
-              <span className="w-2 h-2 rounded-full bg-secondary" />
-              Bay Area's Startup Ecosystem
-            </span>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Label pill */}
+          <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.15em] uppercase text-secondary bg-secondary/12 px-3 py-1.5 rounded-full border border-secondary/30 backdrop-blur-sm mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+            Bay Area's Startup Ecosystem
+          </span>
 
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold tracking-tight text-white leading-[1.08] mb-8">
-              Where Founders,{" "}
-              <br className="hidden sm:block" />
-              Investors & Builders{" "}
-              <br className="hidden sm:block" />
-              Come Together.
-            </h1>
+          <h1 className="text-[clamp(2.25rem,5vw,4.25rem)] font-extrabold tracking-[-0.025em] leading-[1.05] text-white mb-6 max-w-[640px]" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.25)" }}>
+            Where Founders,{" "}
+            <br className="hidden sm:block" />
+            Investors & Builders{" "}
+            <br className="hidden sm:block" />
+            Come Together.
+          </h1>
 
-            <p className="text-lg md:text-xl text-white/70 max-w-xl mb-10 leading-relaxed">
-              From A to Z of Startups — connect with co-founders, discover
-              investment opportunities, attend meetups, and build the next big
-              thing in the Bay Area.
-            </p>
+          <p className="text-[clamp(0.95rem,1.4vw,1.08rem)] text-white/82 max-w-[520px] mb-10 leading-[1.7]">
+            From A to Z of Startups — connect with co-founders, discover
+            investment opportunities, attend meetups, and build the next big
+            thing in the Bay Area.
+          </p>
 
-            <div className="flex flex-wrap items-center gap-5">
-              <Button
-                asChild
-                size="lg"
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-13 text-base font-semibold shadow-lg"
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              to="/events"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-[0_8px_28px_rgba(232,137,26,0.35)]"
+            >
+              Explore Meetups <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/contact"
+              className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors"
+            >
+              Join the Community
+            </Link>
+          </div>
+
+          {/* Stats bar */}
+          <ul className="grid grid-cols-2 md:grid-cols-4 gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-5 mt-[clamp(2.5rem,5vw,4rem)] pt-[clamp(1.75rem,3vw,2.25rem)] border-t border-white/15 list-none">
+            {stats.map((stat, i) => (
+              <motion.li
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
+                className="flex flex-col gap-1"
               >
-                <Link to="/events">
-                  Explore Meetups <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Link
-                to="/contact"
-                className="text-base font-medium text-white hover:text-white/80 transition-colors"
-              >
-                Join the Community
-              </Link>
-            </div>
-          </motion.div>
-        </div>
+                <span className="text-[clamp(1.5rem,2.4vw,2rem)] font-extrabold tracking-[-0.02em] text-white leading-none">
+                  {stat.value}<span className="text-secondary font-bold text-[0.85em] ml-px">{stat.suffix}</span>
+                </span>
+                <span className="text-[0.72rem] font-medium tracking-[0.08em] uppercase text-white/60">
+                  {stat.label}
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
 
         {/* Floating event card */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="lg:col-span-2 hidden lg:block"
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="hidden lg:block self-start mt-6"
         >
-          <div className="bg-white rounded-2xl p-7 shadow-2xl">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-primary">
-                Next Meetup
-              </span>
-              <span className="text-xs text-muted-foreground">·</span>
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-secondary">
-                San Francisco
-              </span>
+          <div className="bg-white/96 backdrop-blur-[20px] backdrop-saturate-[180%] p-[clamp(1.5rem,3vw,2rem)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.12)] border border-white/40">
+            <div className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-primary mb-3">
+              Next Meetup
             </div>
-            <h3 className="font-heading font-bold text-foreground text-lg leading-snug mb-3">
+            <h3 className="text-[1.1rem] font-bold tracking-[-0.02em] text-foreground leading-snug mb-2">
               {nextEvent.title}
             </h3>
-            <p className="text-sm text-muted-foreground mb-1">
+            <div className="text-[0.82rem] text-muted-foreground leading-relaxed mb-1">
               {nextEvent.date}
-            </p>
-            <p className="text-sm text-muted-foreground mb-5">
+            </div>
+            <div className="text-[0.82rem] text-muted-foreground mb-6">
               {nextEvent.venue}
-            </p>
-            <p className="text-sm font-semibold text-secondary mb-5">
+            </div>
+            <div className="text-[0.75rem] font-semibold text-primary mb-4">
               {nextEvent.spots} spots remaining
-            </p>
-            <Button
-              asChild
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-6 text-sm font-semibold"
+            </div>
+            <Link
+              to="/events"
+              className="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all"
             >
-              <Link to="/events">Reserve Your Spot</Link>
-            </Button>
+              Reserve Your Spot
+            </Link>
           </div>
         </motion.div>
-      </div>
-    </div>
-
-    {/* Stats bar at bottom of hero */}
-    <div className="relative z-10 mt-auto">
-      <div className="border-t border-white/15">
-        <div className="container-narrow px-4 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
-              >
-                <div className="font-heading text-4xl md:text-5xl font-bold text-white">
-                  {stat.value}
-                </div>
-                <div className="text-xs tracking-[0.15em] uppercase text-white/50 mt-1">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   </section>

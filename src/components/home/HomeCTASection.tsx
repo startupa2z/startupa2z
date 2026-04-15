@@ -1,25 +1,23 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 
 const HomeCTASection = () => (
-  <section className="py-24 md:py-32 px-4 bg-primary">
-    <div className="container-narrow">
-      <div className="grid md:grid-cols-2 gap-10 items-center">
+  <section className="section-padding bg-primary">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 flex-wrap">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight">
+          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-white">
             Don't just read
             <br />
             about startups.
             <br />
             Build one.
           </h2>
-          <p className="text-sm tracking-[0.15em] uppercase text-primary-foreground/50 mt-6">
+          <p className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-white/45 mt-3">
             Next meetup in 15 days · San Francisco
           </p>
         </motion.div>
@@ -29,25 +27,20 @@ const HomeCTASection = () => (
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
-          className="flex flex-col sm:flex-row gap-4 md:justify-end"
+          className="flex flex-wrap gap-4 shrink-0"
         >
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="border-primary-foreground/60 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 rounded-full px-8 h-13 text-base font-semibold"
+          <Link
+            to="/events"
+            className="inline-flex items-center px-7 py-3 rounded-full bg-white text-primary text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(0,0,0,0.15)] active:scale-[0.97] transition-all"
           >
-            <Link to="/contact">
-              Join Free <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 rounded-full px-8 h-13 text-base font-semibold"
+            Explore Meetups
+          </Link>
+          <Link
+            to="/contact"
+            className="inline-flex items-center px-7 py-3 rounded-full text-white text-[0.9rem] font-semibold shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.45)] hover:bg-white/10 transition-all"
           >
-            <Link to="/events">Explore Meetups</Link>
-          </Button>
+            Join Free →
+          </Link>
         </motion.div>
       </div>
     </div>

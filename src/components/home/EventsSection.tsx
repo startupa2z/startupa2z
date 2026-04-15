@@ -33,20 +33,20 @@ const events = [
 ];
 
 const EventsSection = () => (
-  <section className="py-24 md:py-32 px-4 bg-background">
-    <div className="container-narrow">
-      <div className="flex items-end justify-between mb-14">
+  <section className="section-padding bg-background">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
+      <div className="flex items-end justify-between gap-4 mb-[clamp(2rem,4vw,3rem)]">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary leading-tight"
+          className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-primary flex-1"
         >
           Upcoming Events
         </motion.h2>
         <Link
           to="/events"
-          className="hidden md:flex items-center gap-1 text-sm font-medium text-primary hover:text-secondary transition-colors"
+          className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
         >
           View all <ArrowRight className="w-4 h-4" />
         </Link>
@@ -59,37 +59,35 @@ const EventsSection = () => (
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bg-muted rounded-xl p-6 flex flex-col justify-between min-h-[320px] hover:shadow-md transition-shadow"
+            transition={{ duration: 0.5, delay: i * 0.08 }}
+            className={`rounded-2xl p-[clamp(1.5rem,3vw,2rem)] flex flex-col gap-1.5 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.09)] transition-all duration-300 ${
+              event.featured
+                ? "bg-card shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+                : "bg-surface-1"
+            }`}
           >
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-bold tracking-[0.15em] uppercase text-primary">
-                  {event.location}
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <span className="label-overline">{event.location}</span>
+              {event.featured && (
+                <span className="text-[0.58rem] font-bold tracking-[0.08em] uppercase px-2.5 py-1 rounded-full bg-primary/8 text-primary">
+                  Featured
                 </span>
-                {event.featured && (
-                  <span className="text-xs font-medium tracking-wide uppercase px-2.5 py-0.5 rounded-full border border-border text-muted-foreground">
-                    Featured
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                {event.date}
-              </p>
-              <h3 className="font-heading text-xl font-bold text-foreground mb-3 leading-snug">
-                {event.title}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {event.description}
-              </p>
+              )}
             </div>
-            <div className="flex items-center justify-between mt-6">
-              <span className="text-sm font-semibold text-secondary">
+            <p className="text-[0.8rem] text-muted-foreground">{event.date}</p>
+            <h3 className="text-[clamp(1.05rem,2vw,1.3rem)] font-bold tracking-[-0.02em] text-foreground leading-snug mt-1">
+              {event.title}
+            </h3>
+            <p className="text-[0.875rem] text-muted-foreground leading-relaxed">
+              {event.description}
+            </p>
+            <div className="flex items-center justify-between mt-auto pt-5">
+              <span className="text-[0.75rem] font-semibold text-primary">
                 {event.spots} spots left
               </span>
               <Link
                 to="/events"
-                className="text-sm font-medium text-primary hover:text-secondary transition-colors flex items-center gap-1"
+                className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
               >
                 RSVP <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -101,9 +99,9 @@ const EventsSection = () => (
       <div className="md:hidden text-center mt-8">
         <Link
           to="/events"
-          className="text-sm font-medium text-primary hover:text-secondary transition-colors"
+          className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary"
         >
-          View all events →
+          View all events <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
     </div>

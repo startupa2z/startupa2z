@@ -9,7 +9,6 @@ const audiences = [
     description:
       "Share ideas, find co-founders, connect with investors, and access resources to build.",
     link: "/founders",
-    color: "bg-blue-600",
   },
   {
     icon: TrendingUp,
@@ -17,7 +16,6 @@ const audiences = [
     description:
       "Discover early-stage startups, attend pitch events, and connect with promising founders.",
     link: "/investors",
-    color: "bg-purple-600",
   },
   {
     icon: Target,
@@ -25,7 +23,6 @@ const audiences = [
     description:
       "Guide the next generation of entrepreneurs with your experience and expertise.",
     link: "/community",
-    color: "bg-teal-600",
   },
   {
     icon: Users,
@@ -33,26 +30,24 @@ const audiences = [
     description:
       "Join startup circles, attend meetups, and be part of the Bay Area ecosystem.",
     link: "/community",
-    color: "bg-rose-600",
   },
 ];
 
 const AudienceSection = () => (
-  <section className="py-24 md:py-32 px-4 bg-background">
-    <div className="container-narrow">
-      <div className="flex items-end justify-between mb-14">
-        <motion.div
+  <section className="section-padding bg-background">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
+      <div className="flex items-end justify-between gap-4 mb-[clamp(2rem,4vw,3rem)]">
+        <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-primary flex-1"
         >
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary leading-tight">
-            Founders in the room.
-          </h2>
-        </motion.div>
+          Founders in the room.
+        </motion.h2>
         <Link
           to="/community"
-          className="hidden md:flex items-center gap-1 text-sm font-medium text-primary hover:text-secondary transition-colors"
+          className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
         >
           Meet everyone <ArrowRight className="w-4 h-4" />
         </Link>
@@ -65,25 +60,23 @@ const AudienceSection = () => (
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
+            transition={{ duration: 0.5, delay: i * 0.08 }}
           >
             <Link
               to={a.link}
-              className="block bg-muted rounded-xl p-6 min-h-[220px] hover:shadow-md transition-shadow group"
+              className="block bg-surface-1 rounded-2xl p-[clamp(1.5rem,3vw,2rem)] min-h-[220px] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 group"
             >
-              <div
-                className={`w-12 h-12 rounded-full ${a.color} flex items-center justify-center mb-5`}
-              >
-                <a.icon className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-5">
+                <a.icon className="w-5 h-5 text-primary-foreground" />
               </div>
-              <h3 className="font-heading font-bold text-foreground mb-2">
+              <h3 className="font-bold text-foreground mb-2 text-[1.15rem] tracking-[-0.015em]">
                 {a.title}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 {a.description}
               </p>
-              <span className="text-xs font-bold tracking-[0.1em] uppercase text-primary group-hover:text-secondary transition-colors">
-                Learn more →
+              <span className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary group-hover:gap-2.5 transition-all">
+                Learn more <ArrowRight className="w-3.5 h-3.5" />
               </span>
             </Link>
           </motion.div>

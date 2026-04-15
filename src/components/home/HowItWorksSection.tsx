@@ -29,18 +29,16 @@ const steps = [
 ];
 
 const HowItWorksSection = () => (
-  <section className="py-24 md:py-32 px-4 bg-muted">
-    <div className="container-narrow">
+  <section className="section-padding bg-surface-2">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mb-16"
+        className="mb-[clamp(2rem,4vw,3rem)]"
       >
-        <span className="text-xs font-bold tracking-[0.2em] uppercase text-secondary mb-4 block">
-          How It Works
-        </span>
-        <h2 className="font-heading text-4xl md:text-5xl font-bold text-primary">
+        <span className="label-overline-muted mb-4 block">How It Works</span>
+        <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-primary">
           Get Started in Four Simple Steps
         </h2>
       </motion.div>
@@ -52,16 +50,16 @@ const HowItWorksSection = () => (
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bg-background rounded-xl p-6"
+            transition={{ duration: 0.5, delay: i * 0.08 }}
+            className="bg-card rounded-2xl p-[clamp(1.5rem,3vw,2rem)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300"
           >
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-5">
               <step.icon className="w-6 h-6 text-primary-foreground" />
             </div>
-            <div className="text-xs font-bold tracking-[0.15em] uppercase text-secondary mb-2">
+            <div className="label-overline text-secondary mb-2">
               Step {i + 1}
             </div>
-            <h3 className="font-heading font-semibold text-foreground mb-2">
+            <h3 className="font-bold text-foreground mb-2 text-[1.15rem] tracking-[-0.015em]">
               {step.title}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
