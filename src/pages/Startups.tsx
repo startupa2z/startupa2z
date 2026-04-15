@@ -45,7 +45,21 @@ const Startups = () => {
 
   return (
     <PageLayout>
-      <section className="section-padding pb-0" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
+      {/* Hero Section */}
+      <section className="section-padding gradient-hero-solid text-center" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
+        <div className="container-narrow">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">Discovery Directory</span>
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Explore the Next<br />Generation of Startups</h1>
+            <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8">Browse our curated directory of Bay Area startups — filter by stage, sector, and location to find the companies shaping tomorrow.</p>
+            <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
+              Submit Your Startup <Plus className="ml-2 w-4 h-4" />
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="section-padding pb-0">
         <div className="container-narrow">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
@@ -80,13 +94,6 @@ const Startups = () => {
 
             {/* Main content */}
             <div className="flex-1 min-w-0">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="font-heading text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-8"
-              >
-                Discovery Directory
-              </motion.h1>
 
               {/* Search & filters bar */}
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
