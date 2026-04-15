@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+
+const stats = [
+  { value: "2,400", suffix: "+", label: "Active Members" },
+  { value: "48", suffix: "", label: "Events This Year" },
+  { value: "120K", suffix: "+", label: "Page Visits" },
+  { value: "35", suffix: "+", label: "Industry Partners" },
+];
 
 const nextEvent = {
   title: "Building Your Network: From Zero to 100 Connections",
@@ -9,13 +15,6 @@ const nextEvent = {
   venue: "WeWork SOMA, 415 Mission St",
   spots: 47,
 };
-
-const stats = [
-  { value: "2,500", suffix: "+", label: "Active Members" },
-  { value: "80", suffix: "+", label: "Events This Year" },
-  { value: "150", suffix: "+", label: "Ideas Shared" },
-  { value: "45", suffix: "+", label: "Investor Partners" },
-];
 
 const HeroSection = () => (
   <section
@@ -25,7 +24,6 @@ const HeroSection = () => (
       paddingBottom: "clamp(4rem, 7vw, 6rem)",
     }}
   >
-    {/* Background */}
     <img
       src={heroBg}
       alt=""
@@ -46,21 +44,15 @@ const HeroSection = () => (
           {/* Label pill */}
           <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.15em] uppercase text-secondary bg-secondary/12 px-3 py-1.5 rounded-full border border-secondary/30 backdrop-blur-sm mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-            Bay Area's Startup Ecosystem
+            Silicon Valley
           </span>
 
-          <h1 className="text-[clamp(2.25rem,5vw,4.25rem)] font-extrabold tracking-[-0.025em] leading-[1.05] text-white mb-6 max-w-[640px]" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.25)" }}>
-            Where Founders,{" "}
-            <br className="hidden sm:block" />
-            Investors & Builders{" "}
-            <br className="hidden sm:block" />
-            Come Together.
+          <h1 className="text-[clamp(2.75rem,7vw,6.5rem)] font-black tracking-[-0.03em] leading-[1.0] text-white mb-6 max-w-[640px]">
+            Silicon Valley<br />Starts Here.
           </h1>
 
           <p className="text-[clamp(0.95rem,1.4vw,1.08rem)] text-white/82 max-w-[520px] mb-10 leading-[1.7]">
-            From A to Z of Startups — connect with co-founders, discover
-            investment opportunities, attend meetups, and build the next big
-            thing in the Bay Area.
+            Where the next generation of founders learn, connect, and build. Join the most intentional startup community in the Valley — unfiltered conversations, real practitioners, and the people who'll build tomorrow alongside you.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -68,11 +60,11 @@ const HeroSection = () => (
               to="/events"
               className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-[0_8px_28px_rgba(232,137,26,0.35)]"
             >
-              Explore Meetups <ArrowRight className="w-4 h-4" />
+              Explore Meetups →
             </Link>
             <Link
               to="/contact"
-              className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors"
+              className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors px-0"
             >
               Join the Community
             </Link>
@@ -89,7 +81,8 @@ const HeroSection = () => (
                 className="flex flex-col gap-1"
               >
                 <span className="text-[clamp(1.5rem,2.4vw,2rem)] font-extrabold tracking-[-0.02em] text-white leading-none">
-                  {stat.value}<span className="text-secondary font-bold text-[0.85em] ml-px">{stat.suffix}</span>
+                  {stat.value}
+                  {stat.suffix && <span className="text-secondary font-bold text-[0.85em] ml-px">{stat.suffix}</span>}
                 </span>
                 <span className="text-[0.72rem] font-medium tracking-[0.08em] uppercase text-white/60">
                   {stat.label}
