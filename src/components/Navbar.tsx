@@ -27,7 +27,7 @@ const Navbar = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,5vw,3rem)] flex items-center justify-between gap-8 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
         {/* Logo */}
         <Link to="/" className="inline-flex items-center hover:-translate-y-px transition-transform">
-          <img src={logo} alt="StartupA2Z logo" width={140} height={36} className="h-9 w-auto" />
+          <img src={logo} alt="StartupA2Z logo" width={180} height={48} className="h-12 w-auto" />
         </Link>
 
         {/* Desktop links */}
