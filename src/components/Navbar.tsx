@@ -24,10 +24,10 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
         <div className="container-narrow flex items-center justify-between h-16 px-4">
           <Link to="/" className="flex items-center gap-2 font-heading font-bold text-xl tracking-tight text-primary">
-            <span className="gradient-warm inline-flex items-center justify-center w-8 h-8 rounded-lg text-secondary-foreground text-sm font-bold">A</span>
+            <span className="bg-secondary inline-flex items-center justify-center w-8 h-8 rounded-lg text-secondary-foreground text-sm font-bold">A</span>
             Startupa2z
           </Link>
 
@@ -48,7 +48,6 @@ const Navbar = () => {
 
           <div className="hidden lg:block">
             <Button
-              variant="default"
               className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold rounded-full px-6"
               onClick={() => setJoinOpen(true)}
             >
@@ -69,7 +68,7 @@ const Navbar = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-card border-b border-border overflow-hidden"
+              className="lg:hidden bg-background border-b border-border overflow-hidden"
             >
               <div className="container-narrow px-4 py-4 flex flex-col gap-1">
                 {navLinks.map((link) => (
@@ -85,7 +84,6 @@ const Navbar = () => {
                   </Link>
                 ))}
                 <Button
-                  variant="default"
                   className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold rounded-full mt-2"
                   onClick={() => { setOpen(false); setJoinOpen(true); }}
                 >
