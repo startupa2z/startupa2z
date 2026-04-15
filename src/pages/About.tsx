@@ -16,12 +16,12 @@ const values = [
 
 const About = () => (
   <PageLayout>
-    <section className="section-padding gradient-hero text-center">
+    <section className="section-padding gradient-hero-solid text-center" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
       <div className="container-narrow">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-accent/20 text-teal-light">About Us</span>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground tracking-tight mb-6">From A to Z of Startups</h1>
-          <p className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto">Building the most connected startup ecosystem in the Bay Area — one founder, one investor, one idea at a time.</p>
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">About Us</span>
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">From A to Z of Startups</h1>
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto">Building the most connected startup ecosystem in the Bay Area — one founder, one investor, one idea at a time.</p>
         </motion.div>
       </div>
     </section>

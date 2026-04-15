@@ -18,17 +18,17 @@ const benefits = [
 
 const Founders = () => (
   <PageLayout>
-    <section className="section-padding gradient-hero text-center">
+    <section className="section-padding gradient-hero-solid text-center" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
       <div className="container-narrow">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-accent/20 text-teal-light">For Founders</span>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground tracking-tight mb-6">Build Something<br />Extraordinary</h1>
-          <p className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto mb-8">Everything you need to go from idea to funded startup — co-founders, investors, mentors, and a community that has your back.</p>
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">For Founders</span>
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Build Something<br />Extraordinary</h1>
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8">Everything you need to go from idea to funded startup — co-founders, investors, mentors, and a community that has your back.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
               <Link to="/contact">Submit Your Startup <ArrowRight className="ml-2 w-4 h-4" /></Link>
             </Button>
-            <Button asChild variant="outline" className="border-primary-foreground/60 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-full px-8 h-12 text-base font-semibold">
+            <Button asChild variant="outline" className="border-white/40 text-white bg-white/10 hover:bg-white/20 rounded-full px-8 h-12 text-base font-semibold">
               <Link to="/startups">Browse Directory</Link>
             </Button>
           </div>

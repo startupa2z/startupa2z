@@ -18,12 +18,12 @@ const benefits = [
 
 const Investors = () => (
   <PageLayout>
-    <section className="section-padding gradient-hero text-center">
+    <section className="section-padding gradient-hero-solid text-center" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
       <div className="container-narrow">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-accent/20 text-teal-light">For Investors</span>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground tracking-tight mb-6">Find Your Next<br />Portfolio Company</h1>
-          <p className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto mb-8">Discover promising Bay Area startups, connect with exceptional founders, and invest in the future — all in one curated community.</p>
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">For Investors</span>
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Find Your Next<br />Portfolio Company</h1>
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8">Discover promising Bay Area startups, connect with exceptional founders, and invest in the future — all in one curated community.</p>
           <Button asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
             <Link to="/contact">Register as Investor <ArrowRight className="ml-2 w-4 h-4" /></Link>
           </Button>
