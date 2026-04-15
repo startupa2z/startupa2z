@@ -9,24 +9,6 @@ const featuredStartups = [
     stage: "Seed",
     tags: ["CleanTech", "Logistics"],
   },
-  {
-    name: "MedBridge AI",
-    pitch: "AI-powered clinical trial matching platform",
-    stage: "Pre-Seed",
-    tags: ["HealthTech", "AI"],
-  },
-  {
-    name: "Stackbase",
-    pitch: "No-code data infrastructure for SMBs",
-    stage: "Series A",
-    tags: ["DevTools", "SaaS"],
-  },
-  {
-    name: "CultureSync",
-    pitch: "Remote team culture analytics platform",
-    stage: "Seed",
-    tags: ["HR Tech", "Remote"],
-  },
 ];
 
 const resources = [
@@ -36,58 +18,55 @@ const resources = [
 ];
 
 const StartupsSection = () => (
-  <section className="py-24 md:py-32 px-4 bg-muted">
-    <div className="container-narrow">
-      {/* Founder's Library style heading */}
+  <section className="section-padding bg-surface-2">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mb-14"
+        className="mb-[clamp(2rem,4vw,3rem)]"
       >
-        <span className="text-xs font-bold tracking-[0.2em] uppercase text-secondary mb-4 block">
-          The Startup Directory
-        </span>
-        <div className="flex items-end justify-between">
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary leading-tight">
+        <span className="label-overline-muted mb-4 block">The Startup Directory</span>
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-primary flex-1">
             Built for builders.
           </h2>
           <Link
             to="/startups"
-            className="hidden md:flex items-center gap-1 text-sm font-medium text-primary hover:text-secondary transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
           >
             Explore all startups <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </motion.div>
 
-      <div className="grid lg:grid-cols-5 gap-5">
+      <div className="grid lg:grid-cols-[1.4fr_1fr] gap-5">
         {/* Featured large card */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="lg:col-span-2 bg-primary rounded-2xl p-8 flex flex-col justify-between min-h-[380px]"
+          className="bg-foreground rounded-2xl p-[clamp(1.75rem,3vw,2.5rem)] flex flex-col justify-between min-h-[380px] text-white hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300"
         >
           <div>
-            <span className="text-xs font-bold tracking-[0.15em] uppercase text-primary-foreground/60">
+            <span className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-white/40">
               Featured Startup
             </span>
-            <h3 className="font-heading text-2xl md:text-3xl font-bold text-primary-foreground mt-4 mb-4 leading-snug">
+            <h3 className="text-[clamp(1.2rem,2.5vw,1.65rem)] font-extrabold tracking-[-0.025em] leading-[1.2] mt-4 mb-4">
               {featuredStartups[0].name}: {featuredStartups[0].pitch}
             </h3>
-            <p className="text-primary-foreground/60 text-sm leading-relaxed">
+            <p className="text-white/55 text-[0.9rem] leading-[1.65]">
               Discover innovative ideas from Bay Area founders ready to change the world.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 mt-6">
-            <span className="text-xs px-3 py-1 rounded-full bg-primary-foreground/15 text-primary-foreground font-medium">
+            <span className="text-xs px-3 py-1 rounded-full bg-white/15 text-white font-medium">
               {featuredStartups[0].stage}
             </span>
             {featuredStartups[0].tags.map((t) => (
               <span
                 key={t}
-                className="text-xs px-3 py-1 rounded-full bg-primary-foreground/10 text-primary-foreground/70"
+                className="text-xs px-3 py-1 rounded-full bg-white/10 text-white/70"
               >
                 {t}
               </span>
@@ -95,21 +74,19 @@ const StartupsSection = () => (
           </div>
         </motion.div>
 
-        {/* Smaller resource/startup cards */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
+        {/* Resource stack */}
+        <div className="flex flex-col gap-4">
           {resources.map((r, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-background rounded-xl p-6 hover:shadow-md transition-shadow"
+              transition={{ delay: i * 0.08 }}
+              className="bg-surface-1 rounded-2xl p-6 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300"
             >
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-secondary">
-                {r.type}
-              </span>
-              <h4 className="font-heading font-bold text-foreground mt-2 mb-2 text-lg">
+              <span className="label-overline text-secondary">{r.type}</span>
+              <h4 className="font-bold text-foreground mt-2 mb-2 text-[1rem] tracking-[-0.015em]">
                 {r.title}
               </h4>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -117,9 +94,9 @@ const StartupsSection = () => (
                 <span>·</span>
                 <Link
                   to="/resources"
-                  className="font-medium text-primary hover:text-secondary transition-colors"
+                  className="inline-flex items-center gap-1 font-semibold text-primary hover:gap-2 transition-all"
                 >
-                  Read →
+                  Read <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </motion.div>

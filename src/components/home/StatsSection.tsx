@@ -7,9 +7,9 @@ const stats = [
 ];
 
 const StatsSection = () => (
-  <section className="py-24 md:py-32 px-4 bg-muted">
-    <div className="container-narrow">
-      <div className="grid md:grid-cols-3 gap-12 mb-20">
+  <section className="section-padding-sm bg-surface-2">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -18,10 +18,10 @@ const StatsSection = () => (
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
           >
-            <div className="font-heading text-6xl md:text-7xl font-bold text-primary">
+            <div className="text-[clamp(2.5rem,5vw,4rem)] font-black tracking-[-0.03em] text-primary leading-none mb-1">
               {stat.value}
             </div>
-            <div className="text-xs tracking-[0.15em] uppercase text-muted-foreground mt-2">
+            <div className="text-[0.72rem] font-semibold tracking-[0.1em] uppercase text-muted-foreground">
               {stat.label}
             </div>
           </motion.div>
@@ -34,14 +34,15 @@ const StatsSection = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: 0.2 }}
+        className="pt-8 mt-4 col-span-full"
       >
-        <blockquote className="text-2xl md:text-3xl font-body italic text-foreground/80 leading-relaxed max-w-3xl">
+        <blockquote className="text-[clamp(1rem,2vw,1.2rem)] italic text-foreground leading-[1.65] max-w-[620px]">
           "The highest-signal startup community in the Bay Area. Every meetup
           I've attended has changed how I think about building."
         </blockquote>
-        <p className="text-sm text-muted-foreground mt-5">
+        <cite className="block mt-3 text-[0.82rem] not-italic text-muted-foreground font-semibold">
           — Priya S., Founder @ Launchpad AI
-        </p>
+        </cite>
       </motion.div>
     </div>
   </section>

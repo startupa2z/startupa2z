@@ -22,18 +22,16 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => (
-  <section className="py-24 md:py-32 px-4 bg-primary">
-    <div className="container-narrow">
+  <section className="section-padding bg-primary">
+    <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mb-14"
+        className="mb-[clamp(2rem,4vw,3rem)]"
       >
-        <span className="text-xs font-bold tracking-[0.2em] uppercase text-secondary mb-4 block">
-          Testimonials
-        </span>
-        <h2 className="font-heading text-4xl md:text-5xl font-bold text-primary-foreground">
+        <span className="label-overline-white mb-4 block">Testimonials</span>
+        <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-white">
           What Our Community Says
         </h2>
       </motion.div>
@@ -45,17 +43,15 @@ const TestimonialsSection = () => (
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.12 }}
-            className="bg-primary-foreground/5 border border-primary-foreground/10 rounded-xl p-6"
+            transition={{ delay: i * 0.08 }}
+            className="bg-white/5 border border-white/10 rounded-2xl p-[clamp(1.5rem,3vw,2rem)]"
           >
-            <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6 italic">
+            <p className="text-white/80 text-[0.875rem] leading-relaxed mb-6 italic">
               "{t.quote}"
             </p>
             <div>
-              <div className="font-heading font-semibold text-primary-foreground text-sm">
-                {t.name}
-              </div>
-              <div className="text-xs text-primary-foreground/50">{t.role}</div>
+              <div className="font-semibold text-white text-sm">{t.name}</div>
+              <div className="text-[0.78rem] text-white/50">{t.role}</div>
             </div>
           </motion.div>
         ))}
