@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import JoinSheet from "@/components/JoinSheet";
-import logo from "@/assets/logo.png";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -24,10 +23,16 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,5vw,3rem)] flex items-center justify-between gap-8 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
+      <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,5vw,3rem)] flex items-center justify-between gap-8 bg-background/72 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.04)]">
         {/* Logo */}
-        <Link to="/" className="inline-flex items-center hover:-translate-y-px transition-transform">
-          <img src={logo} alt="StartupA2Z logo" width={180} height={48} className="h-12 w-auto" />
+        <Link to="/" className="inline-flex items-center gap-2 text-primary hover:-translate-y-px transition-transform">
+          <svg height="30" width="30" viewBox="0 0 30 30" fill="none" className="text-primary">
+            <rect width="30" height="30" rx="8" fill="currentColor" />
+            <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="15" fontWeight="800" fontFamily="Inter, sans-serif">A</text>
+          </svg>
+          <span className="text-[1.05rem] font-semibold tracking-tight leading-none">
+            Startup<span className="text-secondary font-extrabold">a2z</span>
+          </span>
         </Link>
 
         {/* Desktop links */}
