@@ -44,10 +44,6 @@ const HeroSection = () => (
         transition={{ duration: 0.6 }}
         className="max-w-[720px]"
       >
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-[720px]"
-      >
         {/* Label pill */}
         <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.15em] uppercase text-secondary bg-secondary/[0.12] px-3 py-1.5 rounded-full border border-secondary/30 backdrop-blur-sm mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
