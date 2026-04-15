@@ -45,7 +45,7 @@ const Startups = () => {
 
   return (
     <PageLayout>
-      <section className="section-padding pb-0">
+      <section className="section-padding pb-0" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
         <div className="container-narrow">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
