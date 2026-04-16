@@ -58,7 +58,7 @@ const Events = () => {
                   <div className="flex items-center gap-2"><Clock className="w-4 h-4" /> 10:00 AM - 6:00 PM</div>
                   <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Moscone Center, San Francisco</div>
                 </div>
-                <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full w-fit px-8">RSVP Now</Button>
+                <Button onClick={() => openRSVP(events[4])} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full w-fit px-8">RSVP Now</Button>
               </div>
             </div>
           </motion.div>
