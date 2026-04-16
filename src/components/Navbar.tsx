@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import JoinSheet from "@/components/JoinSheet";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
@@ -19,7 +18,6 @@ const navLinks = [
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const [joinOpen, setJoinOpen] = useState(false);
   const location = useLocation();
 
   return (
@@ -48,12 +46,12 @@ const Navbar = () => {
         </div>
 
         {/* CTA */}
-        <button
-          onClick={() => setJoinOpen(true)}
+        <Link
+          to="/contact"
           className="hidden lg:inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold tracking-tight hover:opacity-85 hover:-translate-y-px active:scale-[0.97] transition-all"
         >
           Join Now
-        </button>
+        </Link>
 
         {/* Mobile toggle */}
         <button className="lg:hidden p-2" onClick={() => setOpen(!open)}>
@@ -88,17 +86,16 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <button
-              onClick={() => { setOpen(false); setJoinOpen(true); }}
+            <Link
+              to="/contact"
+              onClick={() => setOpen(false)}
               className="mt-4 inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-base font-semibold"
             >
               Join Now
-            </button>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <JoinSheet open={joinOpen} onOpenChange={setJoinOpen} />
     </>
   );
 };
