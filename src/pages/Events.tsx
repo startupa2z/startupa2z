@@ -93,7 +93,7 @@ const Events = () => {
                     <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> {e.type}</span>
                   </div>
                 </div>
-                <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
+                <Button onClick={() => openRSVP(e)} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
               </AnimatedCard>
             ))}
           </div>
