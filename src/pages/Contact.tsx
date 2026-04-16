@@ -45,13 +45,29 @@ const Contact = () => {
               <h3 className="font-heading text-2xl font-bold text-primary mb-6">Send Us a Message</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <Input placeholder="First name" required className="rounded-xl h-12" />
-                  <Input placeholder="Last name" required className="rounded-xl h-12" />
+                  <Input placeholder="First name *" required className="rounded-xl h-12" />
+                  <Input placeholder="Last name *" required className="rounded-xl h-12" />
                 </div>
-                <Input placeholder="Email address" type="email" required className="rounded-xl h-12" />
+                <Input placeholder="Email address *" type="email" required className="rounded-xl h-12" />
+                <Input placeholder="LinkedIn Profile (optional)" type="url" className="rounded-xl h-12" />
                 <Select>
                   <SelectTrigger className="rounded-xl h-12">
-                    <SelectValue placeholder="Inquiry type" />
+                    <SelectValue placeholder="I am a..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="founder">Founder</SelectItem>
+                    <SelectItem value="cofounder">Co-founder</SelectItem>
+                    <SelectItem value="investor">Investor</SelectItem>
+                    <SelectItem value="mentor">Mentor / Advisor</SelectItem>
+                    <SelectItem value="operator">Operator / Employee</SelectItem>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="service-provider">Service Provider</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select required>
+                  <SelectTrigger className="rounded-xl h-12">
+                    <SelectValue placeholder="Inquiry type *" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="join">Join the Community</SelectItem>
@@ -63,7 +79,7 @@ const Contact = () => {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
-                <Textarea placeholder="Your message" required className="rounded-xl min-h-[120px]" />
+                <Textarea placeholder="Your message" className="rounded-xl min-h-[120px]" />
                 <Button type="submit" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold w-full sm:w-auto">
                   Send Message <Send className="ml-2 w-4 h-4" />
                 </Button>
