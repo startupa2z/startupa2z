@@ -3,10 +3,13 @@ import PageLayout from "@/components/PageLayout";
 import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
+import RSVPDialog from "@/components/RSVPDialog";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, Tag, List, Grid3X3 } from "lucide-react";
 import eventsImg from "@/assets/events.jpg";
+
+type EventItem = { title: string; date: string; time: string; venue: string; type: string; desc: string; featured: boolean };
 
 const events = [
   { title: "Founder Friday: AI Edition", date: "April 18, 2026", time: "6:00 PM - 9:00 PM", venue: "SOMA, San Francisco", type: "Networking", desc: "Connect with AI founders, demo products, and discuss the future of artificial intelligence in the Bay Area.", featured: true },
