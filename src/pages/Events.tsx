@@ -22,6 +22,14 @@ const events = [
 
 const Events = () => {
   const [view, setView] = useState<"list" | "grid">("grid");
+  const [rsvpOpen, setRsvpOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+
+  const openRSVP = (event: EventItem) => {
+    setSelectedEvent(event);
+    setRsvpOpen(true);
+  };
+
 
   return (
     <PageLayout>
