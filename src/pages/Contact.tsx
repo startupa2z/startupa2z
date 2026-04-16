@@ -116,14 +116,6 @@ const Contact = () => {
                 ))}
               </div>
 
-              <div className="glass-card p-6 mt-8">
-                <h4 className="font-heading font-semibold text-primary mb-2">Newsletter</h4>
-                <p className="text-sm text-muted-foreground mb-3">Weekly startup ecosystem updates from the Bay Area.</p>
-                <div className="flex gap-2">
-                  <Input placeholder="Your email" className="rounded-full" />
-                  <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-5 shrink-0">Subscribe</Button>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
