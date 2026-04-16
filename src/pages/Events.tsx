@@ -101,6 +101,7 @@ const Events = () => {
       </section>
 
       <CTABanner title="Want to Host an Event?" description="Partner with Startupa2z to host meetups, workshops, or pitch nights for the Bay Area community." primaryCTA="Get in Touch" />
+      <RSVPDialog open={rsvpOpen} onOpenChange={setRsvpOpen} event={selectedEvent} />
     </PageLayout>
   );
 };
