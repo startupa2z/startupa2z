@@ -3,10 +3,13 @@ import PageLayout from "@/components/PageLayout";
 import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
+import RSVPDialog from "@/components/RSVPDialog";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, Tag, List, Grid3X3 } from "lucide-react";
 import eventsImg from "@/assets/events.jpg";
+
+type EventItem = { title: string; date: string; time: string; venue: string; type: string; desc: string; featured: boolean };
 
 const events = [
   { title: "Founder Friday: AI Edition", date: "April 18, 2026", time: "6:00 PM - 9:00 PM", venue: "SOMA, San Francisco", type: "Networking", desc: "Connect with AI founders, demo products, and discuss the future of artificial intelligence in the Bay Area.", featured: true },
@@ -19,6 +22,14 @@ const events = [
 
 const Events = () => {
   const [view, setView] = useState<"list" | "grid">("grid");
+  const [rsvpOpen, setRsvpOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+
+  const openRSVP = (event: EventItem) => {
+    setSelectedEvent(event);
+    setRsvpOpen(true);
+  };
+
 
   return (
     <PageLayout>
@@ -47,7 +58,7 @@ const Events = () => {
                   <div className="flex items-center gap-2"><Clock className="w-4 h-4" /> 10:00 AM - 6:00 PM</div>
                   <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Moscone Center, San Francisco</div>
                 </div>
-                <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full w-fit px-8">RSVP Now</Button>
+                <Button onClick={() => openRSVP(events[4])} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full w-fit px-8">RSVP Now</Button>
               </div>
             </div>
           </motion.div>
@@ -82,7 +93,7 @@ const Events = () => {
                     <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> {e.type}</span>
                   </div>
                 </div>
-                <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
+                <Button onClick={() => openRSVP(e)} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
               </AnimatedCard>
             ))}
           </div>
@@ -90,6 +101,7 @@ const Events = () => {
       </section>
 
       <CTABanner title="Want to Host an Event?" description="Partner with Startupa2z to host meetups, workshops, or pitch nights for the Bay Area community." primaryCTA="Get in Touch" />
+      <RSVPDialog open={rsvpOpen} onOpenChange={setRsvpOpen} event={selectedEvent} />
     </PageLayout>
   );
 };
