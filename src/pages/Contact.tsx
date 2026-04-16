@@ -14,6 +14,8 @@ const faqs = [
   { q: "Is Startupa2z free?", a: "Our core community membership and most events are free. Some premium workshops and conferences may have a nominal fee." },
   { q: "Can I list my startup in the directory?", a: "Yes! Submit your startup details through the contact form, selecting 'Submit a Startup' as the inquiry type. We'll review and list it within 48 hours." },
   { q: "I'm an investor. How do I get involved?", a: "Register as an investor through this form. We'll connect you with our investor network and invite you to exclusive deal flow events." },
+  { q: "Do you offer mentorship for early-stage founders?", a: "Yes. We pair early-stage founders with experienced operators and investors from the Bay Area. Select 'Join the Community' and mention you're looking for mentorship in your message." },
+  { q: "How can my company sponsor or partner with Startupa2z?", a: "We work with companies on event sponsorships, ecosystem partnerships, and co-hosted programs. Reach out via the form with 'Sponsorship' or 'Partnership Inquiry' selected and our team will follow up within a few business days." },
 ];
 
 const Contact = () => {
@@ -114,14 +116,6 @@ const Contact = () => {
                 ))}
               </div>
 
-              <div className="glass-card p-6 mt-8">
-                <h4 className="font-heading font-semibold text-primary mb-2">Newsletter</h4>
-                <p className="text-sm text-muted-foreground mb-3">Weekly startup ecosystem updates from the Bay Area.</p>
-                <div className="flex gap-2">
-                  <Input placeholder="Your email" className="rounded-full" />
-                  <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-5 shrink-0">Subscribe</Button>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
