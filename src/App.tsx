@@ -12,6 +12,8 @@ import Events from "./pages/Events.tsx";
 import Community from "./pages/Community.tsx";
 import Resources from "./pages/Resources.tsx";
 import Contact from "./pages/Contact.tsx";
+import AdminLogin from "./pages/AdminLogin.tsx";
+import AdminSubmissions from "./pages/AdminSubmissions.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/submissions" element={<AdminSubmissions />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
