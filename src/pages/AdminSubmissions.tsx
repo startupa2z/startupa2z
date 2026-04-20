@@ -103,6 +103,10 @@ const AdminSubmissions = () => {
   const [editingEvent, setEditingEvent] = useState<EditableEvent | null>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [rsvps, setRsvps] = useState<AdminRSVP[]>([]);
+  const [rsvpsLoading, setRsvpsLoading] = useState(false);
+  const [rsvpSearch, setRsvpSearch] = useState("");
+  const [rsvpEventFilter, setRsvpEventFilter] = useState<string>("all");
 
   const handleEditEvent = async (id: string) => {
     setEditOpen(true);
