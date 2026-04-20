@@ -444,6 +444,12 @@ const AdminSubmissions = () => {
                 {adminEvents.length}
               </Badge>
             </TabsTrigger>
+            <TabsTrigger value="rsvps" className="gap-2">
+              <Users className="h-4 w-4" /> RSVPs
+              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                {rsvps.length}
+              </Badge>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="submissions" className="space-y-4">
