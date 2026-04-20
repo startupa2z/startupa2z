@@ -61,6 +61,7 @@ export type Database = {
           description: string
           featured: boolean
           id: string
+          image_url: string | null
           long_description: string
           price: string
           slug: string
@@ -82,6 +83,7 @@ export type Database = {
           description?: string
           featured?: boolean
           id?: string
+          image_url?: string | null
           long_description?: string
           price?: string
           slug: string
@@ -103,6 +105,7 @@ export type Database = {
           description?: string
           featured?: boolean
           id?: string
+          image_url?: string | null
           long_description?: string
           price?: string
           slug?: string

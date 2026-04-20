@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Plus } from "lucide-react";
+import { ImagePlus, Loader2, Plus, X } from "lucide-react";
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 const slugify = (s: string) =>
   s
@@ -61,6 +64,9 @@ const parseSpeakers = (text: string) =>
 
 const EventForm = ({ onCreated }: Props) => {
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     title: "",
     date: "",
@@ -80,6 +86,43 @@ const EventForm = ({ onCreated }: Props) => {
 
   const update = (k: keyof typeof form, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({ title: "Unsupported image", description: "Use JPG, PNG, WebP or GIF.", variant: "destructive" });
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast({ title: "Image too large", description: "Max size is 5 MB.", variant: "destructive" });
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const uploadImage = async (slug: string): Promise<string | null> => {
+    if (!imageFile) return null;
+    const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${slug}-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("event-images")
+      .upload(path, imageFile, { contentType: imageFile.type, upsert: false });
+    if (uploadError) {
+      toast({ title: "Image upload failed", description: uploadError.message, variant: "destructive" });
+      return null;
+    }
+    const { data } = supabase.storage.from("event-images").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
@@ -93,9 +136,20 @@ const EventForm = ({ onCreated }: Props) => {
     }
 
     setSubmitting(true);
+    const slug = slugify(parsed.data.title) + "-" + Math.random().toString(36).slice(2, 6);
+
+    let imageUrl: string | null = null;
+    if (imageFile) {
+      imageUrl = await uploadImage(slug);
+      if (!imageUrl) {
+        setSubmitting(false);
+        return; // upload failed, toast already shown
+      }
+    }
+
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase.from("events").insert({
-      slug: slugify(parsed.data.title) + "-" + Math.random().toString(36).slice(2, 6),
+      slug,
       title: parsed.data.title,
       date: parsed.data.date,
       time: parsed.data.time,
@@ -110,6 +164,7 @@ const EventForm = ({ onCreated }: Props) => {
       featured: parsed.data.featured,
       agenda: parseAgenda(parsed.data.agenda_text ?? ""),
       speakers: parseSpeakers(parsed.data.speakers_text ?? ""),
+      image_url: imageUrl,
       created_by: userData.user?.id ?? null,
     });
     setSubmitting(false);
@@ -135,6 +190,7 @@ const EventForm = ({ onCreated }: Props) => {
       agenda_text: "",
       speakers_text: "",
     });
+    clearImage();
     onCreated?.();
   };
 
@@ -176,6 +232,34 @@ const EventForm = ({ onCreated }: Props) => {
           <Switch checked={form.featured} onCheckedChange={(v) => update("featured", v)} />
         </div>
       </div>
+
+      <Field label="Cover image" hint="JPG, PNG, WebP or GIF · max 5 MB. Shown on the events list and detail page.">
+        {imagePreview ? (
+          <div className="relative w-full max-w-sm">
+            <img src={imagePreview} alt="Event cover preview" className="w-full h-44 object-cover rounded-lg border" />
+            <button
+              type="button"
+              onClick={clearImage}
+              className="absolute top-2 right-2 inline-flex items-center justify-center h-7 w-7 rounded-full bg-background/90 border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+              aria-label="Remove image"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center gap-2 w-full max-w-sm h-32 rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-primary/60 hover:bg-muted/30 cursor-pointer transition-colors">
+            <ImagePlus className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Click to upload cover image</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </label>
+        )}
+      </Field>
 
       <Field label="Short description">
         <Textarea
