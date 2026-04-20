@@ -349,6 +349,19 @@ const AdminSubmissions = () => {
     return Array.from(map.entries()).map(([slug, title]) => ({ slug, title }));
   }, [rsvps]);
 
+  const rsvpCountBySlug = useMemo(() => {
+    const map = new Map<string, number>();
+    rsvps.forEach((r) => {
+      map.set(r.event_slug, (map.get(r.event_slug) ?? 0) + 1);
+    });
+    return map;
+  }, [rsvps]);
+
+  const attendeesForSelected = useMemo(() => {
+    if (!attendeesEvent) return [];
+    return rsvps.filter((r) => r.event_slug === attendeesEvent.slug);
+  }, [rsvps, attendeesEvent]);
+
   // Stats
   const stats = useMemo(() => {
     const today = new Date();
