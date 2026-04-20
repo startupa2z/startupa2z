@@ -820,6 +820,70 @@ const AdminSubmissions = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Sheet open={attendeesOpen} onOpenChange={setAttendeesOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
+          <SheetHeader>
+            <SheetTitle className="truncate">{attendeesEvent?.title ?? "Attendees"}</SheetTitle>
+            <SheetDescription>
+              {attendeesForSelected.length} {attendeesForSelected.length === 1 ? "person" : "people"} RSVP'd
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4 flex-1 overflow-y-auto -mx-6 px-6">
+            {attendeesForSelected.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p className="text-sm">No RSVPs yet for this event.</p>
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {attendeesForSelected.map((a) => (
+                  <li
+                    key={a.id}
+                    className="rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">
+                          {a.first_name} {a.last_name !== "—" ? a.last_name : ""}
+                        </p>
+                        <a
+                          href={`mailto:${a.email}`}
+                          className="text-xs text-primary hover:underline break-all"
+                        >
+                          {a.email}
+                        </a>
+                        {(a.company || a.role) && (
+                          <p className="text-xs text-muted-foreground mt-1 truncate">
+                            {[a.role, a.company].filter(Boolean).join(" • ")}
+                          </p>
+                        )}
+                        {a.notes && (
+                          <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">
+                            "{a.notes}"
+                          </p>
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1.5">
+                          {new Date(a.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                        onClick={() => handleDeleteRSVP(a.id, `${a.first_name} ${a.last_name}`)}
+                        aria-label="Remove RSVP"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
