@@ -158,7 +158,11 @@ const EventDetail = () => {
                     <Users className="w-5 h-5 text-secondary mt-0.5" />
                     <div>
                       <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Availability</div>
-                      <div className="font-semibold text-primary">{event.spots} spots left</div>
+                      {event.spots <= 0 ? (
+                        <div className="font-semibold text-destructive">Sold out</div>
+                      ) : (
+                        <div className="font-semibold text-primary">{event.spots} spots left</div>
+                      )}
                       <div className="text-xs text-muted-foreground">of {event.capacity} total</div>
                     </div>
                   </div>
