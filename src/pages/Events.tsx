@@ -124,7 +124,18 @@ const Events = () => {
                         <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> {e.type}</span>
                       </div>
                     </div>
-                    <Button onClick={(ev) => openRSVP(ev, e)} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
+                    {e.spots <= 0 ? (
+                      <Button
+                        disabled
+                        size="sm"
+                        onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); }}
+                        className="rounded-full mt-4 md:mt-0 w-fit bg-muted text-muted-foreground hover:bg-muted"
+                      >
+                        Sold out
+                      </Button>
+                    ) : (
+                      <Button onClick={(ev) => openRSVP(ev, e)} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
+                    )}
                   </div>
                 </AnimatedCard>
               </Link>
