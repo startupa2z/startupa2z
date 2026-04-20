@@ -98,7 +98,7 @@ const EventDetail = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                src={eventsImg}
+                src={event.imageUrl || eventsImg}
                 alt={event.title}
                 className="w-full h-72 md:h-96 object-cover rounded-2xl"
                 loading="lazy"

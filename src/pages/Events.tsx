@@ -58,7 +58,7 @@ const Events = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl overflow-hidden glass-card">
             <div className="grid md:grid-cols-2">
               <Link to={`/events/${featured.slug}`} className="block">
-                <img src={eventsImg} alt={`${featured.title} event`} className="w-full h-64 md:h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" width={1280} height={720} />
+                <img src={featured.imageUrl || eventsImg} alt={`${featured.title} event`} className="w-full h-64 md:h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" width={1280} height={720} />
               </Link>
               <div className="p-8 md:p-10 flex flex-col justify-center">
                 <span className="text-xs font-semibold tracking-widest uppercase text-secondary mb-2">{featured.date}</span>
@@ -96,22 +96,32 @@ const Events = () => {
           <div className={view === "grid" ? "grid sm:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
             {events.map((e, i) => (
               <Link key={e.slug} to={`/events/${e.slug}`} className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-2xl">
-                <AnimatedCard delay={i * 0.08} className={`h-full transition-all group-hover:-translate-y-1 group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.09)] ${view === "list" ? "flex flex-col md:flex-row md:items-center md:justify-between gap-4" : ""}`}>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-4 h-4 text-secondary" />
-                      <span className="text-sm font-medium text-secondary">{e.date}</span>
-                      {e.featured && <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-medium">Featured</span>}
-                    </div>
-                    <h3 className="font-heading font-semibold text-primary mb-1 group-hover:text-secondary transition-colors">{e.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{e.desc}</p>
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {e.time}</span>
-                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {e.venue}</span>
-                      <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> {e.type}</span>
-                    </div>
+                <AnimatedCard delay={i * 0.08} className={`h-full overflow-hidden p-0 transition-all group-hover:-translate-y-1 group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.09)] ${view === "list" ? "flex flex-col md:flex-row md:items-stretch" : ""}`}>
+                  <div className={view === "list" ? "md:w-56 md:flex-shrink-0" : ""}>
+                    <img
+                      src={e.imageUrl || eventsImg}
+                      alt={`${e.title} cover`}
+                      loading="lazy"
+                      className={`w-full object-cover ${view === "list" ? "h-40 md:h-full" : "h-44"}`}
+                    />
                   </div>
-                  <Button onClick={(ev) => openRSVP(ev, e)} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
+                  <div className={`flex-1 p-5 ${view === "list" ? "md:flex md:items-center md:justify-between md:gap-4" : ""}`}>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="w-4 h-4 text-secondary" />
+                        <span className="text-sm font-medium text-secondary">{e.date}</span>
+                        {e.featured && <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-medium">Featured</span>}
+                      </div>
+                      <h3 className="font-heading font-semibold text-primary mb-1 group-hover:text-secondary transition-colors">{e.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{e.desc}</p>
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {e.time}</span>
+                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {e.venue}</span>
+                        <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> {e.type}</span>
+                      </div>
+                    </div>
+                    <Button onClick={(ev) => openRSVP(ev, e)} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit">RSVP</Button>
+                  </div>
                 </AnimatedCard>
               </Link>
             ))}
