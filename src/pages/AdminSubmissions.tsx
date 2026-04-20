@@ -628,13 +628,25 @@ const AdminSubmissions = () => {
                             <p className="text-xs text-muted-foreground mt-0.5 truncate">
                               {ev.date} • {ev.venue}
                             </p>
-                            <div className="flex flex-wrap gap-1.5 mt-2">
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
                               <Badge variant="secondary" className="text-[10px]">{ev.type}</Badge>
                               {ev.featured && (
                                 <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">
                                   Featured
                                 </Badge>
                               )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAttendeesEvent({ slug: ev.slug, title: ev.title });
+                                  setAttendeesOpen(true);
+                                }}
+                                className="inline-flex items-center gap-1 rounded-full bg-accent/40 hover:bg-accent/70 transition-colors px-2 py-0.5 text-[10px] font-medium text-foreground"
+                                aria-label={`View ${rsvpCountBySlug.get(ev.slug) ?? 0} attendees`}
+                              >
+                                <Users className="h-3 w-3" />
+                                {rsvpCountBySlug.get(ev.slug) ?? 0} RSVP{(rsvpCountBySlug.get(ev.slug) ?? 0) === 1 ? "" : "s"}
+                              </button>
                             </div>
                           </div>
                           <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
