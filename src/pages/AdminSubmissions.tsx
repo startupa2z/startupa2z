@@ -320,6 +320,25 @@ const AdminSubmissions = () => {
     });
   }, [rows, sortKey, sortDir, search]);
 
+  const filteredRsvps = useMemo(() => {
+    return rsvps.filter((r) => {
+      if (rsvpEventFilter !== "all" && r.event_slug !== rsvpEventFilter) return false;
+      if (!rsvpSearch) return true;
+      const q = rsvpSearch.toLowerCase();
+      return [r.first_name, r.last_name, r.email, r.company, r.role, r.event_title, r.notes]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(q));
+    });
+  }, [rsvps, rsvpSearch, rsvpEventFilter]);
+
+  const rsvpEventOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    rsvps.forEach((r) => {
+      if (!map.has(r.event_slug)) map.set(r.event_slug, r.event_title);
+    });
+    return Array.from(map.entries()).map(([slug, title]) => ({ slug, title }));
+  }, [rsvps]);
+
   // Stats
   const stats = useMemo(() => {
     const today = new Date();
