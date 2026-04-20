@@ -14,15 +14,24 @@ import {
   ArrowUpDown,
   CalendarDays,
   Inbox,
+  Loader2,
   LogOut,
   Mail,
+  Pencil,
   Search,
   ShieldAlert,
   Sparkles,
   Trash2,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
-import EventForm from "@/components/admin/EventForm";
+import EventForm, { type EditableEvent } from "@/components/admin/EventForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Submission = {
   id: string;
@@ -74,6 +83,45 @@ const AdminSubmissions = () => {
   const [search, setSearch] = useState("");
   const [adminEvents, setAdminEvents] = useState<AdminEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EditableEvent | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const handleEditEvent = async (id: string) => {
+    setEditOpen(true);
+    setEditingEvent(null);
+    setEditLoading(true);
+    const { data, error } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+    setEditLoading(false);
+    if (error || !data) {
+      toast({
+        title: "Could not load event",
+        description: error?.message ?? "Event not found.",
+        variant: "destructive",
+      });
+      setEditOpen(false);
+      return;
+    }
+    setEditingEvent({
+      id: data.id,
+      slug: data.slug,
+      title: data.title,
+      date: data.date,
+      time: data.time,
+      venue: data.venue,
+      address: data.address,
+      type: data.type,
+      description: data.description,
+      long_description: data.long_description,
+      spots: data.spots,
+      capacity: data.capacity,
+      price: data.price,
+      featured: data.featured,
+      agenda: Array.isArray(data.agenda) ? (data.agenda as { time: string; item: string }[]) : [],
+      speakers: Array.isArray(data.speakers) ? (data.speakers as { name: string; role: string }[]) : [],
+      image_url: data.image_url,
+    });
+  };
 
   const fetchEvents = async () => {
     setEventsLoading(true);
@@ -463,15 +511,26 @@ const AdminSubmissions = () => {
                               )}
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleDeleteEvent(ev.id, ev.title)}
-                            aria-label="Delete event"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-primary"
+                              onClick={() => handleEditEvent(ev.id)}
+                              aria-label="Edit event"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => handleDeleteEvent(ev.id, ev.title)}
+                              aria-label="Delete event"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </li>
                     ))}
@@ -482,6 +541,31 @@ const AdminSubmissions = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit event</DialogTitle>
+            <DialogDescription>
+              Update any field below. Changes go live on /events immediately after saving.
+            </DialogDescription>
+          </DialogHeader>
+          {editLoading || !editingEvent ? (
+            <div className="py-12 flex items-center justify-center text-muted-foreground gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading event…
+            </div>
+          ) : (
+            <EventForm
+              event={editingEvent}
+              onSaved={() => {
+                setEditOpen(false);
+                setEditingEvent(null);
+                fetchEvents();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
