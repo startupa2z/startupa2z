@@ -511,15 +511,26 @@ const AdminSubmissions = () => {
                               )}
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleDeleteEvent(ev.id, ev.title)}
-                            aria-label="Delete event"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-primary"
+                              onClick={() => handleEditEvent(ev.id)}
+                              aria-label="Edit event"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => handleDeleteEvent(ev.id, ev.title)}
+                              aria-label="Delete event"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </li>
                     ))}
@@ -530,6 +541,31 @@ const AdminSubmissions = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit event</DialogTitle>
+            <DialogDescription>
+              Update any field below. Changes go live on /events immediately after saving.
+            </DialogDescription>
+          </DialogHeader>
+          {editLoading || !editingEvent ? (
+            <div className="py-12 flex items-center justify-center text-muted-foreground gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading event…
+            </div>
+          ) : (
+            <EventForm
+              event={editingEvent}
+              onSaved={() => {
+                setEditOpen(false);
+                setEditingEvent(null);
+                fetchEvents();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
