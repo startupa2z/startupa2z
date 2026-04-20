@@ -12,14 +12,17 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  CalendarDays,
   Inbox,
   LogOut,
   Mail,
   Search,
   ShieldAlert,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
+import EventForm from "@/components/admin/EventForm";
 
 type Submission = {
   id: string;
