@@ -183,9 +183,15 @@ const EventDetail = () => {
                   </div>
                 </div>
 
-                <Button onClick={() => setRsvpOpen(true)} className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2">
-                  RSVP Now
-                </Button>
+                {event.spots <= 0 ? (
+                  <Button disabled className="w-full rounded-full mb-2 bg-muted text-muted-foreground hover:bg-muted">
+                    Sold out
+                  </Button>
+                ) : (
+                  <Button onClick={() => setRsvpOpen(true)} className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2">
+                    RSVP Now
+                  </Button>
+                )}
                 <Button onClick={handleShare} variant="outline" className="w-full rounded-full">
                   <Share2 className="w-4 h-4 mr-2" /> Share event
                 </Button>
