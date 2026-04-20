@@ -187,8 +187,8 @@ const HeroSection = () => {
               <div className="text-[0.82rem] text-muted-foreground mb-6">
                 {displayEvent.venue}
               </div>
-              <div className="text-[0.75rem] font-semibold text-primary mb-4">
-                {displayEvent.spots} spots remaining
+              <div className={`text-[0.75rem] font-semibold mb-4 ${displayEvent.spots <= 0 ? "text-destructive uppercase tracking-wider" : "text-primary"}`}>
+                {displayEvent.spots <= 0 ? "Sold out" : `${displayEvent.spots} spots remaining`}
               </div>
               <Link
                 to={`/events/${displayEvent.slug}`}
