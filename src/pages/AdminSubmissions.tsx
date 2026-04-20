@@ -47,6 +47,7 @@ type AdminEvent = {
   type: string;
   venue: string;
   featured: boolean;
+  image_url: string | null;
   created_at: string;
 };
 
@@ -430,7 +431,19 @@ const AdminSubmissions = () => {
                         key={ev.id}
                         className="group rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
                       >
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          {ev.image_url ? (
+                            <img
+                              src={ev.image_url}
+                              alt={`${ev.title} cover`}
+                              className="h-14 w-14 rounded-md object-cover flex-shrink-0 border"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="h-14 w-14 rounded-md bg-muted flex-shrink-0 flex items-center justify-center text-muted-foreground">
+                              <CalendarDays className="h-5 w-5 opacity-60" />
+                            </div>
+                          )}
                           <div className="min-w-0 flex-1">
                             <Link
                               to={`/events/${ev.slug}`}
