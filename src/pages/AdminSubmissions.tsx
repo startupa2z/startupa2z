@@ -254,6 +254,7 @@ const AdminSubmissions = () => {
       if (admin) {
         await fetchSubmissions();
         await fetchEvents();
+        await fetchRSVPs();
       }
     };
 
