@@ -233,6 +233,34 @@ const EventForm = ({ onCreated }: Props) => {
         </div>
       </div>
 
+      <Field label="Cover image" hint="JPG, PNG, WebP or GIF · max 5 MB. Shown on the events list and detail page.">
+        {imagePreview ? (
+          <div className="relative w-full max-w-sm">
+            <img src={imagePreview} alt="Event cover preview" className="w-full h-44 object-cover rounded-lg border" />
+            <button
+              type="button"
+              onClick={clearImage}
+              className="absolute top-2 right-2 inline-flex items-center justify-center h-7 w-7 rounded-full bg-background/90 border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+              aria-label="Remove image"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center gap-2 w-full max-w-sm h-32 rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-primary/60 hover:bg-muted/30 cursor-pointer transition-colors">
+            <ImagePlus className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Click to upload cover image</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </label>
+        )}
+      </Field>
+
       <Field label="Short description">
         <Textarea
           rows={2}
