@@ -60,6 +60,33 @@ const AdminSubmissions = () => {
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
+  const [adminEvents, setAdminEvents] = useState<AdminEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+
+  const fetchEvents = async () => {
+    setEventsLoading(true);
+    const { data, error } = await supabase
+      .from("events")
+      .select("id, slug, title, date, type, venue, featured, created_at")
+      .order("created_at", { ascending: false });
+    setEventsLoading(false);
+    if (error) {
+      toast({ title: "Failed to load events", description: error.message, variant: "destructive" });
+      return;
+    }
+    setAdminEvents((data ?? []) as AdminEvent[]);
+  };
+
+  const handleDeleteEvent = async (id: string, title: string) => {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("events").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Event deleted" });
+    fetchEvents();
+  };
 
   useEffect(() => {
     document.title = "Admin Dashboard | Startupa2z";
