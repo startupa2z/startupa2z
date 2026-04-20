@@ -273,9 +273,26 @@ const AdminSubmissions = () => {
 
     supabase.auth.getSession().then(({ data: { session } }) => init(session));
 
+    const channel = supabase
+      .channel("contact_submissions_admin")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "contact_submissions" },
+        (payload) => {
+          const s = payload.new as Submission;
+          setRows((prev) => (prev.some((r) => r.id === s.id) ? prev : [s, ...prev]));
+          toast({
+            title: "New contact submission",
+            description: `${s.first_name} ${s.last_name} • ${s.inquiry_type}`,
+          });
+        }
+      )
+      .subscribe();
+
     return () => {
       active = false;
       sub.subscription.unsubscribe();
+      supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
