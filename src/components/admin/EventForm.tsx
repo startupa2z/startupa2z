@@ -259,8 +259,10 @@ const EventForm = ({ event, onSaved, onCreated }: Props) => {
     };
 
     if (isEdit) {
-      const updatePayload: Record<string, unknown> = { ...basePayload };
-      if (imageUrlToSave !== undefined) updatePayload.image_url = imageUrlToSave;
+      const updatePayload = {
+        ...basePayload,
+        ...(imageUrlToSave !== undefined ? { image_url: imageUrlToSave } : {}),
+      };
 
       const { error } = await supabase.from("events").update(updatePayload).eq("id", event!.id);
       setSubmitting(false);
