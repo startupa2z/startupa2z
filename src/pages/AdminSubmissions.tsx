@@ -14,15 +14,24 @@ import {
   ArrowUpDown,
   CalendarDays,
   Inbox,
+  Loader2,
   LogOut,
   Mail,
+  Pencil,
   Search,
   ShieldAlert,
   Sparkles,
   Trash2,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
-import EventForm from "@/components/admin/EventForm";
+import EventForm, { type EditableEvent } from "@/components/admin/EventForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Submission = {
   id: string;
