@@ -62,6 +62,21 @@ type AdminEvent = {
   created_at: string;
 };
 
+type AdminRSVP = {
+  id: string;
+  event_id: string | null;
+  event_slug: string;
+  event_title: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+  role: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "created_at", label: "Submitted" },
   { key: "first_name", label: "First name" },
