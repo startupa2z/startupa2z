@@ -162,15 +162,30 @@ const EventsSection = () => {
                   {event.desc}
                 </p>
                 <div className="flex items-center justify-between mt-auto pt-5">
-                  <span className="text-[0.75rem] font-semibold text-primary">
-                    {event.spots} spots left
-                  </span>
-                  <Link
-                    to={`/events/${event.slug}`}
-                    className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
-                  >
-                    RSVP <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  {event.spots <= 0 ? (
+                    <span className="text-[0.75rem] font-semibold text-destructive uppercase tracking-wider">
+                      Sold out
+                    </span>
+                  ) : (
+                    <span className="text-[0.75rem] font-semibold text-primary">
+                      {event.spots} spots left
+                    </span>
+                  )}
+                  {event.spots <= 0 ? (
+                    <Link
+                      to={`/events/${event.slug}`}
+                      className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Details <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  ) : (
+                    <Link
+                      to={`/events/${event.slug}`}
+                      className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
+                    >
+                      RSVP <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  )}
                 </div>
               </motion.div>
             ))}
