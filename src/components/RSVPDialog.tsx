@@ -8,11 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, MapPin, Clock, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RSVPDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event: {
+    id?: string;
+    slug?: string;
     title: string;
     date: string;
     time?: string;
@@ -61,14 +64,47 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
       return;
     }
 
+    if (!event) return;
+
     setSubmitting(true);
-    // Simulate submission
-    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Split full name into first/last for storage
+    const trimmed = formData.name.trim();
+    const firstSpace = trimmed.indexOf(" ");
+    const firstName = firstSpace === -1 ? trimmed : trimmed.slice(0, firstSpace);
+    const lastName = firstSpace === -1 ? "—" : trimmed.slice(firstSpace + 1).trim() || "—";
+
+    const guestsNote = formData.guests && formData.guests !== "1" ? `Guests: ${formData.guests}` : "";
+    const combinedNotes = [guestsNote, formData.notes?.trim()].filter(Boolean).join(" | ");
+
+    const { error } = await supabase.from("event_rsvps").insert({
+      event_id: event.id ?? null,
+      event_slug: event.slug ?? "unknown",
+      event_title: event.title,
+      first_name: firstName,
+      last_name: lastName,
+      email: formData.email.trim(),
+      phone: formData.phone?.trim() || null,
+      company: formData.company?.trim() || null,
+      role: formData.role,
+      notes: combinedNotes || null,
+    });
+
     setSubmitting(false);
+
+    if (error) {
+      toast({
+        title: "RSVP failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitted(true);
     toast({
       title: "RSVP Confirmed!",
-      description: `You're registered for ${event?.title}. Check your email for details.`,
+      description: `You're registered for ${event.title}. Check your email for details.`,
     });
   };
 
