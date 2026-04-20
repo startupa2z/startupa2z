@@ -1,6 +1,5 @@
 import { useState } from "react";
 import PageLayout from "@/components/PageLayout";
-import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, MapPin, Send, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const faqs = [
   { q: "How do I join Startupa2z?", a: "Simply fill out the contact form on this page or attend one of our open events. We'll get you connected with the right community group." },
@@ -18,13 +19,84 @@ const faqs = [
   { q: "How can my company sponsor or partner with Startupa2z?", a: "We work with companies on event sponsorships, ecosystem partnerships, and co-hosted programs. Reach out via the form with 'Sponsorship' or 'Partnership Inquiry' selected and our team will follow up within a few business days." },
 ];
 
+const contactSchema = z.object({
+  first_name: z.string().trim().min(1, "First name is required").max(100, "Max 100 characters"),
+  last_name: z.string().trim().min(1, "Last name is required").max(100, "Max 100 characters"),
+  email: z.string().trim().email("Invalid email").max(255, "Max 255 characters"),
+  linkedin_url: z.string().trim().url("Invalid URL").max(500).optional().or(z.literal("")),
+  role: z.string().max(50).optional().or(z.literal("")),
+  inquiry_type: z.string().min(1, "Inquiry type is required").max(50),
+  message: z.string().max(2000, "Max 2000 characters").optional().or(z.literal("")),
+});
+
+type FormState = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  linkedin_url: string;
+  role: string;
+  inquiry_type: string;
+  message: string;
+};
+
+const initialState: FormState = {
+  first_name: "",
+  last_name: "",
+  email: "",
+  linkedin_url: "",
+  role: "",
+  inquiry_type: "",
+  message: "",
+};
+
 const Contact = () => {
   const { toast } = useToast();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [form, setForm] = useState<FormState>(initialState);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const update = (k: keyof FormState, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const parsed = contactSchema.safeParse(form);
+    if (!parsed.success) {
+      const first = parsed.error.issues[0];
+      toast({
+        title: "Please check the form",
+        description: first?.message ?? "Some fields are invalid.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    const payload = {
+      first_name: parsed.data.first_name,
+      last_name: parsed.data.last_name,
+      email: parsed.data.email,
+      linkedin_url: parsed.data.linkedin_url || null,
+      role: parsed.data.role || null,
+      inquiry_type: parsed.data.inquiry_type,
+      message: parsed.data.message || null,
+    };
+
+    const { error } = await supabase.from("contact_submissions").insert(payload);
+    setSubmitting(false);
+
+    if (error) {
+      console.error("Contact submission error:", error);
+      toast({
+        title: "Something went wrong",
+        description: "We couldn't send your message. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({ title: "Message sent!", description: "We'll get back to you within 48 hours." });
+    setForm(initialState);
   };
 
   return (
@@ -47,12 +119,41 @@ const Contact = () => {
               <h3 className="font-heading text-2xl font-bold text-primary mb-6">Send Us a Message</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <Input placeholder="First name *" required className="rounded-xl h-12" />
-                  <Input placeholder="Last name *" required className="rounded-xl h-12" />
+                  <Input
+                    placeholder="First name *"
+                    required
+                    maxLength={100}
+                    value={form.first_name}
+                    onChange={(e) => update("first_name", e.target.value)}
+                    className="rounded-xl h-12"
+                  />
+                  <Input
+                    placeholder="Last name *"
+                    required
+                    maxLength={100}
+                    value={form.last_name}
+                    onChange={(e) => update("last_name", e.target.value)}
+                    className="rounded-xl h-12"
+                  />
                 </div>
-                <Input placeholder="Email address *" type="email" required className="rounded-xl h-12" />
-                <Input placeholder="LinkedIn Profile (optional)" type="url" className="rounded-xl h-12" />
-                <Select>
+                <Input
+                  placeholder="Email address *"
+                  type="email"
+                  required
+                  maxLength={255}
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  className="rounded-xl h-12"
+                />
+                <Input
+                  placeholder="LinkedIn Profile (optional)"
+                  type="url"
+                  maxLength={500}
+                  value={form.linkedin_url}
+                  onChange={(e) => update("linkedin_url", e.target.value)}
+                  className="rounded-xl h-12"
+                />
+                <Select value={form.role} onValueChange={(v) => update("role", v)}>
                   <SelectTrigger className="rounded-xl h-12">
                     <SelectValue placeholder="I am a..." />
                   </SelectTrigger>
@@ -67,7 +168,7 @@ const Contact = () => {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select required>
+                <Select required value={form.inquiry_type} onValueChange={(v) => update("inquiry_type", v)}>
                   <SelectTrigger className="rounded-xl h-12">
                     <SelectValue placeholder="Inquiry type *" />
                   </SelectTrigger>
@@ -81,9 +182,19 @@ const Contact = () => {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
-                <Textarea placeholder="Your message" className="rounded-xl min-h-[120px]" />
-                <Button type="submit" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold w-full sm:w-auto">
-                  Send Message <Send className="ml-2 w-4 h-4" />
+                <Textarea
+                  placeholder="Your message"
+                  maxLength={2000}
+                  value={form.message}
+                  onChange={(e) => update("message", e.target.value)}
+                  className="rounded-xl min-h-[120px]"
+                />
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold w-full sm:w-auto"
+                >
+                  {submitting ? "Sending..." : (<>Send Message <Send className="ml-2 w-4 h-4" /></>)}
                 </Button>
               </form>
             </motion.div>
