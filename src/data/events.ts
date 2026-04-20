@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export type EventItem = {
   slug: string;
   title: string;
@@ -16,7 +18,8 @@ export type EventItem = {
   featured: boolean;
 };
 
-export const events: EventItem[] = [
+// Seed / fallback events kept for design continuity
+export const seedEvents: EventItem[] = [
   {
     slug: "founder-friday-ai-edition",
     title: "Founder Friday: AI Edition",
@@ -176,4 +179,66 @@ export const events: EventItem[] = [
   },
 ];
 
-export const getEventBySlug = (slug: string) => events.find((e) => e.slug === slug);
+// Backward-compat export — components that import `events` still work.
+export const events = seedEvents;
+
+type DbAgendaItem = { time: string; item: string };
+type DbSpeaker = { name: string; role: string };
+
+const mapRow = (r: {
+  slug: string;
+  title: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string | null;
+  type: string;
+  description: string | null;
+  long_description: string | null;
+  agenda: unknown;
+  speakers: unknown;
+  spots: number;
+  capacity: number;
+  price: string;
+  featured: boolean;
+}): EventItem => ({
+  slug: r.slug,
+  title: r.title,
+  date: r.date,
+  time: r.time,
+  venue: r.venue,
+  address: r.address ?? "",
+  type: r.type,
+  desc: r.description ?? "",
+  longDesc: r.long_description ?? "",
+  agenda: Array.isArray(r.agenda) ? (r.agenda as DbAgendaItem[]) : [],
+  speakers: Array.isArray(r.speakers) ? (r.speakers as DbSpeaker[]) : [],
+  spots: r.spots,
+  capacity: r.capacity,
+  price: r.price,
+  featured: r.featured,
+});
+
+/** Fetch all events: DB-first, then seed (deduped by slug). */
+export const fetchAllEvents = async (): Promise<EventItem[]> => {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) {
+    console.error("Failed to fetch events", error);
+    return seedEvents;
+  }
+  const dbEvents = (data ?? []).map(mapRow);
+  const dbSlugs = new Set(dbEvents.map((e) => e.slug));
+  const merged = [...dbEvents, ...seedEvents.filter((e) => !dbSlugs.has(e.slug))];
+  return merged;
+};
+
+export const fetchEventBySlug = async (slug: string): Promise<EventItem | undefined> => {
+  const { data, error } = await supabase.from("events").select("*").eq("slug", slug).maybeSingle();
+  if (!error && data) return mapRow(data);
+  return seedEvents.find((e) => e.slug === slug);
+};
+
+export const getEventBySlug = (slug: string) => seedEvents.find((e) => e.slug === slug);
