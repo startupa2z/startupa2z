@@ -13,6 +13,7 @@ import {
   ArrowUp,
   ArrowUpDown,
   CalendarDays,
+  Download,
   Inbox,
   Loader2,
   LogOut,
@@ -22,6 +23,7 @@ import {
   ShieldAlert,
   Sparkles,
   Trash2,
+  Users,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import EventForm, { type EditableEvent } from "@/components/admin/EventForm";
