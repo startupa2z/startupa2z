@@ -54,7 +54,7 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
     const result = rsvpSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: FormErrors = {};
-      result.error.errors.forEach((err) => {
+      result.error.issues.forEach((err) => {
         if (err.path[0]) fieldErrors[err.path[0] as keyof FormData] = err.message;
       });
       setErrors(fieldErrors);
