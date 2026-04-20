@@ -643,6 +643,122 @@ const AdminSubmissions = () => {
               </div>
             </div>
           </TabsContent>
+
+          <TabsContent value="rsvps" className="space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div className="flex flex-1 flex-col sm:flex-row gap-3 max-w-2xl">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search name, email, company, role…"
+                    value={rsvpSearch}
+                    onChange={(e) => setRsvpSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <select
+                  value={rsvpEventFilter}
+                  onChange={(e) => setRsvpEventFilter(e.target.value)}
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="all">All events ({rsvps.length})</option>
+                  {rsvpEventOptions.map((opt) => (
+                    <option key={opt.slug} value={opt.slug}>
+                      {opt.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={exportRSVPsCSV} disabled={filteredRsvps.length === 0}>
+                  <Download className="h-4 w-4" /> Export CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={fetchRSVPs} disabled={rsvpsLoading}>
+                  {rsvpsLoading ? "Refreshing…" : "Refresh"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/40 hover:bg-muted/40">
+                    <TableHead>Submitted</TableHead>
+                    <TableHead>Event</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredRsvps.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <Users className="h-8 w-8 opacity-40" />
+                          <p>{rsvpsLoading ? "Loading…" : "No RSVPs yet."}</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredRsvps.map((r) => (
+                      <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
+                        <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                          {new Date(r.created_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Link to={`/events/${r.event_slug}`} className="text-primary hover:underline text-sm font-medium">
+                            {r.event_title}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="font-medium whitespace-nowrap">
+                          {r.first_name} {r.last_name !== "—" ? r.last_name : ""}
+                        </TableCell>
+                        <TableCell>
+                          <a href={`mailto:${r.email}`} className="text-primary hover:underline">
+                            {r.email}
+                          </a>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {r.phone || <span className="text-muted-foreground">—</span>}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {r.company || <span className="text-muted-foreground">—</span>}
+                        </TableCell>
+                        <TableCell>
+                          {r.role ? (
+                            <Badge variant="secondary" className="capitalize">{r.role}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="max-w-xs">
+                          <p className="truncate text-sm" title={r.notes || ""}>
+                            {r.notes || <span className="text-muted-foreground">—</span>}
+                          </p>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteRSVP(r.id, `${r.first_name} ${r.last_name}`)}
+                            aria-label="Delete RSVP"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
 
