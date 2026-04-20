@@ -93,6 +93,18 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
     setSubmitting(false);
 
     if (error) {
+      // Postgres unique-violation -> duplicate RSVP for this event+email
+      if ((error as { code?: string }).code === "23505") {
+        setErrors({
+          email: "You've already RSVP'd to this event with this email address.",
+        });
+        toast({
+          title: "Already registered",
+          description: "This email is already on the guest list for this event.",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "RSVP failed",
         description: error.message,
