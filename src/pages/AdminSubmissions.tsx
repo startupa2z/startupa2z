@@ -394,6 +394,79 @@ const AdminSubmissions = () => {
               </Table>
             </div>
           </TabsContent>
+
+          <TabsContent value="events" className="space-y-6">
+            <div className="grid lg:grid-cols-5 gap-6">
+              {/* Form */}
+              <div className="lg:col-span-3 border rounded-xl bg-card shadow-sm p-6">
+                <div className="mb-5">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-primary" /> Add a new event
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Published instantly to <Link to="/events" className="text-primary hover:underline">/events</Link>.
+                  </p>
+                </div>
+                <EventForm onCreated={fetchEvents} />
+              </div>
+
+              {/* List */}
+              <div className="lg:col-span-2 border rounded-xl bg-card shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Published events</h2>
+                  <Button variant="outline" size="sm" onClick={fetchEvents} disabled={eventsLoading}>
+                    {eventsLoading ? "Refreshing…" : "Refresh"}
+                  </Button>
+                </div>
+                {adminEvents.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm">No events yet. Add one to get started.</p>
+                  </div>
+                ) : (
+                  <ul className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                    {adminEvents.map((ev) => (
+                      <li
+                        key={ev.id}
+                        className="group rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              to={`/events/${ev.slug}`}
+                              className="font-medium text-sm hover:text-primary truncate block"
+                            >
+                              {ev.title}
+                            </Link>
+                            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                              {ev.date} • {ev.venue}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              <Badge variant="secondary" className="text-[10px]">{ev.type}</Badge>
+                              {ev.featured && (
+                                <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">
+                                  Featured
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDeleteEvent(ev.id, ev.title)}
+                            aria-label="Delete event"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
     </div>
