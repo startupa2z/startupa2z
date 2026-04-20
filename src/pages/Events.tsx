@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SectionHeading from "@/components/SectionHeading";
@@ -9,12 +9,23 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, Tag, List, Grid3X3, ArrowRight } from "lucide-react";
 import eventsImg from "@/assets/events.jpg";
-import { events, type EventItem } from "@/data/events";
+import { fetchAllEvents, seedEvents, type EventItem } from "@/data/events";
 
 const Events = () => {
   const [view, setView] = useState<"list" | "grid">("grid");
   const [rsvpOpen, setRsvpOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [events, setEvents] = useState<EventItem[]>(seedEvents);
+
+  useEffect(() => {
+    let active = true;
+    fetchAllEvents().then((list) => {
+      if (active) setEvents(list);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const openRSVP = (e: React.MouseEvent, event: EventItem) => {
     e.preventDefault();
@@ -23,7 +34,10 @@ const Events = () => {
     setRsvpOpen(true);
   };
 
-  const featured = events.find((e) => e.slug === "bay-area-startup-summit") ?? events[0];
+  const featured =
+    events.find((e) => e.featured) ??
+    events.find((e) => e.slug === "bay-area-startup-summit") ??
+    events[0];
 
   return (
     <PageLayout>
