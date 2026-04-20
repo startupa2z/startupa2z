@@ -83,6 +83,45 @@ const AdminSubmissions = () => {
   const [search, setSearch] = useState("");
   const [adminEvents, setAdminEvents] = useState<AdminEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EditableEvent | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const handleEditEvent = async (id: string) => {
+    setEditOpen(true);
+    setEditingEvent(null);
+    setEditLoading(true);
+    const { data, error } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+    setEditLoading(false);
+    if (error || !data) {
+      toast({
+        title: "Could not load event",
+        description: error?.message ?? "Event not found.",
+        variant: "destructive",
+      });
+      setEditOpen(false);
+      return;
+    }
+    setEditingEvent({
+      id: data.id,
+      slug: data.slug,
+      title: data.title,
+      date: data.date,
+      time: data.time,
+      venue: data.venue,
+      address: data.address,
+      type: data.type,
+      description: data.description,
+      long_description: data.long_description,
+      spots: data.spots,
+      capacity: data.capacity,
+      price: data.price,
+      featured: data.featured,
+      agenda: Array.isArray(data.agenda) ? (data.agenda as { time: string; item: string }[]) : [],
+      speakers: Array.isArray(data.speakers) ? (data.speakers as { name: string; role: string }[]) : [],
+      image_url: data.image_url,
+    });
+  };
 
   const fetchEvents = async () => {
     setEventsLoading(true);
