@@ -9,6 +9,7 @@ import Founders from "./pages/Founders.tsx";
 import Investors from "./pages/Investors.tsx";
 import Startups from "./pages/Startups.tsx";
 import Events from "./pages/Events.tsx";
+import EventDetail from "./pages/EventDetail.tsx";
 import Community from "./pages/Community.tsx";
 import Resources from "./pages/Resources.tsx";
 import Contact from "./pages/Contact.tsx";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/investors" element={<Investors />} />
           <Route path="/startups" element={<Startups />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:slug" element={<EventDetail />} />
           <Route path="/community" element={<Community />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/contact" element={<Contact />} />
