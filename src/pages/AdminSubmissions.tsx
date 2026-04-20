@@ -12,14 +12,17 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  CalendarDays,
   Inbox,
   LogOut,
   Mail,
   Search,
   ShieldAlert,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
+import EventForm from "@/components/admin/EventForm";
 
 type Submission = {
   id: string;
@@ -35,6 +38,17 @@ type Submission = {
 
 type SortKey = keyof Submission;
 type SortDir = "asc" | "desc";
+
+type AdminEvent = {
+  id: string;
+  slug: string;
+  title: string;
+  date: string;
+  type: string;
+  venue: string;
+  featured: boolean;
+  created_at: string;
+};
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "created_at", label: "Submitted" },
@@ -57,6 +71,33 @@ const AdminSubmissions = () => {
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
+  const [adminEvents, setAdminEvents] = useState<AdminEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+
+  const fetchEvents = async () => {
+    setEventsLoading(true);
+    const { data, error } = await supabase
+      .from("events")
+      .select("id, slug, title, date, type, venue, featured, created_at")
+      .order("created_at", { ascending: false });
+    setEventsLoading(false);
+    if (error) {
+      toast({ title: "Failed to load events", description: error.message, variant: "destructive" });
+      return;
+    }
+    setAdminEvents((data ?? []) as AdminEvent[]);
+  };
+
+  const handleDeleteEvent = async (id: string, title: string) => {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("events").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Event deleted" });
+    fetchEvents();
+  };
 
   useEffect(() => {
     document.title = "Admin Dashboard | Startupa2z";
@@ -83,7 +124,10 @@ const AdminSubmissions = () => {
       const admin = !!data;
       setIsAdmin(admin);
       setChecking(false);
-      if (admin) await fetchSubmissions();
+      if (admin) {
+        await fetchSubmissions();
+        await fetchEvents();
+      }
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -247,9 +291,12 @@ const AdminSubmissions = () => {
                 {rows.length}
               </Badge>
             </TabsTrigger>
-            {/* Add more tabs here, e.g.:
-            <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" /> Users</TabsTrigger>
-            */}
+            <TabsTrigger value="events" className="gap-2">
+              <CalendarDays className="h-4 w-4" /> Events
+              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                {adminEvents.length}
+              </Badge>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="submissions" className="space-y-4">
@@ -345,6 +392,79 @@ const AdminSubmissions = () => {
                   )}
                 </TableBody>
               </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="events" className="space-y-6">
+            <div className="grid lg:grid-cols-5 gap-6">
+              {/* Form */}
+              <div className="lg:col-span-3 border rounded-xl bg-card shadow-sm p-6">
+                <div className="mb-5">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-primary" /> Add a new event
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Published instantly to <Link to="/events" className="text-primary hover:underline">/events</Link>.
+                  </p>
+                </div>
+                <EventForm onCreated={fetchEvents} />
+              </div>
+
+              {/* List */}
+              <div className="lg:col-span-2 border rounded-xl bg-card shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Published events</h2>
+                  <Button variant="outline" size="sm" onClick={fetchEvents} disabled={eventsLoading}>
+                    {eventsLoading ? "Refreshing…" : "Refresh"}
+                  </Button>
+                </div>
+                {adminEvents.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm">No events yet. Add one to get started.</p>
+                  </div>
+                ) : (
+                  <ul className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                    {adminEvents.map((ev) => (
+                      <li
+                        key={ev.id}
+                        className="group rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              to={`/events/${ev.slug}`}
+                              className="font-medium text-sm hover:text-primary truncate block"
+                            >
+                              {ev.title}
+                            </Link>
+                            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                              {ev.date} • {ev.venue}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              <Badge variant="secondary" className="text-[10px]">{ev.type}</Badge>
+                              {ev.featured && (
+                                <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">
+                                  Featured
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDeleteEvent(ev.id, ev.title)}
+                            aria-label="Delete event"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </TabsContent>
         </Tabs>

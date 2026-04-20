@@ -50,6 +50,72 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          address: string
+          agenda: Json
+          capacity: number
+          created_at: string
+          created_by: string | null
+          date: string
+          description: string
+          featured: boolean
+          id: string
+          long_description: string
+          price: string
+          slug: string
+          speakers: Json
+          spots: number
+          time: string
+          title: string
+          type: string
+          updated_at: string
+          venue: string
+        }
+        Insert: {
+          address?: string
+          agenda?: Json
+          capacity?: number
+          created_at?: string
+          created_by?: string | null
+          date: string
+          description?: string
+          featured?: boolean
+          id?: string
+          long_description?: string
+          price?: string
+          slug: string
+          speakers?: Json
+          spots?: number
+          time: string
+          title: string
+          type?: string
+          updated_at?: string
+          venue: string
+        }
+        Update: {
+          address?: string
+          agenda?: Json
+          capacity?: number
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          description?: string
+          featured?: boolean
+          id?: string
+          long_description?: string
+          price?: string
+          slug?: string
+          speakers?: Json
+          spots?: number
+          time?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          venue?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

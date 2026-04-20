@@ -1,19 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
 import RSVPDialog from "@/components/RSVPDialog";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Tag, Users, Ticket, ArrowLeft, Share2 } from "lucide-react";
-import { getEventBySlug } from "@/data/events";
+import { fetchEventBySlug, type EventItem } from "@/data/events";
 import eventsImg from "@/assets/events.jpg";
 import { toast } from "@/hooks/use-toast";
 
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const event = slug ? getEventBySlug(slug) : undefined;
+  const [event, setEvent] = useState<EventItem | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
   const [rsvpOpen, setRsvpOpen] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    if (!slug) return;
+    setLoading(true);
+    fetchEventBySlug(slug).then((e) => {
+      if (active) {
+        setEvent(e);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <p className="text-muted-foreground animate-pulse">Loading event…</p>
+        </div>
+      </PageLayout>
+    );
+  }
   if (!event) return <Navigate to="/events" replace />;
 
   const handleShare = async () => {
