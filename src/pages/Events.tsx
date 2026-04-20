@@ -71,7 +71,11 @@ const Events = () => {
                   <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {featured.venue}</div>
                 </div>
                 <div className="flex gap-3">
-                  <Button onClick={(e) => openRSVP(e, featured)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8">RSVP Now</Button>
+                  {featured.spots <= 0 ? (
+                    <Button disabled className="rounded-full px-8 bg-muted text-muted-foreground hover:bg-muted">Sold out</Button>
+                  ) : (
+                    <Button onClick={(e) => openRSVP(e, featured)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8">RSVP Now</Button>
+                  )}
                   <Button asChild variant="outline" className="rounded-full">
                     <Link to={`/events/${featured.slug}`}>View details <ArrowRight className="w-4 h-4 ml-1" /></Link>
                   </Button>
