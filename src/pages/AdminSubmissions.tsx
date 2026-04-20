@@ -78,7 +78,7 @@ const AdminSubmissions = () => {
     setEventsLoading(true);
     const { data, error } = await supabase
       .from("events")
-      .select("id, slug, title, date, type, venue, featured, created_at")
+      .select("id, slug, title, date, type, venue, featured, image_url, created_at")
       .order("created_at", { ascending: false });
     setEventsLoading(false);
     if (error) {
