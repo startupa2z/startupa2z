@@ -114,6 +114,8 @@ const AdminSubmissions = () => {
   const [rsvpsLoading, setRsvpsLoading] = useState(false);
   const [rsvpSearch, setRsvpSearch] = useState("");
   const [rsvpEventFilter, setRsvpEventFilter] = useState<string>("all");
+  const [attendeesOpen, setAttendeesOpen] = useState(false);
+  const [attendeesEvent, setAttendeesEvent] = useState<{ slug: string; title: string } | null>(null);
 
   const handleEditEvent = async (id: string) => {
     setEditOpen(true);
