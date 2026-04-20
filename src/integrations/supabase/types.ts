@@ -50,6 +50,59 @@ export type Database = {
         }
         Relationships: []
       }
+      event_rsvps: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          event_id: string | null
+          event_slug: string
+          event_title: string
+          first_name: string
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          role: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          event_id?: string | null
+          event_slug: string
+          event_title: string
+          first_name: string
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          event_id?: string | null
+          event_slug?: string
+          event_title?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           address: string
