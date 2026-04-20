@@ -124,7 +124,10 @@ const AdminSubmissions = () => {
       const admin = !!data;
       setIsAdmin(admin);
       setChecking(false);
-      if (admin) await fetchSubmissions();
+      if (admin) {
+        await fetchSubmissions();
+        await fetchEvents();
+      }
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
