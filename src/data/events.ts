@@ -16,6 +16,7 @@ export type EventItem = {
   capacity: number;
   price: string;
   featured: boolean;
+  imageUrl?: string | null;
 };
 
 // Seed / fallback events kept for design continuity
@@ -201,6 +202,7 @@ const mapRow = (r: {
   capacity: number;
   price: string;
   featured: boolean;
+  image_url?: string | null;
 }): EventItem => ({
   slug: r.slug,
   title: r.title,
@@ -217,6 +219,7 @@ const mapRow = (r: {
   capacity: r.capacity,
   price: r.price,
   featured: r.featured,
+  imageUrl: r.image_url ?? null,
 });
 
 /** Fetch all events: DB-first, then seed (deduped by slug). */
