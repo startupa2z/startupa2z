@@ -167,6 +167,63 @@ const AdminSubmissions = () => {
     }
     toast({ title: "Event deleted" });
     fetchEvents();
+    fetchRSVPs();
+  };
+
+  const fetchRSVPs = async () => {
+    setRsvpsLoading(true);
+    const { data, error } = await supabase
+      .from("event_rsvps")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setRsvpsLoading(false);
+    if (error) {
+      toast({ title: "Failed to load RSVPs", description: error.message, variant: "destructive" });
+      return;
+    }
+    setRsvps((data ?? []) as AdminRSVP[]);
+  };
+
+  const handleDeleteRSVP = async (id: string, name: string) => {
+    if (!confirm(`Delete RSVP from "${name}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("event_rsvps").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "RSVP deleted" });
+    fetchRSVPs();
+  };
+
+  const exportRSVPsCSV = () => {
+    const filtered = filteredRsvps;
+    if (filtered.length === 0) {
+      toast({ title: "Nothing to export", description: "No RSVPs match your filters." });
+      return;
+    }
+    const headers = ["Submitted", "Event", "First Name", "Last Name", "Email", "Phone", "Company", "Role", "Notes"];
+    const rows = filtered.map((r) => [
+      new Date(r.created_at).toISOString(),
+      r.event_title,
+      r.first_name,
+      r.last_name,
+      r.email,
+      r.phone ?? "",
+      r.company ?? "",
+      r.role ?? "",
+      (r.notes ?? "").replace(/\n/g, " "),
+    ]);
+    const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
+    const csv = [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rsvps-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
