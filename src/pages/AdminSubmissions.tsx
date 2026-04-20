@@ -39,6 +39,17 @@ type Submission = {
 type SortKey = keyof Submission;
 type SortDir = "asc" | "desc";
 
+type AdminEvent = {
+  id: string;
+  slug: string;
+  title: string;
+  date: string;
+  type: string;
+  venue: string;
+  featured: boolean;
+  created_at: string;
+};
+
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "created_at", label: "Submitted" },
   { key: "first_name", label: "First name" },
