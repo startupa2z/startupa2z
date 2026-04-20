@@ -34,6 +34,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 type Submission = {
   id: string;
@@ -107,6 +114,8 @@ const AdminSubmissions = () => {
   const [rsvpsLoading, setRsvpsLoading] = useState(false);
   const [rsvpSearch, setRsvpSearch] = useState("");
   const [rsvpEventFilter, setRsvpEventFilter] = useState<string>("all");
+  const [attendeesOpen, setAttendeesOpen] = useState(false);
+  const [attendeesEvent, setAttendeesEvent] = useState<{ slug: string; title: string } | null>(null);
 
   const handleEditEvent = async (id: string) => {
     setEditOpen(true);
@@ -339,6 +348,19 @@ const AdminSubmissions = () => {
     });
     return Array.from(map.entries()).map(([slug, title]) => ({ slug, title }));
   }, [rsvps]);
+
+  const rsvpCountBySlug = useMemo(() => {
+    const map = new Map<string, number>();
+    rsvps.forEach((r) => {
+      map.set(r.event_slug, (map.get(r.event_slug) ?? 0) + 1);
+    });
+    return map;
+  }, [rsvps]);
+
+  const attendeesForSelected = useMemo(() => {
+    if (!attendeesEvent) return [];
+    return rsvps.filter((r) => r.event_slug === attendeesEvent.slug);
+  }, [rsvps, attendeesEvent]);
 
   // Stats
   const stats = useMemo(() => {
@@ -606,13 +628,25 @@ const AdminSubmissions = () => {
                             <p className="text-xs text-muted-foreground mt-0.5 truncate">
                               {ev.date} • {ev.venue}
                             </p>
-                            <div className="flex flex-wrap gap-1.5 mt-2">
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
                               <Badge variant="secondary" className="text-[10px]">{ev.type}</Badge>
                               {ev.featured && (
                                 <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">
                                   Featured
                                 </Badge>
                               )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAttendeesEvent({ slug: ev.slug, title: ev.title });
+                                  setAttendeesOpen(true);
+                                }}
+                                className="inline-flex items-center gap-1 rounded-full bg-accent/40 hover:bg-accent/70 transition-colors px-2 py-0.5 text-[10px] font-medium text-foreground"
+                                aria-label={`View ${rsvpCountBySlug.get(ev.slug) ?? 0} attendees`}
+                              >
+                                <Users className="h-3 w-3" />
+                                {rsvpCountBySlug.get(ev.slug) ?? 0} RSVP{(rsvpCountBySlug.get(ev.slug) ?? 0) === 1 ? "" : "s"}
+                              </button>
                             </div>
                           </div>
                           <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -786,6 +820,70 @@ const AdminSubmissions = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Sheet open={attendeesOpen} onOpenChange={setAttendeesOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
+          <SheetHeader>
+            <SheetTitle className="truncate">{attendeesEvent?.title ?? "Attendees"}</SheetTitle>
+            <SheetDescription>
+              {attendeesForSelected.length} {attendeesForSelected.length === 1 ? "person" : "people"} RSVP'd
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4 flex-1 overflow-y-auto -mx-6 px-6">
+            {attendeesForSelected.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p className="text-sm">No RSVPs yet for this event.</p>
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {attendeesForSelected.map((a) => (
+                  <li
+                    key={a.id}
+                    className="rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">
+                          {a.first_name} {a.last_name !== "—" ? a.last_name : ""}
+                        </p>
+                        <a
+                          href={`mailto:${a.email}`}
+                          className="text-xs text-primary hover:underline break-all"
+                        >
+                          {a.email}
+                        </a>
+                        {(a.company || a.role) && (
+                          <p className="text-xs text-muted-foreground mt-1 truncate">
+                            {[a.role, a.company].filter(Boolean).join(" • ")}
+                          </p>
+                        )}
+                        {a.notes && (
+                          <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">
+                            "{a.notes}"
+                          </p>
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1.5">
+                          {new Date(a.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                        onClick={() => handleDeleteRSVP(a.id, `${a.first_name} ${a.last_name}`)}
+                        aria-label="Remove RSVP"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
