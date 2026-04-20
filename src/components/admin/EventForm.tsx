@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { ImagePlus, Loader2, Plus, X } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Save, X } from "lucide-react";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -38,9 +38,38 @@ const schema = z.object({
   speakers_text: z.string().max(2000).optional().default(""),
 });
 
-type Props = { onCreated?: () => void };
+type AgendaItem = { time: string; item: string };
+type Speaker = { name: string; role: string };
 
-const parseAgenda = (text: string) =>
+export type EditableEvent = {
+  id: string;
+  slug: string;
+  title: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string | null;
+  type: string;
+  description: string | null;
+  long_description: string | null;
+  spots: number;
+  capacity: number;
+  price: string;
+  featured: boolean;
+  agenda: AgendaItem[];
+  speakers: Speaker[];
+  image_url: string | null;
+};
+
+type Props = {
+  /** When provided, the form runs in edit mode. */
+  event?: EditableEvent;
+  onSaved?: () => void;
+  /** Backwards compat with the create-only call site. */
+  onCreated?: () => void;
+};
+
+const parseAgenda = (text: string): AgendaItem[] =>
   text
     .split("\n")
     .map((l) => l.trim())
@@ -51,7 +80,7 @@ const parseAgenda = (text: string) =>
     })
     .filter((a) => a.time && a.item);
 
-const parseSpeakers = (text: string) =>
+const parseSpeakers = (text: string): Speaker[] =>
   text
     .split("\n")
     .map((l) => l.trim())
@@ -62,27 +91,69 @@ const parseSpeakers = (text: string) =>
     })
     .filter((s) => s.name);
 
-const EventForm = ({ onCreated }: Props) => {
+const agendaToText = (items: AgendaItem[] | null | undefined) =>
+  (items ?? []).map((a) => `${a.time} | ${a.item}`).join("\n");
+
+const speakersToText = (items: Speaker[] | null | undefined) =>
+  (items ?? []).map((s) => `${s.name} | ${s.role}`).join("\n");
+
+const emptyForm = {
+  title: "",
+  date: "",
+  time: "",
+  venue: "",
+  address: "",
+  type: "Networking",
+  description: "",
+  long_description: "",
+  spots: "0",
+  capacity: "0",
+  price: "Free",
+  featured: false,
+  agenda_text: "",
+  speakers_text: "",
+};
+
+const formFromEvent = (e: EditableEvent): typeof emptyForm => ({
+  title: e.title ?? "",
+  date: e.date ?? "",
+  time: e.time ?? "",
+  venue: e.venue ?? "",
+  address: e.address ?? "",
+  type: e.type ?? "Networking",
+  description: e.description ?? "",
+  long_description: e.long_description ?? "",
+  spots: String(e.spots ?? 0),
+  capacity: String(e.capacity ?? 0),
+  price: e.price ?? "Free",
+  featured: !!e.featured,
+  agenda_text: agendaToText(e.agenda),
+  speakers_text: speakersToText(e.speakers),
+});
+
+const EventForm = ({ event, onSaved, onCreated }: Props) => {
+  const isEdit = !!event;
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(event?.image_url ?? null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState({
-    title: "",
-    date: "",
-    time: "",
-    venue: "",
-    address: "",
-    type: "Networking",
-    description: "",
-    long_description: "",
-    spots: "0",
-    capacity: "0",
-    price: "Free",
-    featured: false,
-    agenda_text: "",
-    speakers_text: "",
-  });
+  const [form, setForm] = useState(event ? formFromEvent(event) : emptyForm);
+
+  // Re-sync when a different event is passed in (e.g. opening edit dialog for another row)
+  useEffect(() => {
+    if (event) {
+      setForm(formFromEvent(event));
+      setExistingImageUrl(event.image_url ?? null);
+      setRemoveExistingImage(false);
+      setImageFile(null);
+      setImagePreview((p) => {
+        if (p) URL.revokeObjectURL(p);
+        return null;
+      });
+    }
+  }, [event]);
 
   const update = (k: keyof typeof form, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -98,14 +169,22 @@ const EventForm = ({ onCreated }: Props) => {
       return;
     }
     setImageFile(file);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(URL.createObjectURL(file));
+    setRemoveExistingImage(false);
   };
 
-  const clearImage = () => {
+  const clearNewImage = () => {
     setImageFile(null);
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeCurrentImage = () => {
+    setExistingImageUrl(null);
+    setRemoveExistingImage(true);
+    clearNewImage();
   };
 
   const uploadImage = async (slug: string): Promise<string | null> => {
@@ -123,6 +202,13 @@ const EventForm = ({ onCreated }: Props) => {
     return data.publicUrl;
   };
 
+  const resetCreateForm = () => {
+    setForm(emptyForm);
+    clearNewImage();
+    setExistingImageUrl(null);
+    setRemoveExistingImage(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
@@ -136,20 +222,26 @@ const EventForm = ({ onCreated }: Props) => {
     }
 
     setSubmitting(true);
-    const slug = slugify(parsed.data.title) + "-" + Math.random().toString(36).slice(2, 6);
 
-    let imageUrl: string | null = null;
+    // Decide image_url to write
+    let imageUrlToSave: string | null | undefined;
     if (imageFile) {
-      imageUrl = await uploadImage(slug);
-      if (!imageUrl) {
+      const slugForUpload = isEdit ? event!.slug : slugify(parsed.data.title);
+      const uploaded = await uploadImage(slugForUpload);
+      if (!uploaded) {
         setSubmitting(false);
-        return; // upload failed, toast already shown
+        return;
       }
+      imageUrlToSave = uploaded;
+    } else if (isEdit && removeExistingImage) {
+      imageUrlToSave = null;
+    } else if (isEdit) {
+      imageUrlToSave = undefined; // don't change
+    } else {
+      imageUrlToSave = null; // create with no image
     }
 
-    const { data: userData } = await supabase.auth.getUser();
-    const { error } = await supabase.from("events").insert({
-      slug,
+    const basePayload = {
       title: parsed.data.title,
       date: parsed.data.date,
       time: parsed.data.time,
@@ -164,35 +256,44 @@ const EventForm = ({ onCreated }: Props) => {
       featured: parsed.data.featured,
       agenda: parseAgenda(parsed.data.agenda_text ?? ""),
       speakers: parseSpeakers(parsed.data.speakers_text ?? ""),
-      image_url: imageUrl,
+    };
+
+    if (isEdit) {
+      const updatePayload: Record<string, unknown> = { ...basePayload };
+      if (imageUrlToSave !== undefined) updatePayload.image_url = imageUrlToSave;
+
+      const { error } = await supabase.from("events").update(updatePayload).eq("id", event!.id);
+      setSubmitting(false);
+      if (error) {
+        toast({ title: "Could not update event", description: error.message, variant: "destructive" });
+        return;
+      }
+      toast({ title: "Event updated", description: `${parsed.data.title} has been saved.` });
+      onSaved?.();
+      return;
+    }
+
+    // Create
+    const { data: userData } = await supabase.auth.getUser();
+    const slug = slugify(parsed.data.title) + "-" + Math.random().toString(36).slice(2, 6);
+    const { error } = await supabase.from("events").insert({
+      slug,
+      ...basePayload,
+      image_url: imageUrlToSave ?? null,
       created_by: userData.user?.id ?? null,
     });
     setSubmitting(false);
-
     if (error) {
       toast({ title: "Could not create event", description: error.message, variant: "destructive" });
       return;
     }
     toast({ title: "Event created", description: `${parsed.data.title} is now live on /events.` });
-    setForm({
-      title: "",
-      date: "",
-      time: "",
-      venue: "",
-      address: "",
-      type: "Networking",
-      description: "",
-      long_description: "",
-      spots: "0",
-      capacity: "0",
-      price: "Free",
-      featured: false,
-      agenda_text: "",
-      speakers_text: "",
-    });
-    clearImage();
+    resetCreateForm();
     onCreated?.();
+    onSaved?.();
   };
+
+  const previewSrc = imagePreview || existingImageUrl;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -234,17 +335,29 @@ const EventForm = ({ onCreated }: Props) => {
       </div>
 
       <Field label="Cover image" hint="JPG, PNG, WebP or GIF · max 5 MB. Shown on the events list and detail page.">
-        {imagePreview ? (
+        {previewSrc ? (
           <div className="relative w-full max-w-sm">
-            <img src={imagePreview} alt="Event cover preview" className="w-full h-44 object-cover rounded-lg border" />
-            <button
-              type="button"
-              onClick={clearImage}
-              className="absolute top-2 right-2 inline-flex items-center justify-center h-7 w-7 rounded-full bg-background/90 border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
-              aria-label="Remove image"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <img src={previewSrc} alt="Event cover preview" className="w-full h-44 object-cover rounded-lg border" />
+            <div className="absolute top-2 right-2 flex gap-1.5">
+              <label className="inline-flex items-center justify-center h-7 px-2.5 rounded-full bg-background/90 border shadow-sm hover:bg-accent text-xs font-medium cursor-pointer transition-colors">
+                Replace
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={imageFile ? clearNewImage : removeCurrentImage}
+                className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-background/90 border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                aria-label="Remove image"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         ) : (
           <label className="flex flex-col items-center justify-center gap-2 w-full max-w-sm h-32 rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-primary/60 hover:bg-muted/30 cursor-pointer transition-colors">
@@ -279,10 +392,7 @@ const EventForm = ({ onCreated }: Props) => {
         />
       </Field>
 
-      <Field
-        label="Agenda"
-        hint="One item per line, format: TIME | ITEM (e.g. 6:00 PM | Doors open)"
-      >
+      <Field label="Agenda" hint="One item per line, format: TIME | ITEM (e.g. 6:00 PM | Doors open)">
         <Textarea
           rows={4}
           value={form.agenda_text}
@@ -291,10 +401,7 @@ const EventForm = ({ onCreated }: Props) => {
         />
       </Field>
 
-      <Field
-        label="Speakers"
-        hint="One per line, format: NAME | ROLE (e.g. Priya Shah | Founder, Lumen AI)"
-      >
+      <Field label="Speakers" hint="One per line, format: NAME | ROLE (e.g. Priya Shah | Founder, Lumen AI)">
         <Textarea
           rows={3}
           value={form.speakers_text}
@@ -305,8 +412,14 @@ const EventForm = ({ onCreated }: Props) => {
 
       <div className="flex justify-end">
         <Button type="submit" disabled={submitting} className="gap-2">
-          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          {submitting ? "Creating…" : "Create event"}
+          {submitting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isEdit ? (
+            <Save className="h-4 w-4" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
+          {submitting ? (isEdit ? "Saving…" : "Creating…") : isEdit ? "Save changes" : "Create event"}
         </Button>
       </div>
     </form>
