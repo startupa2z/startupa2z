@@ -66,9 +66,9 @@ const AdminLogin = () => {
           <img
             src={logo}
             alt="StartupA2Z logo"
-            width={200}
-            height={56}
-            className="h-14 w-auto transition-transform group-hover:-translate-y-0.5"
+            width={921}
+            height={159}
+            className="h-10 w-auto transition-transform group-hover:-translate-y-0.5"
           />
           <div className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-card/60 backdrop-blur px-3 py-1 rounded-full border">
             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
