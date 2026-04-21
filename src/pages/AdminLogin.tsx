@@ -66,7 +66,7 @@ const AdminLogin = () => {
           <img
             src={logo}
             alt="StartupA2Z logo"
-            width={921}
+            width={864}
             height={159}
             className="h-10 w-auto transition-transform group-hover:-translate-y-0.5"
           />

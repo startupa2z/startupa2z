@@ -28,7 +28,7 @@ const Navbar = () => {
           <img
             src={logo}
             alt="StartupA2Z logo"
-            width={921}
+            width={864}
             height={159}
             className="h-8 md:h-9 w-auto select-none"
           />
