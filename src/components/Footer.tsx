@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => (
   <footer className="bg-dark text-white">
@@ -7,14 +8,14 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.4fr] gap-8 lg:gap-12 pb-12">
         {/* Brand */}
         <div>
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-4 hover:-translate-y-px transition-transform">
-            <svg height="34" width="34" viewBox="0 0 34 34" fill="none">
-              <rect width="34" height="34" rx="9" fill="hsl(152,36%,30%)" />
-              <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="17" fontWeight="800" fontFamily="Inter, sans-serif">A</text>
-            </svg>
-            <span className="text-[1.15rem] font-semibold tracking-tight leading-none text-white">
-              Startup<span className="text-secondary font-extrabold">a2z</span>
-            </span>
+          <Link to="/" className="inline-flex items-center mb-4 hover:-translate-y-px transition-transform">
+            <img
+              src={logo}
+              alt="StartupA2Z logo"
+              width={2347}
+              height={432}
+              className="h-9 w-auto select-none brightness-0 invert"
+            />
           </Link>
           <p className="text-[0.875rem] text-dark-muted leading-[1.65] max-w-[200px]">
             Where founders begin. Bay Area's most intentional startup ecosystem.
