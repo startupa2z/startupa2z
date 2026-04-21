@@ -428,7 +428,7 @@ const AdminSubmissions = () => {
       <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 md:px-8 h-16">
           <Link to="/" className="inline-flex items-center gap-3">
-            <img src={logo} alt="StartupA2Z" width={160} height={44} className="h-10 w-auto" />
+            <img src={logo} alt="StartupA2Z" width={921} height={159} className="h-7 md:h-8 w-auto" />
             <Badge variant="secondary" className="hidden sm:inline-flex">Admin</Badge>
           </Link>
           <div className="flex items-center gap-3">
