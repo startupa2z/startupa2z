@@ -8,7 +8,7 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.4fr] gap-8 lg:gap-12 pb-12">
         {/* Brand */}
         <div>
-          <Link to="/" className="inline-flex items-center mb-4 hover:-translate-y-px transition-transform">
+          <Link to="/" className="inline-flex items-center mb-4 hover:-translate-y-px transition-transform bg-white rounded-xl px-3 py-2">
             <img
               src={logo}
               alt="StartupA2Z logo"
