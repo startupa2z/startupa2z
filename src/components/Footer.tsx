@@ -14,7 +14,7 @@ const Footer = () => (
               alt="StartupA2Z logo"
               width={2347}
               height={432}
-              className="h-9 w-auto select-none brightness-0 invert"
+              className="h-9 w-auto select-none"
             />
           </Link>
           <p className="text-[0.875rem] text-dark-muted leading-[1.65] max-w-[200px]">
