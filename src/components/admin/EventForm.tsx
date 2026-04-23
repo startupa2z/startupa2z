@@ -1,0 +1,451 @@
+import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "@/hooks/use-toast";
+import { ImagePlus, Loader2, Plus, Save, X } from "lucide-react";
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 80);
+
+const schema = z.object({
+  title: z.string().trim().min(2).max(150),
+  date: z.string().trim().min(2).max(60),
+  time: z.string().trim().min(2).max(60),
+  venue: z.string().trim().min(2).max(150),
+  address: z.string().trim().max(250).optional().default(""),
+  type: z.string().trim().min(2).max(60),
+  description: z.string().trim().max(400).optional().default(""),
+  long_description: z.string().trim().max(4000).optional().default(""),
+  spots: z.coerce.number().int().min(0).max(100000),
+  capacity: z.coerce.number().int().min(0).max(100000),
+  price: z.string().trim().max(60).optional().default("Free"),
+  featured: z.boolean().default(false),
+  agenda_text: z.string().max(4000).optional().default(""),
+  speakers_text: z.string().max(2000).optional().default(""),
+});
+
+type AgendaItem = { time: string; item: string };
+type Speaker = { name: string; role: string };
+
+export type EditableEvent = {
+  id: string;
+  slug: string;
+  title: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string | null;
+  type: string;
+  description: string | null;
+  long_description: string | null;
+  spots: number;
+  capacity: number;
+  price: string;
+  featured: boolean;
+  agenda: AgendaItem[];
+  speakers: Speaker[];
+  image_url: string | null;
+};
+
+type Props = {
+  /** When provided, the form runs in edit mode. */
+  event?: EditableEvent;
+  onSaved?: () => void;
+  /** Backwards compat with the create-only call site. */
+  onCreated?: () => void;
+};
+
+const parseAgenda = (text: string): AgendaItem[] =>
+  text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const [time, ...rest] = l.split("|");
+      return { time: (time ?? "").trim(), item: rest.join("|").trim() };
+    })
+    .filter((a) => a.time && a.item);
+
+const parseSpeakers = (text: string): Speaker[] =>
+  text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const [name, ...rest] = l.split("|");
+      return { name: (name ?? "").trim(), role: rest.join("|").trim() };
+    })
+    .filter((s) => s.name);
+
+const agendaToText = (items: AgendaItem[] | null | undefined) =>
+  (items ?? []).map((a) => `${a.time} | ${a.item}`).join("\n");
+
+const speakersToText = (items: Speaker[] | null | undefined) =>
+  (items ?? []).map((s) => `${s.name} | ${s.role}`).join("\n");
+
+const emptyForm = {
+  title: "",
+  date: "",
+  time: "",
+  venue: "",
+  address: "",
+  type: "Networking",
+  description: "",
+  long_description: "",
+  spots: "0",
+  capacity: "0",
+  price: "Free",
+  featured: false,
+  agenda_text: "",
+  speakers_text: "",
+};
+
+const formFromEvent = (e: EditableEvent): typeof emptyForm => ({
+  title: e.title ?? "",
+  date: e.date ?? "",
+  time: e.time ?? "",
+  venue: e.venue ?? "",
+  address: e.address ?? "",
+  type: e.type ?? "Networking",
+  description: e.description ?? "",
+  long_description: e.long_description ?? "",
+  spots: String(e.spots ?? 0),
+  capacity: String(e.capacity ?? 0),
+  price: e.price ?? "Free",
+  featured: !!e.featured,
+  agenda_text: agendaToText(e.agenda),
+  speakers_text: speakersToText(e.speakers),
+});
+
+const EventForm = ({ event, onSaved, onCreated }: Props) => {
+  const isEdit = !!event;
+  const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(event?.image_url ?? null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [form, setForm] = useState(event ? formFromEvent(event) : emptyForm);
+
+  // Re-sync when a different event is passed in (e.g. opening edit dialog for another row)
+  useEffect(() => {
+    if (event) {
+      setForm(formFromEvent(event));
+      setExistingImageUrl(event.image_url ?? null);
+      setRemoveExistingImage(false);
+      setImageFile(null);
+      setImagePreview((p) => {
+        if (p) URL.revokeObjectURL(p);
+        return null;
+      });
+    }
+  }, [event]);
+
+  const update = (k: keyof typeof form, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({ title: "Unsupported image", description: "Use JPG, PNG, WebP or GIF.", variant: "destructive" });
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast({ title: "Image too large", description: "Max size is 5 MB.", variant: "destructive" });
+      return;
+    }
+    setImageFile(file);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(URL.createObjectURL(file));
+    setRemoveExistingImage(false);
+  };
+
+  const clearNewImage = () => {
+    setImageFile(null);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeCurrentImage = () => {
+    setExistingImageUrl(null);
+    setRemoveExistingImage(true);
+    clearNewImage();
+  };
+
+  const uploadImage = async (slug: string): Promise<string | null> => {
+    if (!imageFile) return null;
+    const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${slug}-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("event-images")
+      .upload(path, imageFile, { contentType: imageFile.type, upsert: false });
+    if (uploadError) {
+      toast({ title: "Image upload failed", description: uploadError.message, variant: "destructive" });
+      return null;
+    }
+    const { data } = supabase.storage.from("event-images").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
+  const resetCreateForm = () => {
+    setForm(emptyForm);
+    clearNewImage();
+    setExistingImageUrl(null);
+    setRemoveExistingImage(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = schema.safeParse(form);
+    if (!parsed.success) {
+      toast({
+        title: "Check the form",
+        description: parsed.error.issues[0]?.message ?? "Invalid input",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    // Decide image_url to write
+    let imageUrlToSave: string | null | undefined;
+    if (imageFile) {
+      const slugForUpload = isEdit ? event!.slug : slugify(parsed.data.title);
+      const uploaded = await uploadImage(slugForUpload);
+      if (!uploaded) {
+        setSubmitting(false);
+        return;
+      }
+      imageUrlToSave = uploaded;
+    } else if (isEdit && removeExistingImage) {
+      imageUrlToSave = null;
+    } else if (isEdit) {
+      imageUrlToSave = undefined; // don't change
+    } else {
+      imageUrlToSave = null; // create with no image
+    }
+
+    const basePayload = {
+      title: parsed.data.title,
+      date: parsed.data.date,
+      time: parsed.data.time,
+      venue: parsed.data.venue,
+      address: parsed.data.address ?? "",
+      type: parsed.data.type,
+      description: parsed.data.description ?? "",
+      long_description: parsed.data.long_description ?? "",
+      spots: parsed.data.spots,
+      capacity: parsed.data.capacity,
+      price: parsed.data.price ?? "Free",
+      featured: parsed.data.featured,
+      agenda: parseAgenda(parsed.data.agenda_text ?? ""),
+      speakers: parseSpeakers(parsed.data.speakers_text ?? ""),
+    };
+
+    if (isEdit) {
+      const updatePayload = {
+        ...basePayload,
+        ...(imageUrlToSave !== undefined ? { image_url: imageUrlToSave } : {}),
+      };
+
+      const { error } = await supabase.from("events").update(updatePayload).eq("id", event!.id);
+      setSubmitting(false);
+      if (error) {
+        toast({ title: "Could not update event", description: error.message, variant: "destructive" });
+        return;
+      }
+      toast({ title: "Event updated", description: `${parsed.data.title} has been saved.` });
+      onSaved?.();
+      return;
+    }
+
+    // Create
+    const { data: userData } = await supabase.auth.getUser();
+    const slug = slugify(parsed.data.title) + "-" + Math.random().toString(36).slice(2, 6);
+    const { error } = await supabase.from("events").insert({
+      slug,
+      ...basePayload,
+      image_url: imageUrlToSave ?? null,
+      created_by: userData.user?.id ?? null,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Could not create event", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Event created", description: `${parsed.data.title} is now live on /events.` });
+    resetCreateForm();
+    onCreated?.();
+    onSaved?.();
+  };
+
+  const previewSrc = imagePreview || existingImageUrl;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid md:grid-cols-2 gap-4">
+        <Field label="Title" required>
+          <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="Founder Friday: AI Edition" />
+        </Field>
+        <Field label="Type" required>
+          <Input value={form.type} onChange={(e) => update("type", e.target.value)} placeholder="Networking" />
+        </Field>
+        <Field label="Date" required>
+          <Input value={form.date} onChange={(e) => update("date", e.target.value)} placeholder="April 18, 2026" />
+        </Field>
+        <Field label="Time" required>
+          <Input value={form.time} onChange={(e) => update("time", e.target.value)} placeholder="6:00 PM - 9:00 PM" />
+        </Field>
+        <Field label="Venue" required>
+          <Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="SOMA, San Francisco" />
+        </Field>
+        <Field label="Address">
+          <Input value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="475 Brannan St, SF" />
+        </Field>
+        <Field label="Spots left">
+          <Input type="number" min={0} value={form.spots} onChange={(e) => update("spots", e.target.value)} />
+        </Field>
+        <Field label="Capacity">
+          <Input type="number" min={0} value={form.capacity} onChange={(e) => update("capacity", e.target.value)} />
+        </Field>
+        <Field label="Price">
+          <Input value={form.price} onChange={(e) => update("price", e.target.value)} placeholder="Free or $15" />
+        </Field>
+        <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
+          <div>
+            <Label className="text-sm font-medium">Featured</Label>
+            <p className="text-xs text-muted-foreground">Highlight on the events page</p>
+          </div>
+          <Switch checked={form.featured} onCheckedChange={(v) => update("featured", v)} />
+        </div>
+      </div>
+
+      <Field label="Cover image" hint="JPG, PNG, WebP or GIF · max 5 MB. Shown on the events list and detail page.">
+        {previewSrc ? (
+          <div className="relative w-full max-w-sm">
+            <img src={previewSrc} alt="Event cover preview" className="w-full h-44 object-cover rounded-lg border" />
+            <div className="absolute top-2 right-2 flex gap-1.5">
+              <label className="inline-flex items-center justify-center h-7 px-2.5 rounded-full bg-background/90 border shadow-sm hover:bg-accent text-xs font-medium cursor-pointer transition-colors">
+                Replace
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={imageFile ? clearNewImage : removeCurrentImage}
+                className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-background/90 border shadow-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                aria-label="Remove image"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center gap-2 w-full max-w-sm h-32 rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-primary/60 hover:bg-muted/30 cursor-pointer transition-colors">
+            <ImagePlus className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Click to upload cover image</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </label>
+        )}
+      </Field>
+
+      <Field label="Short description">
+        <Textarea
+          rows={2}
+          value={form.description}
+          onChange={(e) => update("description", e.target.value)}
+          placeholder="Shown on event cards (1-2 sentences)."
+        />
+      </Field>
+
+      <Field label="Long description">
+        <Textarea
+          rows={5}
+          value={form.long_description}
+          onChange={(e) => update("long_description", e.target.value)}
+          placeholder="Shown on the event detail page."
+        />
+      </Field>
+
+      <Field label="Agenda" hint="One item per line, format: TIME | ITEM (e.g. 6:00 PM | Doors open)">
+        <Textarea
+          rows={4}
+          value={form.agenda_text}
+          onChange={(e) => update("agenda_text", e.target.value)}
+          placeholder={"6:00 PM | Doors open\n6:45 PM | Lightning demos"}
+        />
+      </Field>
+
+      <Field label="Speakers" hint="One per line, format: NAME | ROLE (e.g. Priya Shah | Founder, Lumen AI)">
+        <Textarea
+          rows={3}
+          value={form.speakers_text}
+          onChange={(e) => update("speakers_text", e.target.value)}
+          placeholder={"Priya Shah | Founder, Lumen AI"}
+        />
+      </Field>
+
+      <div className="flex justify-end">
+        <Button type="submit" disabled={submitting} className="gap-2">
+          {submitting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isEdit ? (
+            <Save className="h-4 w-4" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
+          {submitting ? (isEdit ? "Saving…" : "Creating…") : isEdit ? "Save changes" : "Create event"}
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+const Field = ({
+  label,
+  hint,
+  required,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-1.5">
+    <Label className="text-sm font-medium">
+      {label} {required && <span className="text-destructive">*</span>}
+    </Label>
+    {children}
+    {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+  </div>
+);
+
+export default EventForm;
