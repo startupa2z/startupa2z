@@ -14,6 +14,7 @@ const navLinks = [
   { to: "/community", label: "Community" },
   { to: "/resources", label: "Resources" },
   { to: "/contact", label: "Contact" },
+  { to: "/sponsorship", label: "Sponsorship" },
 ];
 
 const Navbar = () => {
@@ -24,7 +25,10 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,5vw,3rem)] flex items-center justify-between gap-8 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
         {/* Logo */}
-        <Link to="/" className="inline-flex items-center hover:-translate-y-px transition-transform">
+        <Link
+          to="/"
+          className="inline-flex items-center hover:-translate-y-px transition-transform"
+        >
           <img
             src={logo}
             alt="StartupA2Z logo"
@@ -86,7 +90,9 @@ const Navbar = () => {
                 to={link.to}
                 onClick={() => setOpen(false)}
                 className={`text-2xl font-extrabold tracking-tight transition-colors ${
-                  location.pathname === link.to ? "text-primary" : "text-foreground hover:text-primary"
+                  location.pathname === link.to
+                    ? "text-primary"
+                    : "text-foreground hover:text-primary"
                 }`}
               >
                 {link.label}
