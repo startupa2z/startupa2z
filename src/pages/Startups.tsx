@@ -1,20 +1,100 @@
 import { useState } from "react";
 import PageLayout from "@/components/PageLayout";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, MapPin, Plus, Grid3X3, Cpu, Banknote, Heart, Leaf } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Search,
+  MapPin,
+  Plus,
+  Grid3X3,
+  Cpu,
+  Banknote,
+  Heart,
+  Leaf,
+} from "lucide-react";
 
 const allStartups = [
-  { name: "Lumina AI", pitch: "Generative video orchestration for architectural visualization.", stage: "Series A", location: "San Francisco", category: "Deep Tech", tags: ["ML", "Design"], color: "hsl(var(--accent))" },
-  { name: "ChordPay", pitch: "Instant royalty distributions for independent digital creators.", stage: "Seed", location: "London, UK", category: "Fintech", tags: ["Payments", "Web3"], color: "hsl(var(--secondary))" },
-  { name: "BioSettle", pitch: "Decentralized patient enrollment for rare disease clinical trials.", stage: "Pre-Seed", location: "Berlin", category: "Healthtech", tags: ["Pharma", "Compliance"], color: "hsl(var(--accent))" },
-  { name: "Forge Robotics", pitch: "Modular pick-and-place robots for dark-store fulfillment.", stage: "Growth", location: "Boston", category: "Deep Tech", tags: ["Hardware", "AI"], color: "hsl(var(--navy))" },
-  { name: "StreamFlow", pitch: "No-code data pipelines for enterprise cloud synchronization.", stage: "Series B", location: "Tel Aviv", category: "SaaS", tags: ["Enterprise", "Cloud"], color: "hsl(var(--secondary))" },
-  { name: "GreenFleet", pitch: "Electric fleet management for last-mile delivery networks.", stage: "Seed", location: "San Francisco", category: "Greentech", tags: ["Logistics", "EV"], color: "hsl(var(--accent))" },
-  { name: "MedBridge AI", pitch: "AI-powered clinical trial matching platform for hospitals.", stage: "Pre-Seed", location: "New York", category: "Healthtech", tags: ["AI", "Healthcare"], color: "hsl(var(--navy))" },
-  { name: "PayNova", pitch: "Instant cross-border payments for freelancers worldwide.", stage: "Seed", location: "Singapore", category: "Fintech", tags: ["Payments", "Gig Economy"], color: "hsl(var(--secondary))" },
+  {
+    name: "Lumina AI",
+    pitch: "Generative video orchestration for architectural visualization.",
+    stage: "Series A",
+    location: "San Francisco",
+    category: "Deep Tech",
+    tags: ["ML", "Design"],
+    color: "hsl(var(--accent))",
+  },
+  {
+    name: "ChordPay",
+    pitch: "Instant royalty distributions for independent digital creators.",
+    stage: "Seed",
+    location: "London, UK",
+    category: "Fintech",
+    tags: ["Payments", "Web3"],
+    color: "hsl(var(--secondary))",
+  },
+  {
+    name: "BioSettle",
+    pitch: "Decentralized patient enrollment for rare disease clinical trials.",
+    stage: "Pre-Seed",
+    location: "Berlin",
+    category: "Healthtech",
+    tags: ["Pharma", "Compliance"],
+    color: "hsl(var(--accent))",
+  },
+  {
+    name: "Forge Robotics",
+    pitch: "Modular pick-and-place robots for dark-store fulfillment.",
+    stage: "Growth",
+    location: "Boston",
+    category: "Deep Tech",
+    tags: ["Hardware", "AI"],
+    color: "hsl(var(--navy))",
+  },
+  {
+    name: "StreamFlow",
+    pitch: "No-code data pipelines for enterprise cloud synchronization.",
+    stage: "Series B",
+    location: "Tel Aviv",
+    category: "SaaS",
+    tags: ["Enterprise", "Cloud"],
+    color: "hsl(var(--secondary))",
+  },
+  {
+    name: "GreenFleet",
+    pitch: "Electric fleet management for last-mile delivery networks.",
+    stage: "Seed",
+    location: "San Francisco",
+    category: "Greentech",
+    tags: ["Logistics", "EV"],
+    color: "hsl(var(--accent))",
+  },
+  {
+    name: "MedBridge AI",
+    pitch: "AI-powered clinical trial matching platform for hospitals.",
+    stage: "Pre-Seed",
+    location: "New York",
+    category: "Healthtech",
+    tags: ["AI", "Healthcare"],
+    color: "hsl(var(--navy))",
+  },
+  {
+    name: "PayNova",
+    pitch: "Instant cross-border payments for freelancers worldwide.",
+    stage: "Seed",
+    location: "Singapore",
+    category: "Fintech",
+    tags: ["Payments", "Gig Economy"],
+    color: "hsl(var(--secondary))",
+  },
 ];
 
 const categoryItems = [
@@ -26,8 +106,24 @@ const categoryItems = [
   { label: "Deep Tech", icon: Cpu, value: "Deep Tech" },
 ];
 
-const stages = ["All Stages", "Pre-Seed", "Seed", "Series A", "Series B", "Growth"];
-const locations = ["Global", "San Francisco", "New York", "London, UK", "Berlin", "Boston", "Tel Aviv", "Singapore"];
+const stages = [
+  "All Stages",
+  "Pre-Seed",
+  "Seed",
+  "Series A",
+  "Series B",
+  "Growth",
+];
+const locations = [
+  "Global",
+  "San Francisco",
+  "New York",
+  "London, UK",
+  "Berlin",
+  "Boston",
+  "Tel Aviv",
+  "Singapore",
+];
 
 const Startups = () => {
   const [search, setSearch] = useState("");
@@ -36,7 +132,9 @@ const Startups = () => {
   const [category, setCategory] = useState("All");
 
   const filtered = allStartups.filter((s) => {
-    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.pitch.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.pitch.toLowerCase().includes(search.toLowerCase());
     const matchStage = stage === "All Stages" || s.stage === stage;
     const matchCat = category === "All" || s.category === category;
     const matchLoc = location === "Global" || s.location === location;
@@ -45,13 +143,42 @@ const Startups = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title={`Startups — StartupA2Z`}
+        description={`Browse our curated directory of Bay Area startups — filter by stage, sector, and location to find promising companies.`}
+        canonical={`https://startupa2z.org/startups`}
+        ogImage={`https://startupa2z.org/assets/og-startups.jpg`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "StartupA2Z Startup Directory",
+          url: "https://startupa2z.org/startups",
+        }}
+      />
       {/* Hero Section */}
-      <section className="section-padding gradient-hero-solid text-center" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}>
+      <section
+        className="section-padding gradient-hero-solid text-center"
+        style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}
+      >
         <div className="container-narrow">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">Discovery Directory</span>
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Explore the Next<br />Generation of Startups</h1>
-            <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8">Browse our curated directory of Bay Area startups — filter by stage, sector, and location to find the companies shaping tomorrow.</p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">
+              Discovery Directory
+            </span>
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">
+              Explore the Next
+              <br />
+              Generation of Startups
+            </h1>
+            <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8">
+              Browse our curated directory of Bay Area startups — filter by
+              stage, sector, and location to find the companies shaping
+              tomorrow.
+            </p>
             <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
               Submit Your Startup <Plus className="ml-2 w-4 h-4" />
             </Button>
@@ -64,7 +191,9 @@ const Startups = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
             <aside className="lg:w-56 shrink-0">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Categories</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+                Categories
+              </h3>
               <nav className="space-y-1 mb-8">
                 {categoryItems.map((item) => (
                   <button
@@ -84,8 +213,12 @@ const Startups = () => {
 
               {/* Want to list CTA */}
               <div className="bg-muted/50 rounded-xl p-5 border border-border">
-                <h4 className="font-heading font-semibold text-foreground mb-1">Want to list?</h4>
-                <p className="text-xs text-muted-foreground mb-4">Join 2,400+ vetted founders in the network.</p>
+                <h4 className="font-heading font-semibold text-foreground mb-1">
+                  Want to list?
+                </h4>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Join 2,400+ vetted founders in the network.
+                </p>
                 <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full text-sm font-semibold">
                   Submit Startup
                 </Button>
@@ -94,7 +227,6 @@ const Startups = () => {
 
             {/* Main content */}
             <div className="flex-1 min-w-0">
-
               {/* Search & filters bar */}
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <div className="relative flex-1">
@@ -113,7 +245,9 @@ const Startups = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {stages.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -123,15 +257,27 @@ const Startups = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {locations.map((l) => (
-                        <SelectItem key={l} value={l}>{l}</SelectItem>
+                        <SelectItem key={l} value={l}>
+                          {l}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Button
                     className="h-12 px-6 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold"
-                    onClick={() => { setStage("All Stages"); setLocation("Global"); setSearch(""); setCategory("All"); }}
+                    onClick={() => {
+                      setStage("All Stages");
+                      setLocation("Global");
+                      setSearch("");
+                      setCategory("All");
+                    }}
                   >
-                    {stage !== "All Stages" || location !== "Global" || search || category !== "All" ? "Reset" : "Apply"}
+                    {stage !== "All Stages" ||
+                    location !== "Global" ||
+                    search ||
+                    category !== "All"
+                      ? "Reset"
+                      : "Apply"}
                   </Button>
                 </div>
               </div>
@@ -140,8 +286,12 @@ const Startups = () => {
               {filtered.length === 0 ? (
                 <div className="text-center py-20">
                   <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                  <h3 className="font-heading font-semibold text-foreground mb-2">No startups found</h3>
-                  <p className="text-muted-foreground text-sm">Try adjusting your filters or search terms.</p>
+                  <h3 className="font-heading font-semibold text-foreground mb-2">
+                    No startups found
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    Try adjusting your filters or search terms.
+                  </p>
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-12">
@@ -167,10 +317,15 @@ const Startups = () => {
                       <h3 className="font-heading font-semibold text-foreground text-lg mb-1 group-hover:text-secondary transition-colors">
                         {s.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{s.pitch}</p>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {s.pitch}
+                      </p>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
                         <span className="flex items-center gap-1">
-                          <span className="font-medium text-foreground/70">⌂</span> {s.stage}
+                          <span className="font-medium text-foreground/70">
+                            ⌂
+                          </span>{" "}
+                          {s.stage}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" /> {s.location}
@@ -178,7 +333,10 @@ const Startups = () => {
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {s.tags.map((t) => (
-                          <span key={t} className="text-xs px-2.5 py-1 rounded-full border border-border text-muted-foreground bg-background">
+                          <span
+                            key={t}
+                            className="text-xs px-2.5 py-1 rounded-full border border-border text-muted-foreground bg-background"
+                          >
                             {t}
                           </span>
                         ))}
@@ -191,11 +349,17 @@ const Startups = () => {
                     <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
                       <Plus className="w-5 h-5 text-muted-foreground" />
                     </div>
-                    <h3 className="font-heading font-semibold text-foreground mb-1">Your Startup Here?</h3>
+                    <h3 className="font-heading font-semibold text-foreground mb-1">
+                      Your Startup Here?
+                    </h3>
                     <p className="text-xs text-muted-foreground mb-4 max-w-[200px]">
-                      Join our editorialized directory of the next generation of giants.
+                      Join our editorialized directory of the next generation of
+                      giants.
                     </p>
-                    <Button variant="outline" className="rounded-full text-sm font-semibold">
+                    <Button
+                      variant="outline"
+                      className="rounded-full text-sm font-semibold"
+                    >
                       Apply to List
                     </Button>
                   </div>

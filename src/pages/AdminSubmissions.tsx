@@ -3,7 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +34,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import EventForm, { type EditableEvent } from "@/components/admin/EventForm";
+import SEO from "@/components/SEO";
 import {
   Dialog,
   DialogContent,
@@ -95,6 +103,13 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "message", label: "Message" },
 ];
 
+const StatCard = ({ label, value }: { label: string; value: number }) => (
+  <div className="rounded-xl border bg-card/80 backdrop-blur px-4 py-3 text-center shadow-sm">
+    <p className="text-2xl font-bold tracking-tight">{value}</p>
+    <p className="text-xs text-muted-foreground">{label}</p>
+  </div>
+);
+
 const AdminSubmissions = () => {
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
@@ -115,13 +130,20 @@ const AdminSubmissions = () => {
   const [rsvpSearch, setRsvpSearch] = useState("");
   const [rsvpEventFilter, setRsvpEventFilter] = useState<string>("all");
   const [attendeesOpen, setAttendeesOpen] = useState(false);
-  const [attendeesEvent, setAttendeesEvent] = useState<{ slug: string; title: string } | null>(null);
+  const [attendeesEvent, setAttendeesEvent] = useState<{
+    slug: string;
+    title: string;
+  } | null>(null);
 
   const handleEditEvent = async (id: string) => {
     setEditOpen(true);
     setEditingEvent(null);
     setEditLoading(true);
-    const { data, error } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
     setEditLoading(false);
     if (error || !data) {
       toast({
@@ -147,8 +169,12 @@ const AdminSubmissions = () => {
       capacity: data.capacity,
       price: data.price,
       featured: data.featured,
-      agenda: Array.isArray(data.agenda) ? (data.agenda as { time: string; item: string }[]) : [],
-      speakers: Array.isArray(data.speakers) ? (data.speakers as { name: string; role: string }[]) : [],
+      agenda: Array.isArray(data.agenda)
+        ? (data.agenda as { time: string; item: string }[])
+        : [],
+      speakers: Array.isArray(data.speakers)
+        ? (data.speakers as { name: string; role: string }[])
+        : [],
       image_url: data.image_url,
     });
   };
@@ -157,11 +183,17 @@ const AdminSubmissions = () => {
     setEventsLoading(true);
     const { data, error } = await supabase
       .from("events")
-      .select("id, slug, title, date, type, venue, featured, image_url, created_at")
+      .select(
+        "id, slug, title, date, type, venue, featured, image_url, created_at",
+      )
       .order("created_at", { ascending: false });
     setEventsLoading(false);
     if (error) {
-      toast({ title: "Failed to load events", description: error.message, variant: "destructive" });
+      toast({
+        title: "Failed to load events",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     setAdminEvents((data ?? []) as AdminEvent[]);
@@ -171,7 +203,11 @@ const AdminSubmissions = () => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
     const { error } = await supabase.from("events").delete().eq("id", id);
     if (error) {
-      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     toast({ title: "Event deleted" });
@@ -187,7 +223,11 @@ const AdminSubmissions = () => {
       .order("created_at", { ascending: false });
     setRsvpsLoading(false);
     if (error) {
-      toast({ title: "Failed to load RSVPs", description: error.message, variant: "destructive" });
+      toast({
+        title: "Failed to load RSVPs",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     setRsvps((data ?? []) as AdminRSVP[]);
@@ -197,7 +237,11 @@ const AdminSubmissions = () => {
     if (!confirm(`Delete RSVP from "${name}"? This cannot be undone.`)) return;
     const { error } = await supabase.from("event_rsvps").delete().eq("id", id);
     if (error) {
-      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     toast({ title: "RSVP deleted" });
@@ -207,10 +251,23 @@ const AdminSubmissions = () => {
   const exportRSVPsCSV = () => {
     const filtered = filteredRsvps;
     if (filtered.length === 0) {
-      toast({ title: "Nothing to export", description: "No RSVPs match your filters." });
+      toast({
+        title: "Nothing to export",
+        description: "No RSVPs match your filters.",
+      });
       return;
     }
-    const headers = ["Submitted", "Event", "First Name", "Last Name", "Email", "Phone", "Company", "Role", "Notes"];
+    const headers = [
+      "Submitted",
+      "Event",
+      "First Name",
+      "Last Name",
+      "Email",
+      "Phone",
+      "Company",
+      "Role",
+      "Notes",
+    ];
     const rows = filtered.map((r) => [
       new Date(r.created_at).toISOString(),
       r.event_title,
@@ -223,7 +280,9 @@ const AdminSubmissions = () => {
       (r.notes ?? "").replace(/\n/g, " "),
     ]);
     const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
-    const csv = [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const csv = [headers, ...rows]
+      .map((r) => r.map(escape).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -240,7 +299,11 @@ const AdminSubmissions = () => {
 
     let active = true;
 
-    const init = async (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
+    const init = async (
+      session: Awaited<
+        ReturnType<typeof supabase.auth.getSession>
+      >["data"]["session"],
+    ) => {
       if (!session) {
         navigate("/admin/login", { replace: true });
         return;
@@ -255,7 +318,11 @@ const AdminSubmissions = () => {
 
       if (!active) return;
       if (error) {
-        toast({ title: "Could not verify role", description: error.message, variant: "destructive" });
+        toast({
+          title: "Could not verify role",
+          description: error.message,
+          variant: "destructive",
+        });
       }
       const admin = !!data;
       setIsAdmin(admin);
@@ -280,12 +347,14 @@ const AdminSubmissions = () => {
         { event: "INSERT", schema: "public", table: "contact_submissions" },
         (payload) => {
           const s = payload.new as Submission;
-          setRows((prev) => (prev.some((r) => r.id === s.id) ? prev : [s, ...prev]));
+          setRows((prev) =>
+            prev.some((r) => r.id === s.id) ? prev : [s, ...prev],
+          );
           toast({
             title: "New contact submission",
             description: `${s.first_name} ${s.last_name} • ${s.inquiry_type}`,
           });
-        }
+        },
       )
       .subscribe();
 
@@ -305,7 +374,11 @@ const AdminSubmissions = () => {
       .order("created_at", { ascending: false });
     setLoading(false);
     if (error) {
-      toast({ title: "Failed to load submissions", description: error.message, variant: "destructive" });
+      toast({
+        title: "Failed to load submissions",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     setRows(data || []);
@@ -329,7 +402,14 @@ const AdminSubmissions = () => {
     const filtered = search
       ? rows.filter((r) => {
           const q = search.toLowerCase();
-          return [r.first_name, r.last_name, r.email, r.inquiry_type, r.role, r.message]
+          return [
+            r.first_name,
+            r.last_name,
+            r.email,
+            r.inquiry_type,
+            r.role,
+            r.message,
+          ]
             .filter(Boolean)
             .some((v) => String(v).toLowerCase().includes(q));
         })
@@ -349,10 +429,19 @@ const AdminSubmissions = () => {
 
   const filteredRsvps = useMemo(() => {
     return rsvps.filter((r) => {
-      if (rsvpEventFilter !== "all" && r.event_slug !== rsvpEventFilter) return false;
+      if (rsvpEventFilter !== "all" && r.event_slug !== rsvpEventFilter)
+        return false;
       if (!rsvpSearch) return true;
       const q = rsvpSearch.toLowerCase();
-      return [r.first_name, r.last_name, r.email, r.company, r.role, r.event_title, r.notes]
+      return [
+        r.first_name,
+        r.last_name,
+        r.email,
+        r.company,
+        r.role,
+        r.event_title,
+        r.notes,
+      ]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q));
     });
@@ -383,10 +472,14 @@ const AdminSubmissions = () => {
   const stats = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayCount = rows.filter((r) => new Date(r.created_at) >= today).length;
+    const todayCount = rows.filter(
+      (r) => new Date(r.created_at) >= today,
+    ).length;
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekCount = rows.filter((r) => new Date(r.created_at) >= weekAgo).length;
+    const weekCount = rows.filter(
+      (r) => new Date(r.created_at) >= weekAgo,
+    ).length;
     return { total: rows.length, today: todayCount, week: weekCount };
   }, [rows]);
 
@@ -410,10 +503,15 @@ const AdminSubmissions = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Your account does not have admin access. Ask an existing admin to grant you the
+              Your account does not have admin access. Ask an existing admin to
+              grant you the
               <code className="mx-1 px-1 rounded bg-muted">admin</code> role.
             </p>
-            <Button variant="outline" onClick={handleSignOut} className="w-full">
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              className="w-full"
+            >
               <LogOut className="h-4 w-4" /> Sign out
             </Button>
           </CardContent>
@@ -423,493 +521,616 @@ const AdminSubmissions = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-      {/* Top bar */}
-      <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 md:px-8 h-16">
-          <Link to="/" className="inline-flex items-center gap-3">
-            <img src={logo} alt="StartupA2Z" width={864} height={159} className="h-7 md:h-8 w-auto" />
-            <Badge variant="secondary" className="hidden sm:inline-flex">Admin</Badge>
-          </Link>
-          <div className="flex items-center gap-3">
-            {userEmail && (
-              <span className="hidden md:inline text-sm text-muted-foreground">{userEmail}</span>
-            )}
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4" /> Sign out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
-        {/* Welcome hero */}
-        <section className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 md:p-8">
-          <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 px-3 py-1 rounded-full mb-3">
-                <Sparkles className="h-3.5 w-3.5" />
-                Welcome to admin
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Hello{userEmail ? `, ${userEmail.split("@")[0]}` : ""} 👋
-              </h1>
-              <p className="text-muted-foreground mt-2 max-w-xl">
-                Manage your community submissions, monitor activity, and keep the Bay Area startup
-                ecosystem moving.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-3 md:gap-4">
-              <StatCard label="Total" value={stats.total} />
-              <StatCard label="This week" value={stats.week} />
-              <StatCard label="Today" value={stats.today} />
+    <>
+      <SEO
+        title={`Admin Dashboard | StartupA2Z`}
+        description={`Admin dashboard for Startupa2z.`}
+        noindex={true}
+        canonical={`https://startupa2z.org/admin/submissions`}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+        {/* Top bar */}
+        <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 md:px-8 h-16">
+            <Link to="/" className="inline-flex items-center gap-3">
+              <img
+                src={logo}
+                alt="StartupA2Z"
+                width={864}
+                height={159}
+                className="h-7 md:h-8 w-auto"
+              />
+              <Badge variant="secondary" className="hidden sm:inline-flex">
+                Admin
+              </Badge>
+            </Link>
+            <div className="flex items-center gap-3">
+              {userEmail && (
+                <span className="hidden md:inline text-sm text-muted-foreground">
+                  {userEmail}
+                </span>
+              )}
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4" /> Sign out
+              </Button>
             </div>
           </div>
-        </section>
+        </header>
 
-        {/* Tabs */}
-        <Tabs defaultValue="submissions" className="space-y-6">
-          <TabsList className="h-11 p-1 bg-muted/60 backdrop-blur">
-            <TabsTrigger value="submissions" className="gap-2">
-              <Inbox className="h-4 w-4" /> Contact submissions
-              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                {rows.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="events" className="gap-2">
-              <CalendarDays className="h-4 w-4" /> Events
-              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                {adminEvents.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="rsvps" className="gap-2">
-              <Users className="h-4 w-4" /> RSVPs
-              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                {rsvps.length}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="submissions" className="space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search name, email, inquiry, message…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground hidden md:block">
-                  Click any column header to sort
-                </p>
-                <Button variant="outline" size="sm" onClick={fetchSubmissions} disabled={loading}>
-                  {loading ? "Refreshing…" : "Refresh"}
-                </Button>
-              </div>
-            </div>
-
-            <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    {COLUMNS.map((col) => {
-                      const active = sortKey === col.key;
-                      const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
-                      return (
-                        <TableHead key={col.key}>
-                          <button
-                            onClick={() => handleSort(col.key)}
-                            className="inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors"
-                          >
-                            {col.label}
-                            <Icon className={`h-3 w-3 ${active ? "opacity-100 text-primary" : "opacity-50"}`} />
-                          </button>
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sorted.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={COLUMNS.length} className="text-center py-16">
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <Mail className="h-8 w-8 opacity-40" />
-                          <p>{loading ? "Loading…" : "No submissions found."}</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    sorted.map((r) => (
-                      <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                          {new Date(r.created_at).toLocaleString()}
-                        </TableCell>
-                        <TableCell className="font-medium">{r.first_name}</TableCell>
-                        <TableCell className="font-medium">{r.last_name}</TableCell>
-                        <TableCell>
-                          <a href={`mailto:${r.email}`} className="text-primary hover:underline">
-                            {r.email}
-                          </a>
-                        </TableCell>
-                        <TableCell>{r.role || <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{r.inquiry_type}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {r.linkedin_url ? (
-                            <a
-                              href={r.linkedin_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              Profile
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="max-w-xs">
-                          <p className="truncate text-sm" title={r.message || ""}>
-                            {r.message || <span className="text-muted-foreground">—</span>}
-                          </p>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="events" className="space-y-6">
-            <div className="grid lg:grid-cols-5 gap-6">
-              {/* Form */}
-              <div className="lg:col-span-3 border rounded-xl bg-card shadow-sm p-6">
-                <div className="mb-5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5 text-primary" /> Add a new event
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Published instantly to <Link to="/events" className="text-primary hover:underline">/events</Link>.
-                  </p>
+        <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
+          {/* Welcome hero */}
+          <section className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 md:p-8">
+            <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 px-3 py-1 rounded-full mb-3">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Welcome to admin
                 </div>
-                <EventForm onCreated={fetchEvents} />
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                  Hello{userEmail ? `, ${userEmail.split("@")[0]}` : ""} 👋
+                </h1>
+                <p className="text-muted-foreground mt-2 max-w-xl">
+                  Manage your community submissions, monitor activity, and keep
+                  the Bay Area startup ecosystem moving.
+                </p>
               </div>
+              <div className="grid grid-cols-3 gap-3 md:gap-4">
+                <StatCard label="Total" value={stats.total} />
+                <StatCard label="This week" value={stats.week} />
+                <StatCard label="Today" value={stats.today} />
+              </div>
+            </div>
+          </section>
 
-              {/* List */}
-              <div className="lg:col-span-2 border rounded-xl bg-card shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Published events</h2>
-                  <Button variant="outline" size="sm" onClick={fetchEvents} disabled={eventsLoading}>
-                    {eventsLoading ? "Refreshing…" : "Refresh"}
+          {/* Tabs */}
+          <Tabs defaultValue="submissions" className="space-y-6">
+            <TabsList className="h-11 p-1 bg-muted/60 backdrop-blur">
+              <TabsTrigger value="submissions" className="gap-2">
+                <Inbox className="h-4 w-4" /> Contact submissions
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                  {rows.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="events" className="gap-2">
+                <CalendarDays className="h-4 w-4" /> Events
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                  {adminEvents.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="rsvps" className="gap-2">
+                <Users className="h-4 w-4" /> RSVPs
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                  {rsvps.length}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="submissions" className="space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search name, email, inquiry, message…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground hidden md:block">
+                    Click any column header to sort
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchSubmissions}
+                    disabled={loading}
+                  >
+                    {loading ? "Refreshing…" : "Refresh"}
                   </Button>
                 </div>
-                {adminEvents.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                    <p className="text-sm">No events yet. Add one to get started.</p>
-                  </div>
-                ) : (
-                  <ul className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                    {adminEvents.map((ev) => (
-                      <li
-                        key={ev.id}
-                        className="group rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
-                      >
-                        <div className="flex items-start gap-3">
-                          {ev.image_url ? (
-                            <img
-                              src={ev.image_url}
-                              alt={`${ev.title} cover`}
-                              className="h-14 w-14 rounded-md object-cover flex-shrink-0 border"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="h-14 w-14 rounded-md bg-muted flex-shrink-0 flex items-center justify-center text-muted-foreground">
-                              <CalendarDays className="h-5 w-5 opacity-60" />
-                            </div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <Link
-                              to={`/events/${ev.slug}`}
-                              className="font-medium text-sm hover:text-primary truncate block"
+              </div>
+
+              <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
+                      {COLUMNS.map((col) => {
+                        const active = sortKey === col.key;
+                        const Icon = active
+                          ? sortDir === "asc"
+                            ? ArrowUp
+                            : ArrowDown
+                          : ArrowUpDown;
+                        return (
+                          <TableHead key={col.key}>
+                            <button
+                              onClick={() => handleSort(col.key)}
+                              className="inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors"
                             >
-                              {ev.title}
-                            </Link>
-                            <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                              {ev.date} • {ev.venue}
+                              {col.label}
+                              <Icon
+                                className={`h-3 w-3 ${active ? "opacity-100 text-primary" : "opacity-50"}`}
+                              />
+                            </button>
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sorted.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={COLUMNS.length}
+                          className="text-center py-16"
+                        >
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <Mail className="h-8 w-8 opacity-40" />
+                            <p>
+                              {loading ? "Loading…" : "No submissions found."}
                             </p>
-                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                              <Badge variant="secondary" className="text-[10px]">{ev.type}</Badge>
-                              {ev.featured && (
-                                <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">
-                                  Featured
-                                </Badge>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setAttendeesEvent({ slug: ev.slug, title: ev.title });
-                                  setAttendeesOpen(true);
-                                }}
-                                className="inline-flex items-center gap-1 rounded-full bg-accent/40 hover:bg-accent/70 transition-colors px-2 py-0.5 text-[10px] font-medium text-foreground"
-                                aria-label={`View ${rsvpCountBySlug.get(ev.slug) ?? 0} attendees`}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      sorted.map((r) => (
+                        <TableRow
+                          key={r.id}
+                          className="hover:bg-muted/30 transition-colors"
+                        >
+                          <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                            {new Date(r.created_at).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {r.first_name}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {r.last_name}
+                          </TableCell>
+                          <TableCell>
+                            <a
+                              href={`mailto:${r.email}`}
+                              className="text-primary hover:underline"
+                            >
+                              {r.email}
+                            </a>
+                          </TableCell>
+                          <TableCell>
+                            {r.role || (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{r.inquiry_type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {r.linkedin_url ? (
+                              <a
+                                href={r.linkedin_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline"
                               >
-                                <Users className="h-3 w-3" />
-                                {rsvpCountBySlug.get(ev.slug) ?? 0} RSVP{(rsvpCountBySlug.get(ev.slug) ?? 0) === 1 ? "" : "s"}
-                              </button>
+                                Profile
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <p
+                              className="truncate text-sm"
+                              title={r.message || ""}
+                            >
+                              {r.message || (
+                                <span className="text-muted-foreground">—</span>
+                              )}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="events" className="space-y-6">
+              <div className="grid lg:grid-cols-5 gap-6">
+                {/* Form */}
+                <div className="lg:col-span-3 border rounded-xl bg-card shadow-sm p-6">
+                  <div className="mb-5">
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                      <CalendarDays className="h-5 w-5 text-primary" /> Add a
+                      new event
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Published instantly to{" "}
+                      <Link
+                        to="/events"
+                        className="text-primary hover:underline"
+                      >
+                        /events
+                      </Link>
+                      .
+                    </p>
+                  </div>
+                  <EventForm onCreated={fetchEvents} />
+                </div>
+
+                {/* List */}
+                <div className="lg:col-span-2 border rounded-xl bg-card shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold">Published events</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchEvents}
+                      disabled={eventsLoading}
+                    >
+                      {eventsLoading ? "Refreshing…" : "Refresh"}
+                    </Button>
+                  </div>
+                  {adminEvents.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                      <p className="text-sm">
+                        No events yet. Add one to get started.
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                      {adminEvents.map((ev) => (
+                        <li
+                          key={ev.id}
+                          className="group rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
+                        >
+                          <div className="flex items-start gap-3">
+                            {ev.image_url ? (
+                              <img
+                                src={ev.image_url}
+                                alt={`${ev.title} cover`}
+                                className="h-14 w-14 rounded-md object-cover flex-shrink-0 border"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="h-14 w-14 rounded-md bg-muted flex-shrink-0 flex items-center justify-center text-muted-foreground">
+                                <CalendarDays className="h-5 w-5 opacity-60" />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <Link
+                                to={`/events/${ev.slug}`}
+                                className="font-medium text-sm hover:text-primary truncate block"
+                              >
+                                {ev.title}
+                              </Link>
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                {ev.date} • {ev.venue}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[10px]"
+                                >
+                                  {ev.type}
+                                </Badge>
+                                {ev.featured && (
+                                  <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">
+                                    Featured
+                                  </Badge>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAttendeesEvent({
+                                      slug: ev.slug,
+                                      title: ev.title,
+                                    });
+                                    setAttendeesOpen(true);
+                                  }}
+                                  className="inline-flex items-center gap-1 rounded-full bg-accent/40 hover:bg-accent/70 transition-colors px-2 py-0.5 text-[10px] font-medium text-foreground"
+                                  aria-label={`View ${rsvpCountBySlug.get(ev.slug) ?? 0} attendees`}
+                                >
+                                  <Users className="h-3 w-3" />
+                                  {rsvpCountBySlug.get(ev.slug) ?? 0} RSVP
+                                  {(rsvpCountBySlug.get(ev.slug) ?? 0) === 1
+                                    ? ""
+                                    : "s"}
+                                </button>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                onClick={() => handleEditEvent(ev.id)}
+                                aria-label="Edit event"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                onClick={() =>
+                                  handleDeleteEvent(ev.id, ev.title)
+                                }
+                                aria-label="Delete event"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-primary"
-                              onClick={() => handleEditEvent(ev.id)}
-                              aria-label="Edit event"
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="rsvps" className="space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="flex flex-1 flex-col sm:flex-row gap-3 max-w-2xl">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search name, email, company, role…"
+                      value={rsvpSearch}
+                      onChange={(e) => setRsvpSearch(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <select
+                    value={rsvpEventFilter}
+                    onChange={(e) => setRsvpEventFilter(e.target.value)}
+                    className="h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="all">All events ({rsvps.length})</option>
+                    {rsvpEventOptions.map((opt) => (
+                      <option key={opt.slug} value={opt.slug}>
+                        {opt.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportRSVPsCSV}
+                    disabled={filteredRsvps.length === 0}
+                  >
+                    <Download className="h-4 w-4" /> Export CSV
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchRSVPs}
+                    disabled={rsvpsLoading}
+                  >
+                    {rsvpsLoading ? "Refreshing…" : "Refresh"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
+                      <TableHead>Submitted</TableHead>
+                      <TableHead>Event</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Notes</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRsvps.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-16">
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <Users className="h-8 w-8 opacity-40" />
+                            <p>{rsvpsLoading ? "Loading…" : "No RSVPs yet."}</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredRsvps.map((r) => (
+                        <TableRow
+                          key={r.id}
+                          className="hover:bg-muted/30 transition-colors"
+                        >
+                          <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                            {new Date(r.created_at).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <Link
+                              to={`/events/${r.event_slug}`}
+                              className="text-primary hover:underline text-sm font-medium"
                             >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                              {r.event_title}
+                            </Link>
+                          </TableCell>
+                          <TableCell className="font-medium whitespace-nowrap">
+                            {r.first_name}{" "}
+                            {r.last_name !== "—" ? r.last_name : ""}
+                          </TableCell>
+                          <TableCell>
+                            <a
+                              href={`mailto:${r.email}`}
+                              className="text-primary hover:underline"
+                            >
+                              {r.email}
+                            </a>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {r.phone || (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {r.company || (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {r.role ? (
+                              <Badge variant="secondary" className="capitalize">
+                                {r.role}
+                              </Badge>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <p
+                              className="truncate text-sm"
+                              title={r.notes || ""}
+                            >
+                              {r.notes || (
+                                <span className="text-muted-foreground">—</span>
+                              )}
+                            </p>
+                          </TableCell>
+                          <TableCell className="text-right">
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                              onClick={() => handleDeleteEvent(ev.id, ev.title)}
-                              aria-label="Delete event"
+                              onClick={() =>
+                                handleDeleteRSVP(
+                                  r.id,
+                                  `${r.first_name} ${r.last_name}`,
+                                )
+                              }
+                              aria-label="Delete RSVP"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
+          </Tabs>
+        </main>
 
-          <TabsContent value="rsvps" className="space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              <div className="flex flex-1 flex-col sm:flex-row gap-3 max-w-2xl">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search name, email, company, role…"
-                    value={rsvpSearch}
-                    onChange={(e) => setRsvpSearch(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <select
-                  value={rsvpEventFilter}
-                  onChange={(e) => setRsvpEventFilter(e.target.value)}
-                  className="h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="all">All events ({rsvps.length})</option>
-                  {rsvpEventOptions.map((opt) => (
-                    <option key={opt.slug} value={opt.slug}>
-                      {opt.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={exportRSVPsCSV} disabled={filteredRsvps.length === 0}>
-                  <Download className="h-4 w-4" /> Export CSV
-                </Button>
-                <Button variant="outline" size="sm" onClick={fetchRSVPs} disabled={rsvpsLoading}>
-                  {rsvpsLoading ? "Refreshing…" : "Refresh"}
-                </Button>
-              </div>
-            </div>
-
-            <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead>Submitted</TableHead>
-                    <TableHead>Event</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Notes</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRsvps.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center py-16">
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <Users className="h-8 w-8 opacity-40" />
-                          <p>{rsvpsLoading ? "Loading…" : "No RSVPs yet."}</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredRsvps.map((r) => (
-                      <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                          {new Date(r.created_at).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Link to={`/events/${r.event_slug}`} className="text-primary hover:underline text-sm font-medium">
-                            {r.event_title}
-                          </Link>
-                        </TableCell>
-                        <TableCell className="font-medium whitespace-nowrap">
-                          {r.first_name} {r.last_name !== "—" ? r.last_name : ""}
-                        </TableCell>
-                        <TableCell>
-                          <a href={`mailto:${r.email}`} className="text-primary hover:underline">
-                            {r.email}
-                          </a>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {r.phone || <span className="text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {r.company || <span className="text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell>
-                          {r.role ? (
-                            <Badge variant="secondary" className="capitalize">{r.role}</Badge>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="max-w-xs">
-                          <p className="truncate text-sm" title={r.notes || ""}>
-                            {r.notes || <span className="text-muted-foreground">—</span>}
-                          </p>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDeleteRSVP(r.id, `${r.first_name} ${r.last_name}`)}
-                            aria-label="Delete RSVP"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </main>
-
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit event</DialogTitle>
-            <DialogDescription>
-              Update any field below. Changes go live on /events immediately after saving.
-            </DialogDescription>
-          </DialogHeader>
-          {editLoading || !editingEvent ? (
-            <div className="py-12 flex items-center justify-center text-muted-foreground gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading event…
-            </div>
-          ) : (
-            <EventForm
-              event={editingEvent}
-              onSaved={() => {
-                setEditOpen(false);
-                setEditingEvent(null);
-                fetchEvents();
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <Sheet open={attendeesOpen} onOpenChange={setAttendeesOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
-          <SheetHeader>
-            <SheetTitle className="truncate">{attendeesEvent?.title ?? "Attendees"}</SheetTitle>
-            <SheetDescription>
-              {attendeesForSelected.length} {attendeesForSelected.length === 1 ? "person" : "people"} RSVP'd
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-4 flex-1 overflow-y-auto -mx-6 px-6">
-            {attendeesForSelected.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                <p className="text-sm">No RSVPs yet for this event.</p>
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit event</DialogTitle>
+              <DialogDescription>
+                Update any field below. Changes go live on /events immediately
+                after saving.
+              </DialogDescription>
+            </DialogHeader>
+            {editLoading || !editingEvent ? (
+              <div className="py-12 flex items-center justify-center text-muted-foreground gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading event…
               </div>
             ) : (
-              <ul className="space-y-2">
-                {attendeesForSelected.map((a) => (
-                  <li
-                    key={a.id}
-                    className="rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">
-                          {a.first_name} {a.last_name !== "—" ? a.last_name : ""}
-                        </p>
-                        <a
-                          href={`mailto:${a.email}`}
-                          className="text-xs text-primary hover:underline break-all"
-                        >
-                          {a.email}
-                        </a>
-                        {(a.company || a.role) && (
-                          <p className="text-xs text-muted-foreground mt-1 truncate">
-                            {[a.role, a.company].filter(Boolean).join(" • ")}
-                          </p>
-                        )}
-                        {a.notes && (
-                          <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">
-                            "{a.notes}"
-                          </p>
-                        )}
-                        <p className="text-[10px] text-muted-foreground mt-1.5">
-                          {new Date(a.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
-                        onClick={() => handleDeleteRSVP(a.id, `${a.first_name} ${a.last_name}`)}
-                        aria-label="Remove RSVP"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <EventForm
+                event={editingEvent}
+                onSaved={() => {
+                  setEditOpen(false);
+                  setEditingEvent(null);
+                  fetchEvents();
+                }}
+              />
             )}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+          </DialogContent>
+        </Dialog>
+
+        <Sheet open={attendeesOpen} onOpenChange={setAttendeesOpen}>
+          <SheetContent
+            side="right"
+            className="w-full sm:max-w-md flex flex-col"
+          >
+            <SheetHeader>
+              <SheetTitle className="truncate">
+                {attendeesEvent?.title ?? "Attendees"}
+              </SheetTitle>
+              <SheetDescription>
+                {attendeesForSelected.length}{" "}
+                {attendeesForSelected.length === 1 ? "person" : "people"} RSVP'd
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-4 flex-1 overflow-y-auto -mx-6 px-6">
+              {attendeesForSelected.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">No RSVPs yet for this event.</p>
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {attendeesForSelected.map((a) => (
+                    <li
+                      key={a.id}
+                      className="rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm truncate">
+                            {a.first_name}{" "}
+                            {a.last_name !== "—" ? a.last_name : ""}
+                          </p>
+                          <a
+                            href={`mailto:${a.email}`}
+                            className="text-xs text-primary hover:underline break-all"
+                          >
+                            {a.email}
+                          </a>
+                          {(a.company || a.role) && (
+                            <p className="text-xs text-muted-foreground mt-1 truncate">
+                              {[a.role, a.company].filter(Boolean).join(" • ")}
+                            </p>
+                          )}
+                          {a.notes && (
+                            <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">
+                              "{a.notes}"
+                            </p>
+                          )}
+                          <p className="text-[10px] text-muted-foreground mt-1.5">
+                            {new Date(a.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                          onClick={() =>
+                            handleDeleteRSVP(
+                              a.id,
+                              `${a.first_name} ${a.last_name}`,
+                            )
+                          }
+                          aria-label="Remove RSVP"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
   );
 };
-
-const StatCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-xl border bg-card/80 backdrop-blur px-4 py-3 text-center shadow-sm">
-    <p className="text-2xl font-bold tracking-tight">{value}</p>
-    <p className="text-xs text-muted-foreground">{label}</p>
-  </div>
-);
 
 export default AdminSubmissions;
