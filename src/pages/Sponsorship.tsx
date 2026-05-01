@@ -1,4 +1,5 @@
 import PageLayout from "@/components/PageLayout";
+import SEO from "@/components/SEO";
 import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
@@ -43,6 +44,18 @@ const packages = [
 
 const Sponsorship = () => (
   <PageLayout>
+    <SEO
+      title={`Sponsorship — StartupA2Z`}
+      description={`Reach Bay Area founders, investors, and builders through curated events, workshops, and community programming.`}
+      canonical={`https://startupa2z.org/sponsorship`}
+      ogImage={`https://startupa2z.org/assets/og-sponsorship.jpg`}
+      jsonLd={{
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "StartupA2Z",
+        url: "https://startupa2z.org",
+      }}
+    />
     <section
       className="section-padding gradient-hero-solid text-center"
       style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))" }}
