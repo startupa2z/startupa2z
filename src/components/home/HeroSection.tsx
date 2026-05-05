@@ -7,10 +7,10 @@ import type { EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const stats = [
-  { value: "2,400", suffix: "+", label: "Active Members" },
-  { value: "48", suffix: "", label: "Events This Year" },
-  { value: "120K", suffix: "+", label: "Page Visits" },
-  { value: "35", suffix: "+", label: "Industry Partners" },
+  { value: "10", suffix: "+", label: "Active Members" },
+  { value: "1", suffix: "", label: "Events This Year" },
+  { value: "20", suffix: "+", label: "Page Visits" },
+  { value: "1", suffix: "+", label: "Industry Partners" },
 ];
 
 const HeroSection = () => {
@@ -37,8 +37,12 @@ const HeroSection = () => {
           type: data.type,
           desc: data.description ?? "",
           longDesc: data.long_description ?? "",
-          agenda: Array.isArray(data.agenda) ? (data.agenda as { time: string; item: string }[]) : [],
-          speakers: Array.isArray(data.speakers) ? (data.speakers as { name: string; role: string }[]) : [],
+          agenda: Array.isArray(data.agenda)
+            ? (data.agenda as { time: string; item: string }[])
+            : [],
+          speakers: Array.isArray(data.speakers)
+            ? (data.speakers as { name: string; role: string }[])
+            : [],
           spots: data.spots,
           capacity: data.capacity,
           price: data.price,
@@ -95,77 +99,84 @@ const HeroSection = () => {
 
       <div className="relative z-10 container-narrow px-[clamp(1.5rem,5vw,3rem)] w-full">
         <div className="grid lg:grid-cols-[1fr_340px] gap-[clamp(3rem,5vw,5rem)] items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-[720px]"
-        >
-          {/* Label pill */}
-          <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.15em] uppercase text-secondary bg-secondary/[0.12] px-3 py-1.5 rounded-full border border-secondary/30 backdrop-blur-sm mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-            Silicon Valley
-          </span>
-
-          {/* Title */}
-          <h1
-            className="font-black tracking-[-0.03em] leading-[1.0] text-white mb-6 text-6xl"
-            style={{ textShadow: "0 2px 20px rgba(0,0,0,0.25)" }}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-[720px]"
           >
-            Silicon Valley
-            <br />
-            Starts Here.
-          </h1>
+            {/* Label pill */}
+            <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.15em] uppercase text-secondary bg-secondary/[0.12] px-3 py-1.5 rounded-full border border-secondary/30 backdrop-blur-sm mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+              Silicon Valley
+            </span>
 
-          {/* Body */}
-          <p className="text-[clamp(0.95rem,1.4vw,1.08rem)] text-white/[0.82] max-w-[560px] mb-10 leading-[1.75]">
-            Where the next generation of founders learn, connect, and build. Join
-            the most intentional startup community in the Valley — unfiltered
-            conversations, real practitioners, and the people who&apos;ll build
-            tomorrow alongside you.
-          </p>
-
-          {/* Actions */}
-          <div className="flex flex-wrap items-center gap-4">
-            <Link
-              to="/events"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-[0_8px_28px_rgba(232,137,26,0.35)]"
+            {/* Title */}
+            <h1
+              className="font-black tracking-[-0.03em] leading-[1.0] text-white mb-6 text-6xl"
+              style={{ textShadow: "0 2px 20px rgba(0,0,0,0.25)" }}
             >
-              Explore Meetups <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              to="/contact"
-              className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors"
-            >
-              Join the Community
-            </Link>
-          </div>
+              Silicon Valley
+              <br />
+              Starts Here.
+            </h1>
 
-          {/* Stats bar */}
-          <ul className="grid grid-cols-2 md:grid-cols-4 gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-5 mt-[clamp(2.5rem,5vw,4rem)] pt-[clamp(1.75rem,3vw,2.25rem)] border-t border-white/15 list-none">
-            {stats.map((stat, i) => (
-              <motion.li
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
-                className="flex flex-col gap-1"
+            {/* Tagline */}
+            <div className="mb-6">
+              <p className="font-heading italic text-2xl md:text-3xl font-semibold bg-gradient-to-r from-secondary to-[hsl(30,100%,58%)] text-transparent bg-clip-text">
+                From Seed to Success
+              </p>
+            </div>
+
+            {/* Body */}
+            <p className="text-[clamp(0.95rem,1.4vw,1.08rem)] text-white/[0.82] max-w-[560px] mb-10 leading-[1.75]">
+              Where the next generation of founders learn, connect, and build.
+              Join the most intentional startup community in the Valley —
+              unfiltered conversations, real practitioners, and the people
+              who&apos;ll build tomorrow alongside you.
+            </p>
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                to="/events"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-[0_8px_28px_rgba(232,137,26,0.35)]"
               >
-                <span className="text-[clamp(1.5rem,2.4vw,2rem)] font-extrabold tracking-[-0.02em] text-white leading-none">
-                  {stat.value}
-                  {stat.suffix && (
-                    <span className="text-secondary font-bold text-[0.85em] ml-px">
-                      {stat.suffix}
-                    </span>
-                  )}
-                </span>
-                <span className="text-[0.72rem] font-medium tracking-[0.08em] uppercase text-white/60">
-                  {stat.label}
-                </span>
-              </motion.li>
-            ))}
-          </ul>
-        </motion.div>
+                Explore Meetups <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/contact"
+                className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors"
+              >
+                Join the Community
+              </Link>
+            </div>
+
+            {/* Stats bar */}
+            <ul className="grid grid-cols-2 md:grid-cols-4 gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-5 mt-[clamp(2.5rem,5vw,4rem)] pt-[clamp(1.75rem,3vw,2.25rem)] border-t border-white/15 list-none">
+              {stats.map((stat, i) => (
+                <motion.li
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
+                  className="flex flex-col gap-1"
+                >
+                  <span className="text-[clamp(1.5rem,2.4vw,2rem)] font-extrabold tracking-[-0.02em] text-white leading-none">
+                    {stat.value}
+                    {stat.suffix && (
+                      <span className="text-secondary font-bold text-[0.85em] ml-px">
+                        {stat.suffix}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[0.72rem] font-medium tracking-[0.08em] uppercase text-white/60">
+                    {stat.label}
+                  </span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
 
           {/* Floating event card */}
           <motion.div
@@ -187,8 +198,12 @@ const HeroSection = () => {
               <div className="text-[0.82rem] text-muted-foreground mb-6">
                 {displayEvent.venue}
               </div>
-              <div className={`text-[0.75rem] font-semibold mb-4 ${displayEvent.spots <= 0 ? "text-destructive uppercase tracking-wider" : "text-primary"}`}>
-                {displayEvent.spots <= 0 ? "Sold out" : `${displayEvent.spots} spots remaining`}
+              <div
+                className={`text-[0.75rem] font-semibold mb-4 ${displayEvent.spots <= 0 ? "text-destructive uppercase tracking-wider" : "text-primary"}`}
+              >
+                {displayEvent.spots <= 0
+                  ? "Sold out"
+                  : `${displayEvent.spots} spots remaining`}
               </div>
               <Link
                 to={`/events/${displayEvent.slug}`}
