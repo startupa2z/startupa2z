@@ -3,21 +3,77 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Startupa2z — Bay Area Startup Community Platform</title>
-    <meta name="description" content="From A to Z of Startups. Connect with co-founders, investors, mentors, and builders in the Bay Area's premier startup ecosystem." />
+    <title>StartupA2Z — Bay Area Startup Events, Mentors & Resources</title>
+    <meta
+      name="description"
+      content="Connect with founders, mentors, and investors — local meetups, workshops, and curated resources to help startups grow. Join the Bay Area startup community."
+    />
+    <link rel="canonical" href="https://startupa2z.org/" />
     <meta name="author" content="Startupa2z" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
 
-    <meta property="og:title" content="Startupa2z — Bay Area Startup Community" />
-    <meta property="og:description" content="Connect, build, fund, and grow together in the Bay Area's premier startup ecosystem." />
+    <meta property="og:site_name" content="StartupA2Z" />
+    <meta
+      property="og:title"
+      content="StartupA2Z — Bay Area Startup Events, Mentors & Resources"
+    />
+    <meta
+      property="og:description"
+      content="Connect with founders, mentors, and investors — local meetups, workshops, and curated resources to help startups grow."
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://startupa2z.org/" />
+    <meta
+      property="og:image"
+      content="https://startupa2z.org/assets/og-home.jpg"
+    />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta
+      name="twitter:title"
+      content="StartupA2Z — Bay Area Startup Events, Mentors & Resources"
+    />
+    <meta
+      name="twitter:description"
+      content="Connect with founders, mentors, and investors — local meetups, workshops, and curated resources to help startups grow."
+    />
+    <meta
+      name="twitter:image"
+      content="https://startupa2z.org/assets/og-home.jpg"
+    />
+
+    <!-- Structured Data: Organization + WebSite -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://startupa2z.org/#org",
+            "name": "StartupA2Z",
+            "url": "https://startupa2z.org",
+            "logo": "https://startupa2z.org/assets/logo.png",
+            "sameAs": [
+              "https://twitter.com/startupa2z",
+              "https://www.linkedin.com/company/startupa2z"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://startupa2z.org/#website",
+            "url": "https://startupa2z.org",
+            "name": "StartupA2Z",
+            "publisher": { "@id": "https://startupa2z.org/#org" },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://startupa2z.org/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
