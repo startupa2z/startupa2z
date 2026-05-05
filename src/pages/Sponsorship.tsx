@@ -1,4 +1,5 @@
 import PageLayout from "@/components/PageLayout";
+import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
@@ -121,12 +122,12 @@ const Sponsorship = () => (
                     <li key={pi}>• {perk}</li>
                   ))}
                 </ul>
-                <a
-                  href="mailto:partnerships@startupa2z.com?subject=Sponsorship%20Inquiry"
+                <Link
+                  to="/contact"
                   className="inline-flex items-center px-4 py-2 rounded-full bg-primary text-white font-semibold"
                 >
                   Contact Us
-                </a>
+                </Link>
               </div>
             ))}
           </div>
