@@ -23,7 +23,7 @@ const Index = () => (
         "@type": "Organization",
         name: "StartupA2Z",
         url: "https://startupa2z.org",
-        logo: "https://startupa2z.org/assets/logo.png",
+        logo: "https://startupa2z.org/logo-transparent.webp",
       }}
     />
     <HeroSection />

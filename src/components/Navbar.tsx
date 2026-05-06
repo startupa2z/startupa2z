@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/logo.png";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -30,7 +29,7 @@ const Navbar = () => {
           className="inline-flex items-center hover:-translate-y-px transition-transform"
         >
           <img
-            src={logo}
+            src="/logo-transparent.webp"
             alt="StartupA2Z logo"
             width={864}
             height={159}
