@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
 const stats = [
-  { value: "2,500+", label: "Community Members" },
-  { value: "80+", label: "Events Hosted" },
-  { value: "3", label: "Bay Area Chapters" },
+  { value: "10+", label: "Community Members" },
+  { value: "1+", label: "Events Hosted" },
+  { value: "1", label: "Bay Area Chapters" },
 ];
 
 const StatsSection = () => (
