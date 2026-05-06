@@ -14,7 +14,6 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lock, Mail, ShieldCheck } from "lucide-react";
-import logo from "@/assets/logo.png";
 import SEO from "@/components/SEO";
 
 const AdminLogin = () => {
@@ -91,7 +90,7 @@ const AdminLogin = () => {
           {/* Logo + brand */}
           <Link to="/" className="flex flex-col items-center gap-3 group">
             <img
-              src={logo}
+              src="/logo-transparent.webp"
               alt="StartupA2Z logo"
               width={864}
               height={159}

@@ -32,7 +32,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import logo from "@/assets/logo.png";
+// use root-served logo at /logo-transparent.webp
 import EventForm, { type EditableEvent } from "@/components/admin/EventForm";
 import SEO from "@/components/SEO";
 import {
@@ -534,7 +534,7 @@ const AdminSubmissions = () => {
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 md:px-8 h-16">
             <Link to="/" className="inline-flex items-center gap-3">
               <img
-                src={logo}
+                src="/logo-transparent.webp"
                 alt="StartupA2Z"
                 width={864}
                 height={159}
