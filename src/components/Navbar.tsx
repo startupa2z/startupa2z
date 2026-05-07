@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  Linkedin,
+  X as XIcon,
+  Instagram,
+  Facebook,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -62,6 +69,46 @@ const Navbar = () => {
           Join Now
         </Link>
 
+        {/* Social Links */}
+        <div className="hidden lg:flex items-center gap-3 ml-4">
+          <a
+            href="https://linkedin.com/company/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="LinkedIn"
+          >
+            <Linkedin className="w-5 h-5" />
+          </a>
+          <a
+            href="https://twitter.com/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="X (Twitter)"
+          >
+            <XIcon className="w-5 h-5" />
+          </a>
+          <a
+            href="https://instagram.com/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram className="w-5 h-5" />
+          </a>
+          <a
+            href="https://facebook.com/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Facebook"
+          >
+            <Facebook className="w-5 h-5" />
+          </a>
+        </div>
+
         {/* Mobile toggle */}
         <button className="lg:hidden p-2" onClick={() => setOpen(!open)}>
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -97,6 +144,44 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            <div className="flex items-center gap-6 mt-4">
+              <a
+                href="https://linkedin.com/company/startupa2z"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+              <a
+                href="https://twitter.com/startupa2z"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="X (Twitter)"
+              >
+                <XIcon className="w-6 h-6" />
+              </a>
+              <a
+                href="https://instagram.com/startupa2z"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
+              <a
+                href="https://facebook.com/startupa2z"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+            </div>
             <Link
               to="/contact"
               onClick={() => setOpen(false)}

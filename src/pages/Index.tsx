@@ -7,6 +7,7 @@ import AudienceSection from "@/components/home/AudienceSection";
 import StartupsSection from "@/components/home/StartupsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import BayAreaSection from "@/components/home/BayAreaSection";
+import FAQSection from "@/components/home/FAQSection";
 import HomeCTASection from "@/components/home/HomeCTASection";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
@@ -35,6 +36,7 @@ const Index = () => (
     <StartupsSection />
     <TestimonialsSection />
     <BayAreaSection />
+    <FAQSection />
     <HomeCTASection />
   </PageLayout>
 );
