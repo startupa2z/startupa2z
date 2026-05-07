@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Linkedin,
+  X as XIcon,
+  Instagram,
+  Facebook,
+} from "lucide-react";
 
 const Footer = () => (
   <footer className="bg-dark text-white">
@@ -116,6 +122,44 @@ const Footer = () => (
           >
             Contact
           </Link>
+        </div>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://linkedin.com/company/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/20 hover:text-white/60 transition-colors"
+            aria-label="LinkedIn"
+          >
+            <Linkedin className="w-5 h-5" />
+          </a>
+          <a
+            href="https://twitter.com/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/20 hover:text-white/60 transition-colors"
+            aria-label="X (Twitter)"
+          >
+            <XIcon className="w-5 h-5" />
+          </a>
+          <a
+            href="https://instagram.com/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/20 hover:text-white/60 transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram className="w-5 h-5" />
+          </a>
+          <a
+            href="https://facebook.com/startupa2z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/20 hover:text-white/60 transition-colors"
+            aria-label="Facebook"
+          >
+            <Facebook className="w-5 h-5" />
+          </a>
         </div>
       </div>
     </div>

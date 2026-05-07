@@ -12,7 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, MapPin, Send, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Send,
+  ChevronDown,
+  ChevronUp,
+  Linkedin,
+  X as XIcon,
+  Instagram,
+  Facebook,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -316,11 +326,54 @@ const Contact = () => {
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <div className="flex items-center gap-3">
                     <Mail className="w-4 h-4 text-accent" />{" "}
-                    hello@startupa2z.org
+                    satish@startupa2z.org
                   </div>
                   <div className="flex items-center gap-3">
                     <MapPin className="w-4 h-4 text-accent" /> San Francisco,
                     Bay Area, CA
+                  </div>
+                  <div className="flex items-center gap-3 pt-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Follow us:
+                    </span>
+                    <div className="flex gap-3">
+                      <a
+                        href="https://linkedin.com/company/startupa2z"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                      </a>
+                      <a
+                        href="https://twitter.com/startupa2z"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        aria-label="X (Twitter)"
+                      >
+                        <XIcon className="w-4 h-4" />
+                      </a>
+                      <a
+                        href="https://instagram.com/startupa2z"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        aria-label="Instagram"
+                      >
+                        <Instagram className="w-4 h-4" />
+                      </a>
+                      <a
+                        href="https://facebook.com/startupa2z"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        aria-label="Facebook"
+                      >
+                        <Facebook className="w-4 h-4" />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

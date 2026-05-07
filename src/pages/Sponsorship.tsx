@@ -31,14 +31,10 @@ const packages = [
     price: "$1,000",
     perks: ["Logo on event page", "Social mention"],
   },
-  {
-    name: "Partner",
-    price: "$3,500",
-    perks: ["Booth/table at flagship event", "Logo across site and emails"],
-  },
+
   {
     name: "Title Sponsor",
-    price: "$8,000",
+    price: "$2,000",
     perks: ["Title placement on event materials", "Dedicated speaking slot"],
   },
 ];
@@ -108,7 +104,7 @@ const Sponsorship = () => (
             title="Sponsorship Packages"
             description="Flexible options to suit startups, growth-stage companies, and enterprise partners."
           />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mt-6 max-w-3xl mx-auto">
             {packages.map((p, i) => (
               <div key={i} className="rounded-lg p-6 bg-white shadow-sm">
                 <div className="flex items-baseline justify-between mb-4">
