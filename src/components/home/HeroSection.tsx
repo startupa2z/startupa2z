@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Linkedin, Instagram, Facebook } from "lucide-react";
+import { X as XIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
+
+const socialLinks = [
+  { href: "https://linkedin.com/company/startupa2z", icon: Linkedin, label: "LinkedIn" },
+  { href: "https://twitter.com/startupa2z", icon: XIcon, label: "X (Twitter)" },
+  { href: "https://instagram.com/startupa2z", icon: Instagram, label: "Instagram" },
+  { href: "https://facebook.com/startupa2z", icon: Facebook, label: "Facebook" },
+];
 
 const stats = [
   { value: "10", suffix: "+", label: "Active Members" },
@@ -215,6 +223,29 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Floating social icons — fixed left edge */}
+      <motion.div
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.7 }}
+        className="fixed left-5 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center gap-3"
+      >
+        <div className="w-px h-16 bg-foreground/15" />
+        {socialLinks.map(({ href, icon: Icon, label }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            className="w-8 h-8 rounded-full bg-background/80 hover:bg-secondary/10 backdrop-blur-sm border border-secondary/40 hover:border-secondary flex items-center justify-center text-secondary hover:text-secondary transition-all hover:-translate-y-0.5 shadow-sm"
+          >
+            <Icon className="w-3.5 h-3.5" />
+          </a>
+        ))}
+        <div className="w-px h-16 bg-foreground/15" />
+      </motion.div>
     </section>
   );
 };
