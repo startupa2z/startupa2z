@@ -14,6 +14,7 @@ import Community from "./pages/Community.tsx";
 import Resources from "./pages/Resources.tsx";
 import Contact from "./pages/Contact.tsx";
 import Sponsorship from "./pages/Sponsorship.tsx";
+import Gallery from "./pages/Gallery.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminSubmissions from "./pages/AdminSubmissions.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/sponsorship" element={<Sponsorship />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/submissions" element={<AdminSubmissions />} />
