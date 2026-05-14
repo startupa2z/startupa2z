@@ -6,12 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, ChevronLeft, ChevronRight, Camera } from "lucide-react";
 
 type MediaType = "photo" | "video";
-type EventTab =
-  | "All"
-  | "Startup Meetup · May 2025"
-  | "Bay Sec Conference · Jun 2025"
-  | "Fireside Chat · Mar 2025"
-  | "CSA SFO Chapter · 2024";
+type EventTab = "Meetups" | "Conferences";
 
 interface GalleryItem {
   id: number;
@@ -23,87 +18,58 @@ interface GalleryItem {
   caption: string;
 }
 
-const TABS: EventTab[] = [
-  "All",
-  "Startup Meetup · May 2025",
-  "Bay Sec Conference · Jun 2025",
-  "Fireside Chat · Mar 2025",
-  "CSA SFO Chapter · 2024",
-];
+const TABS: EventTab[] = ["Meetups", "Conferences"];
 
+// Only show meetup group photos from the `public/event_pictures` folder.
 const ITEMS: GalleryItem[] = [
   {
     id: 1,
     type: "photo",
-    src: "/event_pictures/PXL_20250522_015003557.MP.jpg",
-    thumb: "/event_pictures/PXL_20250522_015003557.MP.jpg",
-    alt: "Speaker presenting at StartupA2Z Startup Meetup, May 2025",
-    event: "Startup Meetup · May 2025",
-    caption: "Speaker Presentation — Startup Meetup, May 2025",
+    src: "/event_pictures/meetup_panel_1.png",
+    thumb: "/event_pictures/meetup_panel_1.png",
+    alt: "Group at StartupA2Z meetup — panel and attendees",
+    event: "Meetups",
+    caption: "Group Meetup — StartupA2Z",
   },
   {
     id: 2,
     type: "photo",
-    src: "/event_pictures/PXL_20250522_024915629.MP.jpg",
-    thumb: "/event_pictures/PXL_20250522_024915629.MP.jpg",
-    alt: "Group photo at StartupA2Z Startup Meetup, May 2025",
-    event: "Startup Meetup · May 2025",
-    caption: "Community Group Photo — Startup Meetup, May 2025",
+    src: "/event_pictures/meetup_panel_2.png",
+    thumb: "/event_pictures/meetup_panel_2.png",
+    alt: "Attendees networking at StartupA2Z meetup",
+    event: "Meetups",
+    caption: "Networking — Startup Meetup",
   },
   {
     id: 3,
     type: "photo",
-    src: "/event_pictures/20250604_111127.jpg",
-    thumb: "/event_pictures/20250604_111127.jpg",
-    alt: "Panel discussion at Bay Sec Alliance conference, June 2025",
-    event: "Bay Sec Conference · Jun 2025",
-    caption: "Panel Discussion — Bay Sec Alliance Conference",
+    src: "/event_pictures/meetup_panel_4.png",
+    thumb: "/event_pictures/meetup_panel_4.png",
+    alt: "Group photo from the StartupA2Z meetup",
+    event: "Meetups",
+    caption: "Community Group Photo — Startup Meetup",
   },
   {
     id: 4,
     type: "photo",
-    src: "/event_pictures/20250605_133448.jpg",
-    thumb: "/event_pictures/20250605_133448.jpg",
-    alt: "Team at Pacific Hackers booth, Bay Sec Conference, June 2025",
-    event: "Bay Sec Conference · Jun 2025",
-    caption: "Pacific Hackers Community Booth — Bay Sec Conference",
-  },
-  {
-    id: 5,
-    type: "photo",
-    src: "/event_pictures/PXL_20250327_020441379.MP.jpg",
-    thumb: "/event_pictures/PXL_20250327_020441379.MP.jpg",
-    alt: "Founders fireside chat panel discussion, March 2025",
-    event: "Fireside Chat · Mar 2025",
-    caption: "Startup Founders Fireside Chat — March 2025",
-  },
-  {
-    id: 6,
-    type: "photo",
-    src: "/event_pictures/1729377993131.jpeg",
-    thumb: "/event_pictures/1729377993131.jpeg",
-    alt: "Speaker presenting at CSA SFO Chapter kickoff event, 2024",
-    event: "CSA SFO Chapter · 2024",
-    caption: "Welcome Presentation — CSA SFO Chapter Kickoff",
+    src: "/event_pictures/meetup_panel_5.png",
+    thumb: "/event_pictures/meetup_panel_5.png",
+    alt: "Speakers and founders at StartupA2Z meetup",
+    event: "Meetups",
+    caption: "Speakers & Founders — Startup Meetup",
   },
 ];
 
 const Gallery = () => {
-  const [activeTab, setActiveTab] = useState<EventTab>("All");
+  const [activeTab, setActiveTab] = useState<EventTab>(TABS[0]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const filtered =
-    activeTab === "All"
-      ? ITEMS
-      : ITEMS.filter((item) => item.event === activeTab);
+  const filtered = ITEMS.filter((item) => item.event === activeTab);
 
-  const openLightbox = useCallback(
-    (index: number) => {
-      setLightboxIndex(index);
-      document.body.style.overflow = "hidden";
-    },
-    []
-  );
+  const openLightbox = useCallback((index: number) => {
+    setLightboxIndex(index);
+    document.body.style.overflow = "hidden";
+  }, []);
 
   const closeLightbox = useCallback(() => {
     setLightboxIndex(null);
@@ -112,14 +78,12 @@ const Gallery = () => {
 
   const prev = useCallback(() => {
     setLightboxIndex((i) =>
-      i !== null ? (i - 1 + filtered.length) % filtered.length : 0
+      i !== null ? (i - 1 + filtered.length) % filtered.length : 0,
     );
   }, [filtered.length]);
 
   const next = useCallback(() => {
-    setLightboxIndex((i) =>
-      i !== null ? (i + 1) % filtered.length : 0
-    );
+    setLightboxIndex((i) => (i !== null ? (i + 1) % filtered.length : 0));
   }, [filtered.length]);
 
   useEffect(() => {
@@ -217,11 +181,9 @@ const Gallery = () => {
               <Camera className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 {filtered.length} item{filtered.length !== 1 ? "s" : ""}
-                {activeTab !== "All" && (
-                  <span className="ml-1 font-medium text-foreground">
-                    — {activeTab}
-                  </span>
-                )}
+                <span className="ml-1 font-medium text-foreground">
+                  — {activeTab}
+                </span>
               </span>
             </motion.div>
           </AnimatePresence>
@@ -260,7 +222,10 @@ const Gallery = () => {
                   {/* Video badge */}
                   {item.type === "video" && (
                     <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                      <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
+                      <Play
+                        className="w-3 h-3 text-white ml-0.5"
+                        fill="white"
+                      />
                     </div>
                   )}
 
