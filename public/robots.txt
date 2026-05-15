@@ -1,11 +1,3 @@
-User-agent: *
-Allow: /
-
-# Point to sitemap
-Sitemap: https://startupa2z.org/sitemap.xml
-
-# Crawl-delay can be added if your server needs it (not recommended for Google)
-# Crawl-delay: 10
 User-agent: Googlebot
 Allow: /
 
@@ -20,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Point to sitemap
+Sitemap: https://startupa2z.org/sitemap.xml
