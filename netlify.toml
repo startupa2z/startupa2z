@@ -2,7 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+# Cache Puppeteer's Chromium download between Netlify builds (~300 MB saved per build)
+[build.environment]
+  PUPPETEER_CACHE_DIR = "/opt/build/cache/.cache/puppeteer"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  # force = false (default) — pre-rendered HTML files always take priority over this rewrite
