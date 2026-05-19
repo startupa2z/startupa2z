@@ -1,16 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 import { config } from "../config.js";
 
-/** Public auth operations (OTP, OAuth URL generation). */
+const clientOptions = {
+  auth: { autoRefreshToken: false, persistSession: false },
+};
+
+/** Anon key — auth, and public reads/writes allowed by RLS. */
 export const supabaseAuth = createClient(
   config.supabaseUrl,
   config.supabaseAnonKey,
-  { auth: { autoRefreshToken: false, persistSession: false } },
+  clientOptions,
 );
 
-/** Server-side DB writes with service role (bypasses RLS). */
-export const supabaseAdmin = createClient(
-  config.supabaseUrl,
-  config.supabaseServiceRoleKey,
-  { auth: { autoRefreshToken: false, persistSession: false } },
-);
+/** Same client used for events, contact, RSVP (public RLS policies). */
+export const supabasePublic = supabaseAuth;
+
+/** Service role — only when configured (bypasses RLS for admin tooling). */
+export const supabaseAdmin = config.supabaseServiceRoleKey
+  ? createClient(config.supabaseUrl, config.supabaseServiceRoleKey, clientOptions)
+  : null;

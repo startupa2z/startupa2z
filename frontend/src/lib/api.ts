@@ -24,21 +24,31 @@ export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new ApiError(
+      "Cannot reach API. Run `npm run dev` from the repo root (starts frontend + backend).",
+      0,
+    );
+  }
 
   const data = await parseJson<T & { error?: string }>(res);
 
   if (!res.ok) {
-    throw new ApiError(
-      (data as { error?: string }).error ?? res.statusText,
-      res.status,
-    );
+    const message =
+      (data as { error?: string }).error ??
+      (res.status === 500 && !API_BASE
+        ? "API error — ensure the backend is running (`npm run dev:backend`)."
+        : res.statusText);
+    throw new ApiError(message, res.status);
   }
 
   return data;

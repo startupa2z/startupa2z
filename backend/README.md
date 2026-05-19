@@ -14,7 +14,7 @@ cp env.example .env
 |----------|-------------|
 | `SUPABASE_URL` | Project URL |
 | `SUPABASE_ANON_KEY` | anon / publishable key (OTP & OAuth) |
-| `SUPABASE_SERVICE_ROLE_KEY` | service_role key (**server only**, never expose to frontend) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Optional. Public routes work with anon key only. Add service_role for admin tooling. |
 | `CORS_ORIGINS` | Frontend URL(s), e.g. `http://localhost:8080` |
 
 2. Install and run:
@@ -45,11 +45,9 @@ API listens on **http://localhost:3001** by default.
 With the Vite dev server, `/api/*` is proxied to this backend. Run both:
 
 ```bash
-# terminal 1
-npm run dev
-
-# terminal 2
-npm run dev:backend
+# from repo root
+npm run dev          # frontend
+npm run dev:backend  # API
 ```
 
 Admin panel and realtime features still use the Supabase client directly in the browser.

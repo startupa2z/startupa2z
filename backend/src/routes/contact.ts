@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase.js";
+import { supabasePublic } from "../lib/supabase.js";
 import { AppError, sendError } from "../lib/errors.js";
 
 const router = Router();
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
   try {
     const body = contactSchema.parse(req.body);
 
-    const { error } = await supabaseAdmin.from("contact_submissions").insert({
+    const { error } = await supabasePublic.from("contact_submissions").insert({
       first_name: body.first_name,
       last_name: body.last_name,
       email: body.email,

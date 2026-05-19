@@ -24,8 +24,10 @@ export const config = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   supabaseUrl: required("SUPABASE_URL"),
   supabaseAnonKey: required("SUPABASE_ANON_KEY"),
-  supabaseServiceRoleKey: required("SUPABASE_SERVICE_ROLE_KEY"),
-  corsOrigins: (process.env.CORS_ORIGINS ?? "http://localhost:8080")
+  /** Optional; public routes use anon key + RLS. Required for admin-only server tasks. */
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  corsOrigins: (process.env.CORS_ORIGINS ??
+    "http://localhost:8080,http://127.0.0.1:8080,http://localhost:8081,http://127.0.0.1:8081")
     .split(",")
     .map((o) => o.trim())
     .filter(Boolean),

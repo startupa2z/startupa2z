@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase.js";
+import { supabasePublic } from "../lib/supabase.js";
 import { AppError, sendError } from "../lib/errors.js";
 
 const router = Router();
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
   try {
     const body = rsvpSchema.parse(req.body);
 
-    const { error } = await supabaseAdmin.from("event_rsvps").insert({
+    const { error } = await supabasePublic.from("event_rsvps").insert({
       event_id: body.event_id ?? null,
       event_slug: body.event_slug,
       event_title: body.event_title,

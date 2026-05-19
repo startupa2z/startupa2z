@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { supabaseAdmin } from "../lib/supabase.js";
+import { supabasePublic } from "../lib/supabase.js";
 import { AppError, sendError } from "../lib/errors.js";
 
 const router = Router();
 
 router.get("/", async (_req, res) => {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabasePublic
       .from("events")
       .select("*")
       .order("created_at", { ascending: false });
@@ -28,7 +28,7 @@ router.get("/:slug", async (req, res) => {
       throw new AppError(400, "Event slug is required.");
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabasePublic
       .from("events")
       .select("*")
       .eq("slug", slug)

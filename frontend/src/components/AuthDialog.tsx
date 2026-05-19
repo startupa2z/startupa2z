@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Linkedin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ApiError, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
+import { assignTopLevel } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -248,8 +249,9 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange }: AuthDialog
   const handleLinkedIn = async () => {
     setLoading(true);
     try {
-      const { url } = await getLinkedInOAuthUrl(window.location.origin);
-      window.location.href = url;
+      const redirectTo = `${window.location.origin}${window.location.pathname}`;
+      const { url } = await getLinkedInOAuthUrl(redirectTo);
+      assignTopLevel(url);
     } catch (err) {
       setLoading(false);
       toast({
