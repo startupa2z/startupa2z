@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
 import CTABanner from "@/components/CTABanner";
@@ -295,7 +295,7 @@ const Gallery = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
               className="w-full max-w-4xl mx-14 md:mx-20 flex flex-col items-center gap-4"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               <div className="relative w-full">
                 <img
