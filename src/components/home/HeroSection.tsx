@@ -3,8 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Linkedin, Instagram, Facebook } from "lucide-react";
 import { X as XIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import type { EventItem } from "@/data/events";
+import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const socialLinks = [
@@ -27,36 +26,9 @@ const HeroSection = () => {
 
   useEffect(() => {
     const fetchNextEvent = async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!error && data) {
-        setNextEvent({
-          slug: data.slug,
-          title: data.title,
-          date: data.date,
-          time: data.time,
-          venue: data.venue,
-          address: data.address ?? "",
-          type: data.type,
-          desc: data.description ?? "",
-          longDesc: data.long_description ?? "",
-          agenda: Array.isArray(data.agenda)
-            ? (data.agenda as { time: string; item: string }[])
-            : [],
-          speakers: Array.isArray(data.speakers)
-            ? (data.speakers as { name: string; role: string }[])
-            : [],
-          spots: data.spots,
-          capacity: data.capacity,
-          price: data.price,
-          featured: data.featured,
-          imageUrl: data.image_url ?? null,
-        });
+      const all = await fetchAllEvents();
+      if (all.length > 0) {
+        setNextEvent(all[0]);
       }
       setLoading(false);
     };

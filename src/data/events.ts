@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 
 export type EventItem = {
   slug: string;
@@ -222,25 +222,26 @@ const mapRow = (r: {
   imageUrl: r.image_url ?? null,
 });
 
-/** Fetch all events: DB-first, then seed (deduped by slug). */
+/** Fetch all events: API-first, then seed (deduped by slug). */
 export const fetchAllEvents = async (): Promise<EventItem[]> => {
-  const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) {
-    console.error("Failed to fetch events", error);
+  try {
+    const { data } = await fetchEventsFromApi();
+    const dbEvents = (data ?? []).map(mapRow);
+    const dbSlugs = new Set(dbEvents.map((e) => e.slug));
+    return [...dbEvents, ...seedEvents.filter((e) => !dbSlugs.has(e.slug))];
+  } catch (err) {
+    console.error("Failed to fetch events", err);
     return seedEvents;
   }
-  const dbEvents = (data ?? []).map(mapRow);
-  const dbSlugs = new Set(dbEvents.map((e) => e.slug));
-  const merged = [...dbEvents, ...seedEvents.filter((e) => !dbSlugs.has(e.slug))];
-  return merged;
 };
 
 export const fetchEventBySlug = async (slug: string): Promise<EventItem | undefined> => {
-  const { data, error } = await supabase.from("events").select("*").eq("slug", slug).maybeSingle();
-  if (!error && data) return mapRow(data);
+  try {
+    const { data } = await fetchEventBySlugFromApi(slug);
+    if (data) return mapRow(data);
+  } catch (err) {
+    console.error("Failed to fetch event by slug", err);
+  }
   return seedEvents.find((e) => e.slug === slug);
 };
 

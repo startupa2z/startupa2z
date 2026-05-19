@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { ApiError, submitContact } from "@/lib/api";
 
 const faqs = [
   {
@@ -140,20 +140,20 @@ const Contact = () => {
       message: parsed.data.message || null,
     };
 
-    const { error } = await supabase
-      .from("contact_submissions")
-      .insert(payload);
-    setSubmitting(false);
-
-    if (error) {
-      console.error("Contact submission error:", error);
+    try {
+      await submitContact(payload);
+    } catch (err) {
+      setSubmitting(false);
+      console.error("Contact submission error:", err);
       toast({
         title: "Something went wrong",
-        description: "We couldn't send your message. Please try again.",
+        description:
+          err instanceof ApiError ? err.message : "We couldn't send your message. Please try again.",
         variant: "destructive",
       });
       return;
     }
+    setSubmitting(false);
 
     toast({
       title: "Message sent!",

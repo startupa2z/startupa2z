@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, MapPin, Clock, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { ApiError, submitRsvp } from "@/lib/api";
 
 interface RSVPDialogProps {
   open: boolean;
@@ -77,24 +77,22 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
     const guestsNote = formData.guests && formData.guests !== "1" ? `Guests: ${formData.guests}` : "";
     const combinedNotes = [guestsNote, formData.notes?.trim()].filter(Boolean).join(" | ");
 
-    const { error } = await supabase.from("event_rsvps").insert({
-      event_id: event.id ?? null,
-      event_slug: event.slug ?? "unknown",
-      event_title: event.title,
-      first_name: firstName,
-      last_name: lastName,
-      email: formData.email.trim(),
-      phone: formData.phone?.trim() || null,
-      company: formData.company?.trim() || null,
-      role: formData.role,
-      notes: combinedNotes || null,
-    });
-
-    setSubmitting(false);
-
-    if (error) {
-      // Postgres unique-violation -> duplicate RSVP for this event+email
-      if ((error as { code?: string }).code === "23505") {
+    try {
+      await submitRsvp({
+        event_id: event.id ?? null,
+        event_slug: event.slug ?? "unknown",
+        event_title: event.title,
+        first_name: firstName,
+        last_name: lastName,
+        email: formData.email.trim(),
+        phone: formData.phone?.trim() || null,
+        company: formData.company?.trim() || null,
+        role: formData.role,
+        notes: combinedNotes || null,
+      });
+    } catch (err) {
+      setSubmitting(false);
+      if (err instanceof ApiError && err.status === 409) {
         setErrors({
           email: "You've already RSVP'd to this event with this email address.",
         });
@@ -107,11 +105,13 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
       }
       toast({
         title: "RSVP failed",
-        description: error.message,
+        description: err instanceof ApiError ? err.message : "Something went wrong.",
         variant: "destructive",
       });
       return;
     }
+
+    setSubmitting(false);
 
     setSubmitted(true);
     toast({
