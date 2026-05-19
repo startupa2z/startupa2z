@@ -12,6 +12,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+frontend/node_modules
+frontend/dist
+.vite
+backend/node_modules
+backend/dist
 *.local
 
 # Editor directories and files

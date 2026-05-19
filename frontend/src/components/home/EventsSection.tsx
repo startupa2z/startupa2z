@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import type { EventItem } from "@/data/events";
+import { fetchAllEvents, type EventItem } from "@/data/events";
 import { Loader2 } from "lucide-react";
 
 const EventsSection = () => {
@@ -12,33 +11,8 @@ const EventsSection = () => {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(3);
-
-      if (!error && data) {
-        const mappedEvents: EventItem[] = data.map((r) => ({
-          slug: r.slug,
-          title: r.title,
-          date: r.date,
-          time: r.time,
-          venue: r.venue,
-          address: r.address ?? "",
-          type: r.type,
-          desc: r.description ?? "",
-          longDesc: r.long_description ?? "",
-          agenda: Array.isArray(r.agenda) ? (r.agenda as { time: string; item: string }[]) : [],
-          speakers: Array.isArray(r.speakers) ? (r.speakers as { name: string; role: string }[]) : [],
-          spots: r.spots,
-          capacity: r.capacity,
-          price: r.price,
-          featured: r.featured,
-          imageUrl: r.image_url ?? null,
-        }));
-        setEvents(mappedEvents);
-      }
+      const all = await fetchAllEvents();
+      setEvents(all.slice(0, 3));
       setLoading(false);
     };
 

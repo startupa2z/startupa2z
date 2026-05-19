@@ -1,3 +1,4 @@
+import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
 
 export type EventItem = {
@@ -222,25 +223,64 @@ const mapRow = (r: {
   imageUrl: r.image_url ?? null,
 });
 
-/** Fetch all events: DB-first, then seed (deduped by slug). */
-export const fetchAllEvents = async (): Promise<EventItem[]> => {
+async function fetchAllEventsFromSupabase(): Promise<EventItem[]> {
   const { data, error } = await supabase
     .from("events")
     .select("*")
     .order("created_at", { ascending: false });
-  if (error) {
-    console.error("Failed to fetch events", error);
-    return seedEvents;
-  }
-  const dbEvents = (data ?? []).map(mapRow);
+  if (error) throw error;
+  return (data ?? []).map(mapRow);
+}
+
+async function fetchEventBySlugFromSupabase(
+  slug: string,
+): Promise<EventItem | undefined> {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapRow(data) : undefined;
+}
+
+function mergeWithSeed(dbEvents: EventItem[]): EventItem[] {
   const dbSlugs = new Set(dbEvents.map((e) => e.slug));
-  const merged = [...dbEvents, ...seedEvents.filter((e) => !dbSlugs.has(e.slug))];
-  return merged;
+  return [...dbEvents, ...seedEvents.filter((e) => !dbSlugs.has(e.slug))];
+}
+
+/** Fetch all events: API-first, Supabase fallback, then seed (deduped by slug). */
+export const fetchAllEvents = async (): Promise<EventItem[]> => {
+  try {
+    const { data } = await fetchEventsFromApi();
+    return mergeWithSeed((data ?? []).map(mapRow));
+  } catch (apiErr) {
+    console.warn(
+      "Events API unavailable (is the backend running on :3001?). Trying Supabase…",
+      apiErr,
+    );
+    try {
+      return mergeWithSeed(await fetchAllEventsFromSupabase());
+    } catch (dbErr) {
+      console.error("Failed to fetch events", dbErr);
+      return seedEvents;
+    }
+  }
 };
 
 export const fetchEventBySlug = async (slug: string): Promise<EventItem | undefined> => {
-  const { data, error } = await supabase.from("events").select("*").eq("slug", slug).maybeSingle();
-  if (!error && data) return mapRow(data);
+  try {
+    const { data } = await fetchEventBySlugFromApi(slug);
+    if (data) return mapRow(data);
+  } catch (apiErr) {
+    console.warn("Event API failed, trying Supabase…", apiErr);
+    try {
+      const row = await fetchEventBySlugFromSupabase(slug);
+      if (row) return row;
+    } catch (dbErr) {
+      console.error("Failed to fetch event by slug", dbErr);
+    }
+  }
   return seedEvents.find((e) => e.slug === slug);
 };
 

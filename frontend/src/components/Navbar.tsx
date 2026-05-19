@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import AuthDialog from "./AuthDialog";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -17,17 +18,25 @@ const navLinks = [
   { to: "/sponsorship", label: "Sponsorship" },
 ];
 
+const signInButtonClass =
+  "inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold tracking-tight hover:opacity-85 hover:-translate-y-px active:scale-[0.97] transition-all";
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const location = useLocation();
+
+  const openAuth = () => {
+    setOpen(false);
+    setAuthOpen(true);
+  };
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,5vw,3rem)] flex items-center justify-between gap-8 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
-        {/* Logo */}
+      <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,5vw,3rem)] flex items-center gap-4 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
         <Link
           to="/"
-          className="inline-flex items-center hover:-translate-y-px transition-transform"
+          className="inline-flex shrink-0 items-center hover:-translate-y-px transition-transform"
         >
           <img
             src="/logo-transparent.webp"
@@ -38,8 +47,7 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden lg:flex items-center gap-7 ml-auto">
+        <div className="hidden lg:flex flex-1 items-center justify-end gap-7 min-w-0">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -55,21 +63,32 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* CTA */}
-        <Link
-          to="/contact"
-          className="hidden lg:inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold tracking-tight hover:opacity-85 hover:-translate-y-px active:scale-[0.97] transition-all"
-        >
-          Join Now
-        </Link>
+        <div className="flex items-center gap-2 shrink-0 ml-auto lg:ml-0">
+          <AuthDialog open={authOpen} onOpenChange={setAuthOpen}>
+            <button type="button" className={`hidden lg:inline-flex ${signInButtonClass}`}>
+              Sign In
+            </button>
+          </AuthDialog>
 
-        {/* Mobile toggle */}
-        <button className="lg:hidden p-2" onClick={() => setOpen(!open)}>
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+          <button
+            type="button"
+            onClick={openAuth}
+            className={`lg:hidden px-4 py-2 text-sm ${signInButtonClass}`}
+          >
+            Sign In
+          </button>
+
+          <button
+            type="button"
+            className="lg:hidden p-2"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -98,13 +117,13 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/contact"
-              onClick={() => setOpen(false)}
-              className="mt-4 inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-base font-semibold"
+            <button
+              type="button"
+              onClick={openAuth}
+              className={`mt-4 px-6 py-3 text-base ${signInButtonClass}`}
             >
-              Join Now
-            </Link>
+              Sign In
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
