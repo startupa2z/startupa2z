@@ -170,3 +170,23 @@ export function fetchEventBySlugFromApi(slug: string) {
     `/api/events/${encodeURIComponent(slug)}`,
   );
 }
+
+// ——— Stripe ———
+
+export function createCheckoutSession(payload: {
+  packageId: string;
+  customerEmail?: string;
+}) {
+  const origin = window.location.origin;
+  return apiRequest<{ ok: boolean; url: string }>(
+    "/api/stripe/create-checkout-session",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ...payload,
+        successUrl: `${origin}/sponsorship?payment=success`,
+        cancelUrl: `${origin}/sponsorship?payment=cancelled`,
+      }),
+    },
+  );
+}
