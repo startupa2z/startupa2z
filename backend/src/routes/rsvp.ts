@@ -1,9 +1,10 @@
-import { Router } from "express";
+import { Hono } from "hono";
 import { z } from "zod";
-import { supabasePublic } from "../lib/supabase.js";
+import type { Bindings } from "../types.js";
+import { createSupabasePublic } from "../lib/supabase.js";
 import { AppError, sendError } from "../lib/errors.js";
 
-const router = Router();
+const router = new Hono<{ Bindings: Bindings }>();
 
 const rsvpSchema = z.object({
   event_id: z.string().uuid().optional().nullable(),
@@ -18,11 +19,11 @@ const rsvpSchema = z.object({
   notes: z.string().trim().max(500).optional().nullable(),
 });
 
-router.post("/", async (req, res) => {
+router.post("/", async (c) => {
   try {
-    const body = rsvpSchema.parse(req.body);
-
-    const { error } = await supabasePublic.from("event_rsvps").insert({
+    const body = rsvpSchema.parse(await c.req.json());
+    const supabase = createSupabasePublic(c.env);
+    const { error } = await supabase.from("event_rsvps").insert({
       event_id: body.event_id ?? null,
       event_slug: body.event_slug,
       event_title: body.event_title,
@@ -34,20 +35,15 @@ router.post("/", async (req, res) => {
       role: body.role,
       notes: body.notes ?? null,
     });
-
     if (error) {
       if (error.code === "23505") {
-        throw new AppError(
-          409,
-          "You've already RSVP'd to this event with this email address.",
-        );
+        throw new AppError(409, "You've already RSVP'd to this event with this email address.");
       }
       throw new AppError(400, error.message);
     }
-
-    res.status(201).json({ ok: true, message: "RSVP confirmed." });
+    return c.json({ ok: true, message: "RSVP confirmed." }, 201);
   } catch (err) {
-    sendError(res, err);
+    return sendError(c, err);
   }
 });
 
