@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Context } from "hono";
 import { ZodError } from "zod";
 
 export class AppError extends Error {
@@ -11,16 +11,14 @@ export class AppError extends Error {
   }
 }
 
-export function sendError(res: Response, err: unknown) {
+export function sendError(c: Context, err: unknown): Response {
   if (err instanceof AppError) {
-    res.status(err.statusCode).json({ error: err.message });
-    return;
+    return c.json({ error: err.message }, err.statusCode as any);
   }
   if (err instanceof ZodError) {
     const message = err.errors[0]?.message ?? "Validation failed";
-    res.status(400).json({ error: message });
-    return;
+    return c.json({ error: message }, 400);
   }
   console.error(err);
-  res.status(500).json({ error: "Internal server error" });
+  return c.json({ error: "Internal server error" }, 500);
 }
