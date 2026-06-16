@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Linkedin } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { setToken } from "@/lib/auth";
 import { ApiError, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
 import { assignTopLevel } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
@@ -226,11 +226,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange }: AuthDialog
     setLoading(true);
     try {
       const { session } = await verifyOtp({ email: email.trim(), token: otp });
-      const { error } = await supabase.auth.setSession({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-      });
-      if (error) throw error;
+      setToken(session.access_token);
     } catch (err) {
       setLoading(false);
       toast({

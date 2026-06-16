@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getToken, setToken } from "@/lib/auth";
+import { ApiError, sendOtp, verifyOtp } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,82 +13,78 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lock, Mail, ShieldCheck } from "lucide-react";
+import { Mail, ShieldCheck } from "lucide-react";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import SEO from "@/components/SEO";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpStep, setOtpStep] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.title = "Admin Login | Startupa2z";
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/admin/submissions", { replace: true });
-    });
+    if (getToken()) navigate("/admin/submissions", { replace: true });
   }, [navigate]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed) return;
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setLoading(false);
-    if (error) {
+    try {
+      await sendOtp({ email: trimmed, mode: "signin" });
+      setOtpStep(true);
+      toast({ title: "Code sent", description: `Check ${trimmed} for your one-time code.` });
+    } catch (err) {
       toast({
-        title: "Sign in failed",
-        description: error.message,
+        title: "Could not send code",
+        description: err instanceof ApiError ? err.message : "Something went wrong.",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-    navigate("/admin/submissions", { replace: true });
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerify = async () => {
+    if (otp.length < 6) return;
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/admin/submissions`,
-      },
-    });
-    setLoading(false);
-    if (error) {
+    try {
+      const { session } = await verifyOtp({ email: email.trim(), token: otp });
+      setToken(session.access_token);
+      navigate("/admin/submissions", { replace: true });
+    } catch (err) {
       toast({
-        title: "Sign up failed",
-        description: error.message,
+        title: "Invalid code",
+        description: err instanceof ApiError ? err.message : "Verification failed.",
         variant: "destructive",
       });
-      return;
+      setOtp("");
+    } finally {
+      setLoading(false);
     }
-    toast({
-      title: "Account created",
-      description: "Ask an existing admin to grant you the admin role.",
-    });
   };
 
   return (
     <>
       <SEO
-        title={`Admin Login | StartupA2Z`}
-        description={`Admin portal for Startupa2z.`}
+        title="Admin Login | StartupA2Z"
+        description="Admin portal for Startupa2z."
         noindex={true}
-        canonical={`https://startupa2z.org/admin/login`}
+        canonical="https://startupa2z.org/admin/login"
       />
       <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-background via-background to-muted px-4 overflow-hidden">
-        {/* Decorative background blobs */}
         <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
 
         <div className="relative w-full max-w-md space-y-6">
-          {/* Logo + brand */}
           <Link to="/" className="flex flex-col items-center gap-3 group">
             <img
               src="/logo-transparent.webp"
@@ -105,102 +102,67 @@ const AdminLogin = () => {
           <Card className="border-border/60 shadow-2xl backdrop-blur-xl bg-card/80">
             <CardHeader className="space-y-1.5 text-center">
               <CardTitle className="text-2xl font-bold tracking-tight">
-                Welcome back
+                {otpStep ? "Enter your code" : "Welcome back"}
               </CardTitle>
               <CardDescription>
-                Sign in to manage your contact submissions
+                {otpStep
+                  ? `We sent a 6-digit code to ${email}`
+                  : "Sign in with your email to access the admin dashboard."}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="signin">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Sign in</TabsTrigger>
-                  <TabsTrigger value="signup">Sign up</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="signin">
-                  <form onSubmit={handleSignIn} className="space-y-4 mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signin-email"
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="you@startupa2z.org"
-                          className="pl-9"
-                        />
-                      </div>
+              {otpStep ? (
+                <div className="space-y-5">
+                  <div className="flex justify-center">
+                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <Button
+                    className="w-full"
+                    disabled={loading || otp.length < 6}
+                    onClick={handleVerify}
+                  >
+                    {loading ? "Verifying…" : "Verify & sign in"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full text-sm text-muted-foreground"
+                    onClick={() => { setOtpStep(false); setOtp(""); }}
+                  >
+                    ← Use a different email
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSendOtp} className="space-y-4 mt-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="admin-email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@startupa2z.org"
+                        className="pl-9"
+                      />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signin-password"
-                          type="password"
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••"
-                          className="pl-9"
-                        />
-                      </div>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? "Signing in..." : "Sign in"}
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignUp} className="space-y-4 mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-email"
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="you@startupa2z.org"
-                          className="pl-9"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">
-                        Password (min 6 chars)
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-password"
-                          type="password"
-                          minLength={6}
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Use a strong, unique passphrase"
-                          className="pl-9"
-                        />
-                      </div>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? "Creating account..." : "Create account"}
-                    </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      New accounts have no admin access until granted by an
-                      existing admin.
-                    </p>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Sending…" : "Send one-time code"}
+                  </Button>
+                </form>
+              )}
             </CardContent>
           </Card>
 

@@ -1,3 +1,5 @@
+import { getToken } from "@/lib/auth";
+
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 export class ApiError extends Error {
@@ -72,7 +74,7 @@ export function sendOtp(payload: {
 
 export type AuthSessionPayload = {
   access_token: string;
-  refresh_token: string;
+  refresh_token?: string;
   expires_in: number;
   expires_at?: number;
   token_type: string;
@@ -189,4 +191,132 @@ export function createCheckoutSession(payload: {
       }),
     },
   );
+}
+
+// ——— Admin (require Bearer token) ——————————————————————————————————————————
+
+function adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
+  return apiRequest<T>(path, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
+
+export type AdminSubmission = {
+  id: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  linkedin_url: string | null;
+  role: string | null;
+  inquiry_type: string;
+  message: string | null;
+};
+
+export type AdminRSVP = {
+  id: string;
+  event_id: string | null;
+  event_slug: string;
+  event_title: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+  role: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type AdminEvent = {
+  id: string;
+  slug: string;
+  title: string;
+  date: string;
+  type: string;
+  venue: string;
+  featured: boolean;
+  image_url: string | null;
+  created_at: string;
+};
+
+export type AdminEventFull = DbEventRow & {
+  agenda: { time: string; item: string }[];
+  speakers: { name: string; role: string }[];
+};
+
+export type EventMutationPayload = {
+  title: string;
+  date: string;
+  time: string;
+  venue: string;
+  address?: string | null;
+  type: string;
+  description?: string | null;
+  long_description?: string | null;
+  spots: number;
+  capacity: number;
+  price?: string;
+  featured: boolean;
+  agenda?: { time: string; item: string }[];
+  speakers?: { name: string; role: string }[];
+  image_url?: string | null;
+  remove_image?: boolean;
+};
+
+export function fetchAdminSubmissions() {
+  return adminRequest<{ ok: boolean; data: AdminSubmission[] }>("/api/admin/submissions");
+}
+
+export function fetchAdminRsvps() {
+  return adminRequest<{ ok: boolean; data: AdminRSVP[] }>("/api/admin/rsvps");
+}
+
+export function deleteAdminRsvp(id: string) {
+  return adminRequest<{ ok: boolean }>(`/api/admin/rsvps/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+export function fetchAdminEventById(id: string) {
+  return adminRequest<{ ok: boolean; data: AdminEventFull }>(`/api/admin/events/${encodeURIComponent(id)}`);
+}
+
+export function createAdminEvent(payload: EventMutationPayload) {
+  return adminRequest<{ ok: boolean; id: string; slug: string }>("/api/admin/events", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminEvent(id: string, payload: Partial<EventMutationPayload>) {
+  return adminRequest<{ ok: boolean }>(`/api/admin/events/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminEvent(id: string) {
+  return adminRequest<{ ok: boolean }>(`/api/admin/events/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+export async function uploadEventImage(file: File): Promise<string> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${API_BASE}/api/admin/upload-image`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await res.json().catch(() => ({})) as { ok?: boolean; url?: string; detail?: string };
+  if (!res.ok) throw new ApiError(data.detail ?? res.statusText, res.status);
+  return data.url!;
 }

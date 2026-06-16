@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+asyncpg
+python-jose[cryptography]
+pydantic[email]
+pydantic-settings
+aiosmtplib
+httpx
+stripe
+python-multipart
