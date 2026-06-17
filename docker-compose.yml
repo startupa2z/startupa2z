@@ -41,12 +41,11 @@ services:
     build:
       context: ./frontend
     restart: unless-stopped
-    expose:
-      - "80"
+    ports:
+      - "8081:80"
     depends_on:
       - backend
     networks:
-      - coolify
       - default
 
 volumes:
