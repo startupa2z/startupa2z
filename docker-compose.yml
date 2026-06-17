@@ -14,6 +14,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - default
 
   backend:
     build:
@@ -32,6 +34,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - default
 
   frontend:
     build:
@@ -41,7 +45,15 @@ services:
       - "80"
     depends_on:
       - backend
+    networks:
+      - coolify
+      - default
 
 volumes:
   postgres_data:
   event_images:
+
+networks:
+  default:
+  coolify:
+    external: true
