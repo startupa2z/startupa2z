@@ -1,4 +1,4 @@
--- Apply once to an existing StartupA2Z production database before deploying
+-- Apply once to an existing StartupA2Z.org production database before deploying
 -- code that records event pitch interest and WhatsApp consent.
 ALTER TABLE event_rsvps
   ADD COLUMN IF NOT EXISTS pitch_interest BOOLEAN NOT NULL DEFAULT false,

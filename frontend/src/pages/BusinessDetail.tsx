@@ -63,7 +63,7 @@ const BusinessDetail = () => {
 
   return (
     <PageLayout>
-      <SEO title={`${business.name} — StartupA2Z`} description={business.pitch} canonical={`https://startupa2z.org/startups/${business.slug ?? slug}`} />
+      <SEO title={`${business.name} — StartupA2Z.org`} description={business.pitch} canonical={`https://startupa2z.org/startups/${business.slug ?? slug}`} />
       <div>
         <section className="gradient-hero-solid text-white" style={{ paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))", paddingBottom: "clamp(3rem, 6vw, 5rem)" }}>
           <div className="container-narrow">

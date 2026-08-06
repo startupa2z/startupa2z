@@ -15,7 +15,7 @@ const NotFound = () => {
   return (
     <>
       <SEO
-        title={`Page Not Found | StartupA2Z`}
+        title={`Page Not Found | StartupA2Z.org`}
         description={`The page you are looking for doesn't exist.`}
         noindex={true}
         canonical={`https://startupa2z.org/404`}

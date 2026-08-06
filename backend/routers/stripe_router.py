@@ -45,7 +45,7 @@ async def create_checkout_session(body: CheckoutRequest):
             "price_data": {
                 "currency": "usd",
                 "product_data": {
-                    "name": f"StartupA2Z — {pkg['name']}",
+                    "name": f"StartupA2Z.org — {pkg['name']}",
                     "description": pkg["description"],
                 },
                 "unit_amount": pkg["amount"],

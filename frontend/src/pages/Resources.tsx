@@ -85,14 +85,14 @@ const categories = [
 const Resources = () => (
   <PageLayout>
     <SEO
-      title={`Startup Resources — StartupA2Z`}
+      title={`Startup Resources — StartupA2Z.org`}
       description={`Curated guides, templates, and playbooks to help founders build, fundraise, and scale their startups.`}
       canonical={`https://startupa2z.org/resources`}
       ogImage={`https://startupa2z.org/assets/og-resources.jpg`}
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        name: "StartupA2Z Resource Hub",
+        name: "StartupA2Z.org Resource Hub",
         url: "https://startupa2z.org/resources",
       }}
     />

@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     await close_pool()
 
 
-app = FastAPI(title="StartupA2Z API", lifespan=lifespan, redirect_slashes=False)
+app = FastAPI(title="StartupA2Z.org API", lifespan=lifespan, redirect_slashes=False)
 
 origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
 app.add_middleware(

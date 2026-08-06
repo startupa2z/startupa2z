@@ -9,17 +9,17 @@ import SectionHeading from "@/components/SectionHeading";
 
 const faqs = [
   {
-    question: "What is StartupA2Z?",
+    question: "What is StartupA2Z.org?",
     answer:
-      "StartupA2Z is a vibrant community platform connecting founders, investors, and entrepreneurs in the Bay Area. We organize events, provide resources, and foster collaboration to help startups grow and succeed.",
+      "StartupA2Z.org is a vibrant community platform connecting founders, investors, and entrepreneurs in the Bay Area. We organize events, provide resources, and foster collaboration to help startups grow and succeed.",
   },
   {
-    question: "How can I join StartupA2Z events?",
+    question: "How can I join StartupA2Z.org events?",
     answer:
       "You can browse upcoming events on our Events page and RSVP directly. We also send out newsletters with event announcements. Membership is free for most events, though some premium sessions may require registration.",
   },
   {
-    question: "Who can participate in StartupA2Z?",
+    question: "Who can participate in StartupA2Z.org?",
     answer:
       "Our community is open to founders, co-founders, investors, mentors, and anyone interested in the startup ecosystem. Whether you're just starting out or a seasoned entrepreneur, you'll find valuable connections and opportunities here.",
   },

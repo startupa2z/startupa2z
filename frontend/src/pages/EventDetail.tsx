@@ -124,8 +124,8 @@ const EventDetail = () => {
       <SEO
         title={
           event.slug === "startup-a-to-z-hacker-dojo-august-12"
-            ? `${event.title} — Aug 12 | StartupA2Z`
-            : `${event.title} | StartupA2Z`
+            ? `${event.title} — Aug 12 | StartupA2Z.org`
+            : `${event.title} | StartupA2Z.org`
         }
         description={
           event.desc ||
@@ -154,7 +154,7 @@ const EventDetail = () => {
           url: `https://startupa2z.org/events/${event.slug}`,
           organizer: {
             "@type": "Organization",
-            name: "StartupA2Z",
+            name: "StartupA2Z.org",
             url: "https://startupa2z.org/",
           },
           offers: {

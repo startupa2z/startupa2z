@@ -165,14 +165,14 @@ const Contact = () => {
   return (
     <PageLayout>
       <SEO
-        title={`Contact StartupA2Z | StartupA2Z`}
+        title={`Contact StartupA2Z.org | StartupA2Z.org`}
         description={`Have a question, partnership idea, or want to join? Get in touch with Startupa2z — we reply within 48 hours.`}
         canonical={`https://startupa2z.org/contact`}
         ogImage={`https://startupa2z.org/assets/og-contact.jpg`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "StartupA2Z",
+          name: "StartupA2Z.org",
           url: "https://startupa2z.org",
         }}
       />

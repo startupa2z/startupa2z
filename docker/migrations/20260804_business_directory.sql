@@ -1,4 +1,4 @@
--- Apply once to an existing StartupA2Z database before deploying the
+-- Apply once to an existing StartupA2Z.org database before deploying the
 -- database-backed business directory.
 CREATE TABLE IF NOT EXISTS businesses (
   id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),

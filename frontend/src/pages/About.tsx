@@ -42,14 +42,14 @@ const values = [
 const About = () => (
   <PageLayout>
     <SEO
-      title={`About StartupA2Z | StartupA2Z`}
-      description="StartupA2Z brings founders, mentors, and investors together to share knowledge, solve real problems, and help startups grow."
+      title={`About StartupA2Z.org | StartupA2Z.org`}
+      description="StartupA2Z.org brings founders, mentors, and investors together to share knowledge, solve real problems, and help startups grow."
       canonical={`https://startupa2z.org/about`}
       ogImage={`https://startupa2z.org/assets/og-about.jpg`}
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: "StartupA2Z",
+        name: "StartupA2Z.org",
         url: "https://startupa2z.org",
       }}
     />

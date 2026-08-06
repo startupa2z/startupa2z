@@ -27,16 +27,16 @@ const ITEMS: GalleryItem[] = [
     type: "photo",
     src: "/event_pictures/meetup_panel_1.png",
     thumb: "/event_pictures/meetup_panel_1.png",
-    alt: "Group at StartupA2Z meetup — panel and attendees",
+    alt: "Group at StartupA2Z.org meetup — panel and attendees",
     event: "Meetups",
-    caption: "Group Meetup — StartupA2Z",
+    caption: "Group Meetup — StartupA2Z.org",
   },
   {
     id: 2,
     type: "photo",
     src: "/event_pictures/meetup_panel_2.png",
     thumb: "/event_pictures/meetup_panel_2.png",
-    alt: "Attendees networking at StartupA2Z meetup",
+    alt: "Attendees networking at StartupA2Z.org meetup",
     event: "Meetups",
     caption: "Networking — Startup Meetup",
   },
@@ -45,7 +45,7 @@ const ITEMS: GalleryItem[] = [
     type: "photo",
     src: "/event_pictures/meetup_panel_4.png",
     thumb: "/event_pictures/meetup_panel_4.png",
-    alt: "Group photo from the StartupA2Z meetup",
+    alt: "Group photo from the StartupA2Z.org meetup",
     event: "Meetups",
     caption: "Community Group Photo — Startup Meetup",
   },
@@ -54,7 +54,7 @@ const ITEMS: GalleryItem[] = [
     type: "photo",
     src: "/event_pictures/meetup_panel_5.png",
     thumb: "/event_pictures/meetup_panel_5.png",
-    alt: "Speakers and founders at StartupA2Z meetup",
+    alt: "Speakers and founders at StartupA2Z.org meetup",
     event: "Meetups",
     caption: "Speakers & Founders — Startup Meetup",
   },
@@ -108,14 +108,14 @@ const Gallery = () => {
   return (
     <PageLayout>
       <SEO
-        title="Photo & Video Gallery | StartupA2Z"
-        description="Browse photos and videos from StartupA2Z summits, demo days, hackathons, awards nights, and workshops."
+        title="Photo & Video Gallery | StartupA2Z.org"
+        description="Browse photos and videos from StartupA2Z.org summits, demo days, hackathons, awards nights, and workshops."
         canonical="https://startupa2z.org/gallery"
         ogImage="https://startupa2z.org/assets/og-gallery.jpg"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ImageGallery",
-          name: "StartupA2Z Gallery",
+          name: "StartupA2Z.org Gallery",
           url: "https://startupa2z.org/gallery",
         }}
       />
@@ -141,7 +141,7 @@ const Gallery = () => {
             </h1>
             <p className="text-lg text-white/70 max-w-xl mx-auto">
               A visual archive of every summit, demo day, hackathon, and
-              workshop — relive the energy of the StartupA2Z community.
+              workshop — relive the energy of the StartupA2Z.org community.
             </p>
           </motion.div>
         </div>
@@ -244,7 +244,7 @@ const Gallery = () => {
 
       <CTABanner
         title="Be Part of the Story"
-        description="Join our next event and create memories with the StartupA2Z community."
+        description="Join our next event and create memories with the StartupA2Z.org community."
         primaryCTA="See Upcoming Events"
       />
 

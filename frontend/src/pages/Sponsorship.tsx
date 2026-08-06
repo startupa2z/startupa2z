@@ -121,14 +121,14 @@ const Sponsorship = () => {
   return (
     <PageLayout>
       <SEO
-        title={`Sponsorship — StartupA2Z`}
+        title={`Sponsorship — StartupA2Z.org`}
         description={`Reach Bay Area founders, investors, and builders through curated events, workshops, and community programming.`}
         canonical={`https://startupa2z.org/sponsorship`}
         ogImage={`https://startupa2z.org/assets/og-sponsorship.jpg`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "StartupA2Z",
+          name: "StartupA2Z.org",
           url: "https://startupa2z.org",
         }}
       />

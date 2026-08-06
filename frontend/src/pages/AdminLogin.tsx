@@ -49,7 +49,7 @@ const AdminLogin = () => {
   return (
     <>
       <SEO
-        title="Admin Login | StartupA2Z"
+        title="Admin Login | StartupA2Z.org"
         description="Admin portal for Startupa2z."
         noindex={true}
         canonical="https://startupa2z.org/admin/login"
@@ -62,7 +62,7 @@ const AdminLogin = () => {
           <Link to="/" className="flex flex-col items-center gap-3 group">
             <img
               src="/logo-transparent.webp"
-              alt="StartupA2Z logo"
+              alt="StartupA2Z.org logo"
               width={864}
               height={159}
               className="h-10 w-auto transition-transform group-hover:-translate-y-0.5"

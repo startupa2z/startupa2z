@@ -384,7 +384,7 @@ const AdminSubmissions = () => {
   return (
     <>
       <SEO
-        title="Admin Dashboard | StartupA2Z"
+        title="Admin Dashboard | StartupA2Z.org"
         description="Admin dashboard for Startupa2z."
         noindex={true}
         canonical="https://startupa2z.org/admin/submissions"
@@ -393,7 +393,7 @@ const AdminSubmissions = () => {
         <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4 px-4 md:px-6 h-16">
             <Link to="/" className="inline-flex items-center gap-3">
-              <img src="/logo-transparent.webp" alt="StartupA2Z" width={864} height={159} className="h-7 md:h-8 w-auto" />
+              <img src="/logo-transparent.webp" alt="StartupA2Z.org" width={864} height={159} className="h-7 md:h-8 w-auto" />
               <Badge variant="secondary" className="hidden sm:inline-flex">Admin</Badge>
             </Link>
             <div className="flex items-center gap-3">
@@ -417,10 +417,10 @@ const AdminSubmissions = () => {
           <main className="min-w-0 flex-1 px-4 md:px-6 xl:px-8 py-6 space-y-6">
             <section className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">StartupA2Z admin</p>
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">StartupA2Z.org admin</p>
                 <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight">{adminSectionLabel(activeSection)}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Create once, publish early and keep every channel current." : "Manage this part of the StartupA2Z community."}
+                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Create once, publish early and keep every channel current." : "Manage this part of the StartupA2Z.org community."}
                 </p>
               </div>
               {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "rsvps" && activeSection !== "overview" && (

@@ -1,4 +1,4 @@
-# StartupA2Z Backend
+# StartupA2Z.org Backend
 
 FastAPI service for events, RSVPs, contact submissions, authentication, Stripe,
 and administration. PostgreSQL is accessed through `asyncpg`.

@@ -1,6 +1,6 @@
-# StartupA2Z
+# StartupA2Z.org
 
-Monorepo for the StartupA2Z community website.
+Monorepo for the StartupA2Z.org community website.
 
 ## Architecture
 

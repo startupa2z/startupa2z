@@ -287,7 +287,7 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
       <DialogContent className="sm:max-w-[760px] max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading text-2xl text-primary">Create Your Startup Profile</DialogTitle>
-          <DialogDescription>Your submission stays private until the StartupA2Z team reviews and publishes it.</DialogDescription>
+          <DialogDescription>Your submission stays private until the StartupA2Z.org team reviews and publishes it.</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-5 gap-2 py-2" aria-label="Submission progress">
@@ -364,7 +364,7 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
           <div className="space-y-5">
             <div className="rounded-xl bg-muted/60 p-5"><p className="text-xs font-semibold uppercase tracking-wider text-secondary">Ready for review</p><h3 className="mt-1 font-heading text-xl font-semibold">{form.name}</h3><p className="mt-2 text-sm text-muted-foreground">{form.pitch}</p><div className="mt-3 flex flex-wrap gap-2 text-xs"><span>{founders.length} founder{founders.length === 1 ? "" : "s"}</span><span>·</span><span>{media.filter((item) => item.media_type === "image").length} photos</span><span>·</span><span>{media.filter((item) => item.media_type === "video").length} videos</span></div></div>
             <div className="grid sm:grid-cols-2 gap-4"><div><Label htmlFor="business-contact-name">Your name *</Label><Input id="business-contact-name" value={form.contact_name} onChange={(event) => update("contact_name", event.target.value)} /></div><div><Label htmlFor="business-contact-email">Your email *</Label><Input id="business-contact-email" type="email" value={form.contact_email} onChange={(event) => update("contact_email", event.target.value)} /></div></div>
-            <div className="flex items-start gap-3 rounded-lg border p-3"><Checkbox id="business-consent" checked={form.consent_to_publish} onCheckedChange={(checked) => update("consent_to_publish", checked === true)} /><Label htmlFor="business-consent" className="cursor-pointer leading-relaxed">I confirm that I have permission to submit this information and media for review and possible publication by StartupA2Z.</Label></div>
+            <div className="flex items-start gap-3 rounded-lg border p-3"><Checkbox id="business-consent" checked={form.consent_to_publish} onCheckedChange={(checked) => update("consent_to_publish", checked === true)} /><Label htmlFor="business-consent" className="cursor-pointer leading-relaxed">I confirm that I have permission to submit this information and media for review and possible publication by StartupA2Z.org.</Label></div>
           </div>
         )}
 

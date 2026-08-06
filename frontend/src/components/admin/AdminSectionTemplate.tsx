@@ -8,7 +8,7 @@ const templates: Partial<Record<AdminSection, { title: string; description: stri
   founders: { title: "Speakers", description: "Maintain the people who pitch, teach, mentor, and appear at events.", items: [
     { title: "Speaker profiles", note: "Bio, company, topic and LinkedIn" }, { title: "Speaker pipeline", note: "Invited, confirmed and completed" }, { title: "Session history", note: "Events, topics and feedback" },
   ] },
-  startups: { title: "Startups", description: "Build the StartupA2Z company directory and connect each startup to its founders.", items: [
+  startups: { title: "Startups", description: "Build the StartupA2Z.org company directory and connect each startup to its founders.", items: [
     { title: "Company profiles", note: "Industry, stage, location and website" }, { title: "Founder ownership", note: "Link people to companies" }, { title: "Visibility controls", note: "Draft, reviewed and published" },
   ] },
   announcements: { title: "Announcements", description: "Create one announcement and adapt it for the channels that should receive it.", items: [

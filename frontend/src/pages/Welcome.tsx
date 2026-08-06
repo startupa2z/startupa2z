@@ -64,12 +64,12 @@ const Welcome = () => {
   if (!profile) {
     return (
       <PageLayout>
-        <SEO title="Member Sign In | StartupA2Z" description="Sign in to your StartupA2Z member account." canonical="https://startupa2z.org/welcome" />
+        <SEO title="Member Sign In | StartupA2Z.org" description="Sign in to your StartupA2Z.org member account." canonical="https://startupa2z.org/welcome" />
         <section className="flex min-h-[70vh] items-center justify-center px-6 pt-24 pb-16">
           <Card className="w-full max-w-lg text-center shadow-lg">
             <CardContent className="p-8 md:p-10">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><UserRound className="h-7 w-7" /></div>
-              <h1 className="mt-5 font-heading text-3xl font-bold">Welcome to StartupA2Z</h1>
+              <h1 className="mt-5 font-heading text-3xl font-bold">Welcome to StartupA2Z.org</h1>
               <p className="mt-2 text-muted-foreground">Sign in to see your profile and session history.</p>
               {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
               <Button className="mt-6 rounded-full px-8" onClick={() => setAuthOpen(true)}>Sign In</Button>
@@ -86,14 +86,14 @@ const Welcome = () => {
 
   return (
     <PageLayout>
-      <SEO title="Welcome | StartupA2Z" description="Your StartupA2Z member dashboard." canonical="https://startupa2z.org/welcome" />
+      <SEO title="Welcome | StartupA2Z.org" description="Your StartupA2Z.org member dashboard." canonical="https://startupa2z.org/welcome" />
       <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 px-6 pt-28 pb-10">
         <div className="container-narrow">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <Badge>Member dashboard</Badge>
               <h1 className="mt-3 font-heading text-3xl font-bold md:text-4xl">Welcome, {displayName}</h1>
-              <p className="mt-2 text-muted-foreground">Your StartupA2Z profile and participation history.</p>
+              <p className="mt-2 text-muted-foreground">Your StartupA2Z.org profile and participation history.</p>
             </div>
             <Button variant="outline" onClick={signOut}><LogOut className="h-4 w-4" /> Sign out</Button>
           </div>

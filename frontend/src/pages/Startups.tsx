@@ -182,14 +182,14 @@ const Startups = () => {
   return (
     <PageLayout>
       <SEO
-        title={`Startups — StartupA2Z`}
+        title={`Startups — StartupA2Z.org`}
         description={`Browse our curated directory of Bay Area startups — filter by stage, sector, and location to find promising companies.`}
         canonical={`https://startupa2z.org/startups`}
         ogImage={`https://startupa2z.org/assets/og-startups.jpg`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ItemList",
-          name: "StartupA2Z Startup Directory",
+          name: "StartupA2Z.org Startup Directory",
           url: "https://startupa2z.org/startups",
         }}
       />

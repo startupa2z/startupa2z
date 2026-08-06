@@ -53,14 +53,14 @@ const benefits = [
 const Investors = () => (
   <PageLayout>
     <SEO
-      title={`Investors — StartupA2Z`}
+      title={`Investors — StartupA2Z.org`}
       description={`Discover promising Bay Area startups, connect with exceptional founders, and source high-quality deal flow through Startupa2z.`}
       canonical={`https://startupa2z.org/investors`}
       ogImage={`https://startupa2z.org/assets/og-investors.jpg`}
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: "StartupA2Z",
+        name: "StartupA2Z.org",
         url: "https://startupa2z.org",
       }}
     />

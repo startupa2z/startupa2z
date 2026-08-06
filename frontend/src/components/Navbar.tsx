@@ -108,7 +108,7 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,4vw,3rem)] flex items-center gap-4 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
         <Link to="/" className="inline-flex shrink-0 items-center hover:-translate-y-px transition-transform">
-          <img src="/logo-transparent.webp" alt="StartupA2Z logo" width={864} height={159} className="h-8 md:h-9 w-auto select-none" />
+          <img src="/logo-transparent.webp" alt="StartupA2Z.org logo" width={864} height={159} className="h-8 md:h-9 w-auto select-none" />
         </Link>
 
         <div className="hidden lg:flex flex-1 items-center justify-end gap-5 min-w-0">

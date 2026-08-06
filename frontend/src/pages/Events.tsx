@@ -23,17 +23,17 @@ const eventFaqs = [
   {
     question: "Where can I find startup events in the Bay Area?",
     answer:
-      "StartupA2Z lists upcoming Bay Area startup events for founders, builders, investors, mentors, and aspiring entrepreneurs. Each event page includes the date, venue, agenda, and registration link.",
+      "StartupA2Z.org lists upcoming Bay Area startup events for founders, builders, investors, mentors, and aspiring entrepreneurs. Each event page includes the date, venue, agenda, and registration link.",
   },
   {
-    question: "Are StartupA2Z founder events free?",
+    question: "Are StartupA2Z.org founder events free?",
     answer:
-      "Many StartupA2Z founder meetups and networking events are free. Check the individual event page for current pricing, capacity, and registration details.",
+      "Many StartupA2Z.org founder meetups and networking events are free. Check the individual event page for current pricing, capacity, and registration details.",
   },
   {
-    question: "Where are StartupA2Z events held?",
+    question: "Where are StartupA2Z.org events held?",
     answer:
-      "StartupA2Z hosts in-person startup events across the San Francisco Bay Area and Silicon Valley. Current event pages show the confirmed city and venue, including programs at Hacker Dojo in Mountain View.",
+      "StartupA2Z.org hosts in-person startup events across the San Francisco Bay Area and Silicon Valley. Current event pages show the confirmed city and venue, including programs at Hacker Dojo in Mountain View.",
   },
   {
     question: "Can founders pitch their startups at an event?",
@@ -85,7 +85,7 @@ const Events = () => {
   return (
     <PageLayout>
       <SEO
-        title={`Bay Area & Silicon Valley Startup Events | StartupA2Z`}
+        title={`Bay Area & Silicon Valley Startup Events | StartupA2Z.org`}
         description={`Find Bay Area startup events, Silicon Valley founder meetups, pitch events, workshops, and networking opportunities in Mountain View and nearby cities.`}
         canonical={`https://startupa2z.org/events`}
         ogImage={`https://startupa2z.org/assets/og-events.jpg`}
@@ -102,7 +102,7 @@ const Events = () => {
             },
             {
               "@type": "ItemList",
-              name: "Upcoming StartupA2Z Events",
+              name: "Upcoming StartupA2Z.org Events",
               itemListElement: events.map((event, index) => ({
                 "@type": "ListItem",
                 position: index + 1,
@@ -358,7 +358,7 @@ const Events = () => {
           <SectionHeading
             tag="Bay Area Event Guide"
             title="Find the Right Founder and Startup Event"
-            description="StartupA2Z brings the Bay Area startup community together through practical learning, real founder pitches, direct feedback, and meaningful connections."
+            description="StartupA2Z.org brings the Bay Area startup community together through practical learning, real founder pitches, direct feedback, and meaningful connections."
           />
           <div className="grid gap-6 md:grid-cols-3">
             <article className="rounded-2xl border border-border bg-card p-6">

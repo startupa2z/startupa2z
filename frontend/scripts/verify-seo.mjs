@@ -31,7 +31,7 @@ const rejectText = (html, text, label) => {
 };
 
 const eventHtml = readRoute(`/events/${eventSlug}`);
-requireText(eventHtml, "<title>Bay Area Founders Pitch &amp; Startup Networking — Aug 12 | StartupA2Z</title>", "event title");
+requireText(eventHtml, "<title>Bay Area Founders Pitch &amp; Startup Networking — Aug 12 | StartupA2Z.org</title>", "event title");
 requireText(eventHtml, `href="${eventCanonical}"`, "event canonical");
 requireText(eventHtml, 'type="application/ld+json"', "event structured data");
 requireText(eventHtml, '"@type": "Event"', "Event schema type");
@@ -41,7 +41,7 @@ requireText(eventHtml, "https://luma.com/m0eu7bw9", "Luma registration destinati
 rejectText(eventHtml, 'rel="canonical" href="https://startupa2z.org/"', "event canonical");
 
 const eventsHtml = readRoute("/events");
-requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup Events | StartupA2Z", "events title");
+requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup Events | StartupA2Z.org", "events title");
 requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup and Founder Events", "events primary heading");
 requireText(eventsHtml, 'href="https://startupa2z.org/events"', "events canonical");
 requireText(eventsHtml, "Bay Area Founders Pitch &amp; Startup Networking", "events listing");

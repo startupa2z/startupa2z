@@ -69,7 +69,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
     void exchangeLinkedInCode(linkedinCode as string)
       .then(({ session }) => {
         setToken(session.access_token);
-        toast({ title: "Welcome to StartupA2Z!" });
+        toast({ title: "Welcome to StartupA2Z.org!" });
         const resumeRsvp = new URLSearchParams(window.location.search).get("rsvp") === "1";
         navigate(resumeRsvp ? `${window.location.pathname}?rsvp=1` : "/welcome", { replace: true });
       })
@@ -144,7 +144,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
     try {
       const { session } = await verifyOtp({ email: email.trim(), token: otp });
       setToken(session.access_token);
-      toast({ title: mode === "signin" ? "Welcome back!" : "Welcome to StartupA2Z!" });
+      toast({ title: mode === "signin" ? "Welcome back!" : "Welcome to StartupA2Z.org!" });
       setOpen(false);
       navigate(redirectTo);
     } catch (error) {
@@ -162,7 +162,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
           <div className="mb-2 flex justify-center sm:justify-start"><img src="/icon-only-transparent.webp" alt="" className="h-10 w-10" aria-hidden /></div>
           <DialogTitle className="font-heading text-2xl text-primary">{step === "otp" ? "Verify your email" : mode === "signin" ? "Sign in" : "Create your account"}</DialogTitle>
           <DialogDescription>
-            {step === "choice" && (mode === "signin" ? "Welcome back. Choose how you want to sign in." : "Join the StartupA2Z community using LinkedIn or email.")}
+            {step === "choice" && (mode === "signin" ? "Welcome back. Choose how you want to sign in." : "Join the StartupA2Z.org community using LinkedIn or email.")}
             {step === "email" && (mode === "signin" ? "Enter the email address connected to your account." : "Create your membership using your email address.")}
             {step === "otp" && `Enter the 6-digit code sent to ${email}.`}
           </DialogDescription>
@@ -185,7 +185,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
               <Mail className="mr-2 h-5 w-5" /> {mode === "signin" ? "Sign in with email address" : "Sign up with email address"}
             </Button>
             <button type="button" onClick={() => changeMode(mode === "signin" ? "signup" : "signin")} className="w-full text-center text-sm text-muted-foreground hover:text-primary">
-              {mode === "signin" ? "New to StartupA2Z? Sign up" : "Already have an account? Sign in"}
+              {mode === "signin" ? "New to StartupA2Z.org? Sign up" : "Already have an account? Sign in"}
             </button>
           </div>
         )}

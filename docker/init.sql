@@ -1,5 +1,5 @@
--- StartupA2Z PostgreSQL schema
--- StartupA2Z PostgreSQL schema for the Docker deployment.
+-- StartupA2Z.org PostgreSQL schema
+-- StartupA2Z.org PostgreSQL schema for the Docker deployment.
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

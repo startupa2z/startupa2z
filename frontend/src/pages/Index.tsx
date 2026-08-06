@@ -15,14 +15,14 @@ import SEO from "@/components/SEO";
 const Index = () => (
   <PageLayout>
     <SEO
-      title={`Startup Events in Bay Area | StartupA2Z`}
+      title={`Startup Events in Bay Area | StartupA2Z.org`}
       description={`Discover startup events, founder meetups, networking sessions, and mentorship opportunities in the Bay Area.`}
       canonical={`https://startupa2z.org/`}
       ogImage={`https://startupa2z.org/assets/og-home.jpg`}
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: "StartupA2Z",
+        name: "StartupA2Z.org",
         url: "https://startupa2z.org",
         logo: "https://startupa2z.org/logo-transparent.webp",
       }}

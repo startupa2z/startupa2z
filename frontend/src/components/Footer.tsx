@@ -18,7 +18,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.4fr] gap-8 lg:gap-12 pb-12">
           <div>
             <Link to="/" className="inline-flex items-center mb-4 hover:-translate-y-px transition-transform bg-white rounded-xl px-3 py-2">
-              <img src="/logo-transparent.webp" alt="StartupA2Z logo" width={2347} height={432} className="h-9 w-auto select-none" />
+              <img src="/logo-transparent.webp" alt="StartupA2Z.org logo" width={2347} height={432} className="h-9 w-auto select-none" />
             </Link>
             <p className="text-[0.875rem] text-dark-muted leading-[1.65] max-w-[200px]">Where founders begin. Bay Area&apos;s most intentional startup ecosystem.</p>
           </div>

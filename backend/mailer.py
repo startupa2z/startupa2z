@@ -8,10 +8,10 @@ async def send_otp_email(to: str, otp: str) -> None:
     msg = MIMEMultipart("alternative")
     msg["From"] = settings.smtp_from
     msg["To"] = to
-    msg["Subject"] = "Your StartupA2Z sign-in code"
+    msg["Subject"] = "Your StartupA2Z.org sign-in code"
     msg.attach(MIMEText(f"Your verification code is: {otp}\n\nThis code expires in 10 minutes.", "plain"))
     msg.attach(MIMEText(
-        f"<p>Your StartupA2Z verification code is:</p><h2>{otp}</h2>"
+        f"<p>Your StartupA2Z.org verification code is:</p><h2>{otp}</h2>"
         f"<p>This code expires in 10 minutes.</p>",
         "html",
     ))

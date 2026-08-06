@@ -24,7 +24,7 @@ const WhatsAppDialog = ({ children }: WhatsAppDialogProps) => (
         <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366]/10">
           <MessageCircle className="h-8 w-8 text-[#25D366]" />
         </div>
-        <DialogTitle className="font-heading text-2xl text-primary">StartupA2Z WhatsApp</DialogTitle>
+        <DialogTitle className="font-heading text-2xl text-primary">StartupA2Z.org WhatsApp</DialogTitle>
         <DialogDescription className="text-center">
           Join our WhatsApp community for event announcements, founder conversations, and important updates.
         </DialogDescription>
