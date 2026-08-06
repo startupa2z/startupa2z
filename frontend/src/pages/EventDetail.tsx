@@ -122,7 +122,11 @@ const EventDetail = () => {
   return (
     <PageLayout>
       <SEO
-        title={`${event.title} | StartupA2Z`}
+        title={
+          event.slug === "startup-a-to-z-hacker-dojo-august-12"
+            ? `${event.title} — Aug 12 | StartupA2Z`
+            : `${event.title} | StartupA2Z`
+        }
         description={
           event.desc ||
           event.longDesc?.slice(0, 155) ||
@@ -134,7 +138,10 @@ const EventDetail = () => {
           "@context": "https://schema.org",
           "@type": "Event",
           name: event.title,
-          startDate: event.date,
+          startDate: event.startDateIso || event.date,
+          endDate: event.endDateIso || undefined,
+          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+          eventStatus: "https://schema.org/EventScheduled",
           description: event.longDesc || event.desc,
           location: {
             "@type": "Place",
@@ -145,6 +152,20 @@ const EventDetail = () => {
             event.imageUrl || `https://startupa2z.org/assets/event-hero.jpg`,
           ],
           url: `https://startupa2z.org/events/${event.slug}`,
+          organizer: {
+            "@type": "Organization",
+            name: "StartupA2Z",
+            url: "https://startupa2z.org/",
+          },
+          offers: {
+            "@type": "Offer",
+            url: event.registrationUrl || `https://startupa2z.org/events/${event.slug}`,
+            price: event.price.toLowerCase() === "free" ? 0 : event.price,
+            priceCurrency: "USD",
+            availability: event.spots > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/SoldOut",
+          },
         }}
       />
       {/* Hero */}
@@ -340,6 +361,12 @@ const EventDetail = () => {
                     className="w-full rounded-full mb-2 bg-muted text-muted-foreground hover:bg-muted"
                   >
                     Sold out
+                  </Button>
+                ) : event.registrationUrl ? (
+                  <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2">
+                    <a href={event.registrationUrl} target="_blank" rel="noreferrer">
+                      Register on Luma
+                    </a>
                   </Button>
                 ) : (
                   <Button

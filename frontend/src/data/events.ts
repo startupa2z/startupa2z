@@ -18,19 +18,22 @@ export type EventItem = {
   price: string;
   featured: boolean;
   imageUrl?: string | null;
+  startDateIso?: string | null;
+  endDateIso?: string | null;
+  registrationUrl?: string | null;
 };
 
 // Public fallback event. A database record with the same slug overrides it.
 export const seedEvents: EventItem[] = [
   {
     slug: "startup-a-to-z-hacker-dojo-august-12",
-    title: "Startup A to Z: Founders Mix & Pitch",
+    title: "Bay Area Founders Pitch & Startup Networking",
     date: "August 12, 2026",
     time: "5:00 PM - 8:00 PM",
     venue: "Hacker Dojo, Mountain View",
     address: "855 Maude Ave, Mountain View, CA 94043",
     type: "Founder Meetup",
-    desc: "A practical evening for founders and startup builders to learn the fundamentals, hear real pitches, exchange feedback, and build useful relationships.",
+    desc: "A free Bay Area founder pitch and startup networking event at Hacker Dojo in Mountain View on August 12, 2026.",
     longDesc:
       "Startup A to Z brings founders, operators, investors, mentors, and aspiring entrepreneurs together for practical learning and meaningful connections. The first session opens with a fast-paced Startup Basics from A to Z talk, followed by two organized founder pitches, two audience pitches, direct feedback, and networking. Founder speakers will be announced soon.",
     agenda: [
@@ -49,6 +52,10 @@ export const seedEvents: EventItem[] = [
     capacity: 60,
     price: "Free",
     featured: true,
+    imageUrl: "https://images.lumacdn.com/event-social/uj/b1008796-76dc-4efd-96b4-b3e35890b79f.png",
+    startDateIso: "2026-08-12T17:00:00-07:00",
+    endDateIso: "2026-08-12T20:00:00-07:00",
+    registrationUrl: "https://luma.com/m0eu7bw9?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix_aug12",
   },
 ];
 
@@ -76,6 +83,7 @@ const mapRow = (r: {
   price: string;
   featured: boolean;
   image_url?: string | null;
+  registration_url?: string | null;
 }): EventItem => ({
   id: r.id,
   slug: r.slug,
@@ -94,6 +102,9 @@ const mapRow = (r: {
   price: r.price,
   featured: r.featured,
   imageUrl: r.image_url ?? null,
+  startDateIso: seedEvents.find((event) => event.slug === r.slug)?.startDateIso ?? null,
+  endDateIso: seedEvents.find((event) => event.slug === r.slug)?.endDateIso ?? null,
+  registrationUrl: r.registration_url || seedEvents.find((event) => event.slug === r.slug)?.registrationUrl || null,
 });
 
 function mergeWithSeed(dbEvents: EventItem[]): EventItem[] {

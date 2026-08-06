@@ -61,16 +61,18 @@ test("sign in and community join open the correct authentication modes", async (
   await expect(page.getByRole("button", { name: "Sign up with email address" })).toBeVisible();
 });
 
-test("event filtering and RSVP authentication gate work", async ({ page }) => {
+test("event filtering and external registration destination work", async ({ page }) => {
   await page.goto("/events?view=past");
   await expect(page.getByRole("heading", { name: "Past Events" })).toBeVisible();
   await expect(page.getByText("No past events to show yet.")).toBeVisible();
 
   await page.getByRole("link", { name: "Upcoming", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Upcoming Events" })).toBeVisible();
-  await page.getByRole("button", { name: "RSVP", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/events\/startup-a-to-z-hacker-dojo-august-12\?rsvp=1$/);
-  await expect(page.getByRole("dialog")).toContainText("Welcome back");
+  await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
+  await expect(page.getByRole("link", { name: "Register on Luma" })).toHaveAttribute(
+    "href",
+    /^https:\/\/luma\.com\/m0eu7bw9\?utm_source=startupa2z/,
+  );
 });
 
 test("upcoming featured section never promotes a past event", async ({ page }) => {

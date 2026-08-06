@@ -313,13 +313,13 @@ INSERT INTO events (
 )
 VALUES (
   'startup-a-to-z-hacker-dojo-august-12',
-  'Startup A to Z: Founders Mix & Pitch',
+  'Bay Area Founders Pitch & Startup Networking',
   'August 12, 2026',
   '5:00 PM - 8:00 PM',
   'Hacker Dojo, Mountain View',
   '855 Maude Ave, Mountain View, CA 94043',
   'Founder Meetup',
-  'A practical evening for founders and startup builders to learn the fundamentals, hear real pitches, exchange feedback, and build useful relationships.',
+  'A free Bay Area founder pitch and startup networking event at Hacker Dojo in Mountain View on August 12, 2026.',
   'Startup A to Z brings founders, operators, investors, mentors, and aspiring entrepreneurs together for practical learning and meaningful connections. The first session opens with a fast-paced Startup Basics from A to Z talk, followed by two organized founder pitches, two audience pitches, direct feedback, and networking. Founder speakers will be announced soon.',
   '[{"time":"5:00 PM","item":"Arrival, registration, and networking"},{"time":"5:30 PM","item":"Welcome + Startup Basics from A to Z with Satz"},{"time":"5:55 PM","item":"Founder pitch 1 + feedback"},{"time":"6:10 PM","item":"Founder pitch 2 + feedback"},{"time":"6:25 PM","item":"Audience pitch 1 + feedback"},{"time":"6:35 PM","item":"Audience pitch 2 + feedback"},{"time":"6:45 PM","item":"Key lessons and community announcements"},{"time":"6:55 PM","item":"Closing remarks"},{"time":"7:00 PM","item":"Post-session networking"}]'::jsonb,
   '[{"name":"Satz","role":"Host, Startup A to Z"}]'::jsonb,
@@ -338,6 +338,15 @@ INSERT INTO event_channels (event_id, channel, status)
 SELECT id, 'luma', 'draft'
 FROM events
 ON CONFLICT (event_id, channel) DO NOTHING;
+
+UPDATE event_channels
+SET status = 'published',
+    external_url = 'https://luma.com/m0eu7bw9',
+    published_at = COALESCE(published_at, now())
+WHERE channel = 'luma'
+  AND event_id = (
+    SELECT id FROM events WHERE slug = 'startup-a-to-z-hacker-dojo-august-12'
+  );
 
 -- Decrement spots on RSVP insert
 CREATE OR REPLACE FUNCTION decrement_event_spots()

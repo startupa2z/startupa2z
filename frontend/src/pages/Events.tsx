@@ -39,6 +39,10 @@ const Events = () => {
   const openRSVP = (e: React.MouseEvent, event: EventItem) => {
     e.preventDefault();
     e.stopPropagation();
+    if (event.registrationUrl) {
+      window.location.assign(event.registrationUrl);
+      return;
+    }
     navigate(`/events/${event.slug}?rsvp=1`);
   };
 
