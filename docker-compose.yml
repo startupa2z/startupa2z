@@ -36,6 +36,8 @@ services:
         condition: service_healthy
     networks:
       - default
+    labels:
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID:-}"
 
   frontend:
     build:
@@ -49,6 +51,8 @@ services:
       - backend
     networks:
       - default
+    labels:
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID:-}"
 
 volumes:
   postgres_data:
