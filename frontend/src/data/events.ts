@@ -84,28 +84,33 @@ const mapRow = (r: {
   featured: boolean;
   image_url?: string | null;
   registration_url?: string | null;
-}): EventItem => ({
-  id: r.id,
-  slug: r.slug,
-  title: r.title,
-  date: r.date,
-  time: r.time,
-  venue: r.venue,
-  address: r.address ?? "",
-  type: r.type,
-  desc: r.description ?? "",
-  longDesc: r.long_description ?? "",
-  agenda: Array.isArray(r.agenda) ? (r.agenda as DbAgendaItem[]) : [],
-  speakers: Array.isArray(r.speakers) ? (r.speakers as DbSpeaker[]) : [],
-  spots: r.spots,
-  capacity: r.capacity,
-  price: r.price,
-  featured: r.featured,
-  imageUrl: r.image_url ?? null,
-  startDateIso: seedEvents.find((event) => event.slug === r.slug)?.startDateIso ?? null,
-  endDateIso: seedEvents.find((event) => event.slug === r.slug)?.endDateIso ?? null,
-  registrationUrl: r.registration_url || seedEvents.find((event) => event.slug === r.slug)?.registrationUrl || null,
-});
+}): EventItem => {
+  // Locally seeded public copy is the discovery source of truth. The database
+  // still supplies operational values and all content for non-seeded events.
+  const seedEvent = seedEvents.find((event) => event.slug === r.slug);
+  return {
+    id: r.id,
+    slug: r.slug,
+    title: seedEvent?.title ?? r.title,
+    date: r.date,
+    time: r.time,
+    venue: r.venue,
+    address: r.address ?? "",
+    type: r.type,
+    desc: seedEvent?.desc ?? r.description ?? "",
+    longDesc: seedEvent?.longDesc ?? r.long_description ?? "",
+    agenda: Array.isArray(r.agenda) ? (r.agenda as DbAgendaItem[]) : [],
+    speakers: Array.isArray(r.speakers) ? (r.speakers as DbSpeaker[]) : [],
+    spots: r.spots,
+    capacity: r.capacity,
+    price: r.price,
+    featured: r.featured,
+    imageUrl: r.image_url || seedEvent?.imageUrl || null,
+    startDateIso: seedEvent?.startDateIso ?? null,
+    endDateIso: seedEvent?.endDateIso ?? null,
+    registrationUrl: r.registration_url || seedEvent?.registrationUrl || null,
+  };
+};
 
 function mergeWithSeed(dbEvents: EventItem[]): EventItem[] {
   const dbSlugs = new Set(dbEvents.map((e) => e.slug));
