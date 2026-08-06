@@ -323,8 +323,8 @@ VALUES (
   'Startup A to Z brings founders, operators, investors, mentors, and aspiring entrepreneurs together for practical learning and meaningful connections. The first session opens with a fast-paced Startup Basics from A to Z talk, followed by two organized founder pitches, two audience pitches, direct feedback, and networking. Founder speakers will be announced soon.',
   '[{"time":"5:00 PM","item":"Arrival, registration, and networking"},{"time":"5:30 PM","item":"Welcome + Startup Basics from A to Z with Satz"},{"time":"5:55 PM","item":"Founder pitch 1 + feedback"},{"time":"6:10 PM","item":"Founder pitch 2 + feedback"},{"time":"6:25 PM","item":"Audience pitch 1 + feedback"},{"time":"6:35 PM","item":"Audience pitch 2 + feedback"},{"time":"6:45 PM","item":"Key lessons and community announcements"},{"time":"6:55 PM","item":"Closing remarks"},{"time":"7:00 PM","item":"Post-session networking"}]'::jsonb,
   '[{"name":"Satz","role":"Host, Startup A to Z"}]'::jsonb,
-  60,
-  60,
+  24,
+  30,
   'Free',
   true
 );
