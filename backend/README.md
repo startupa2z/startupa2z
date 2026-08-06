@@ -1,53 +1,29 @@
-# Startupa2z Backend API
+# StartupA2Z Backend
 
-Express server that handles auth (email OTP, LinkedIn OAuth URL), contact form, RSVPs, and public event reads via Supabase.
+FastAPI service for events, RSVPs, contact submissions, authentication, Stripe,
+and administration. PostgreSQL is accessed through `asyncpg`.
 
-## Setup
+## Local Docker setup
 
-1. Copy env file and fill in values from [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API:
-
-```bash
-cp env.example .env
-```
-
-| Variable | Description |
-|----------|-------------|
-| `SUPABASE_URL` | Project URL |
-| `SUPABASE_ANON_KEY` | anon / publishable key (OTP & OAuth) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Optional. Public routes work with anon key only. Add service_role for admin tooling. |
-| `CORS_ORIGINS` | Frontend URL(s), e.g. `http://localhost:8080` |
-
-2. Install and run:
+Run the complete stack from the repository root:
 
 ```bash
-cd backend
-npm install
-npm run dev
+docker compose up -d --build
 ```
 
-API listens on **http://localhost:3001** by default.
+The frontend proxies `/api` and `/health` to the backend container.
 
-## Endpoints
+## Main endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
+| Method | Path | Purpose |
+|---|---|---|
 | GET | `/health` | Health check |
-| POST | `/api/auth/otp/send` | Send email OTP (`email`, `mode`, optional `fullName`, `organization`) |
-| POST | `/api/auth/otp/verify` | Verify OTP; returns session tokens |
-| POST | `/api/auth/oauth/linkedin` | Get LinkedIn OAuth redirect URL |
-| POST | `/api/contact` | Submit contact form |
-| POST | `/api/rsvp` | Create event RSVP |
 | GET | `/api/events` | List events |
-| GET | `/api/events/:slug` | Get event by slug |
+| GET | `/api/events/{slug}` | Retrieve an event |
+| POST | `/api/rsvp` | Register for an event |
+| POST | `/api/contact` | Submit the contact form |
+| POST | `/api/auth/otp/send` | Send an authentication code |
+| POST | `/api/auth/otp/verify` | Verify an authentication code |
 
-## Frontend
-
-With the Vite dev server, `/api/*` is proxied to this backend. Run both:
-
-```bash
-# from repo root
-npm run dev          # frontend
-npm run dev:backend  # API
-```
-
-Admin panel and realtime features still use the Supabase client directly in the browser.
+Configuration is read from `backend/.env` when present or from container
+environment variables. See `backend/.env.example`.

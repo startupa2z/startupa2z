@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, MapPin, Clock, CheckCircle2 } from "lucide-react";
+import { Calendar, MapPin, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ApiError, submitRsvp } from "@/lib/api";
 
@@ -30,11 +31,18 @@ const rsvpSchema = z.object({
   role: z.string().min(1, "Please select your role"),
   company: z.string().trim().max(100, "Company name must be less than 100 characters").optional().or(z.literal("")),
   guests: z.string().min(1, "Please select number of guests"),
+  pitch_interest: z.boolean(),
+  whatsapp_opt_in: z.boolean(),
   notes: z.string().trim().max(500, "Notes must be less than 500 characters").optional().or(z.literal("")),
 });
 
 type FormData = z.infer<typeof rsvpSchema>;
 type FormErrors = Partial<Record<keyof FormData, string>>;
+
+const whatsappCommunityUrl = import.meta.env.VITE_WHATSAPP_COMMUNITY_URL?.trim();
+const hasWhatsAppCommunityUrl = Boolean(
+  whatsappCommunityUrl?.startsWith("https://chat.whatsapp.com/"),
+);
 
 const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
   const [submitted, setSubmitted] = useState(false);
@@ -46,6 +54,8 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
     role: "",
     company: "",
     guests: "1",
+    pitch_interest: false,
+    whatsapp_opt_in: false,
     notes: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -88,6 +98,8 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
         phone: formData.phone?.trim() || null,
         company: formData.company?.trim() || null,
         role: formData.role,
+        pitch_interest: formData.pitch_interest,
+        whatsapp_opt_in: formData.whatsapp_opt_in,
         notes: combinedNotes || null,
       });
     } catch (err) {
@@ -116,7 +128,7 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
     setSubmitted(true);
     toast({
       title: "RSVP Confirmed!",
-      description: `You're registered for ${event.title}. Check your email for details.`,
+      description: `You're registered for ${event.title}.`,
     });
   };
 
@@ -124,14 +136,14 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
     if (!nextOpen) {
       setTimeout(() => {
         setSubmitted(false);
-        setFormData({ name: "", email: "", phone: "", role: "", company: "", guests: "1", notes: "" });
+        setFormData({ name: "", email: "", phone: "", role: "", company: "", guests: "1", pitch_interest: false, whatsapp_opt_in: false, notes: "" });
         setErrors({});
       }, 200);
     }
     onOpenChange(nextOpen);
   };
 
-  const updateField = (field: keyof FormData, value: string) => {
+  const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
@@ -148,11 +160,25 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
             </div>
             <h3 className="font-heading text-2xl font-bold text-primary mb-2">You're In!</h3>
             <p className="text-muted-foreground mb-6">
-              Your RSVP for <span className="font-semibold text-foreground">{event.title}</span> is confirmed. We've sent the event details to your email.
+              Your RSVP for <span className="font-semibold text-foreground">{event.title}</span> is confirmed. Your name is on the guest list.
             </p>
-            <Button onClick={() => handleClose(false)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8">
-              Done
-            </Button>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              {formData.whatsapp_opt_in && hasWhatsAppCommunityUrl && (
+                <Button asChild className="bg-[#25D366] text-white hover:bg-[#20bd5a] rounded-full px-8">
+                  <a href={whatsappCommunityUrl} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="w-4 h-4 mr-2" /> Join WhatsApp Community
+                  </a>
+                </Button>
+              )}
+              <Button onClick={() => handleClose(false)} variant="outline" className="rounded-full px-8">
+                Done
+              </Button>
+            </div>
+            {formData.whatsapp_opt_in && !hasWhatsAppCommunityUrl && (
+              <p className="text-xs text-muted-foreground mt-4">
+                We will send the WhatsApp community invitation when it opens.
+              </p>
+            )}
           </div>
         ) : (
           <>
@@ -229,6 +255,29 @@ const RSVPDialog = ({ open, onOpenChange, event }: RSVPDialogProps) => {
                 <Label htmlFor="rsvp-notes">Anything we should know? (optional)</Label>
                 <Textarea id="rsvp-notes" value={formData.notes} onChange={(e) => updateField("notes", e.target.value)} placeholder="Dietary restrictions, accessibility needs, what you're hoping to get out of the event..." maxLength={500} rows={3} />
                 {errors.notes && <p className="text-xs text-destructive">{errors.notes}</p>}
+              </div>
+
+              <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="rsvp-pitch-interest"
+                    checked={formData.pitch_interest}
+                    onCheckedChange={(checked) => updateField("pitch_interest", checked === true)}
+                  />
+                  <Label htmlFor="rsvp-pitch-interest" className="font-normal leading-relaxed cursor-pointer">
+                    I am interested in giving an audience pitch.
+                  </Label>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="rsvp-whatsapp"
+                    checked={formData.whatsapp_opt_in}
+                    onCheckedChange={(checked) => updateField("whatsapp_opt_in", checked === true)}
+                  />
+                  <Label htmlFor="rsvp-whatsapp" className="font-normal leading-relaxed cursor-pointer">
+                    I agree to receive Startup A to Z event and community updates through WhatsApp. I can leave at any time.
+                  </Label>
+                </div>
               </div>
 
               <DialogFooter className="gap-2 sm:gap-2 pt-2">

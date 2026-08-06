@@ -1,5 +1,5 @@
 -- StartupA2Z PostgreSQL schema
--- Replaces Supabase migrations (no RLS, no auth.users, no storage, no realtime)
+-- StartupA2Z PostgreSQL schema for the Docker deployment.
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -30,6 +30,22 @@ CREATE TABLE otp_tokens (
 );
 
 CREATE INDEX idx_otp_tokens_email ON otp_tokens(email);
+
+-- ─── OAuth state and one-time login exchanges ────────────────────────────────────
+
+CREATE TABLE oauth_states (
+  state_hash    TEXT        PRIMARY KEY,
+  redirect_path TEXT       NOT NULL DEFAULT '/',
+  expires_at    TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE auth_exchange_codes (
+  code_hash  TEXT        PRIMARY KEY,
+  user_id    UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
 -- ─── Roles ──────────────────────────────────────────────────────────────────
 
@@ -76,6 +92,115 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ─── Business Directory ─────────────────────────────────────────────────────
+
+CREATE TABLE businesses (
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug           TEXT        NOT NULL,
+  name           TEXT        NOT NULL,
+  pitch          TEXT        NOT NULL,
+  stage          TEXT        NOT NULL,
+  location       TEXT        NOT NULL,
+  category       TEXT        NOT NULL,
+  tags           TEXT[]      NOT NULL DEFAULT '{}',
+  website_url    TEXT,
+  logo_url       TEXT,
+  journey        TEXT,
+  challenges     TEXT,
+  challenge_solution TEXT,
+  status         TEXT        NOT NULL DEFAULT 'published' CHECK (status IN ('pending', 'published', 'hidden')),
+  contact_name   TEXT,
+  contact_email  TEXT,
+  published      BOOLEAN     NOT NULL DEFAULT true,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT business_name_length CHECK (char_length(name) BETWEEN 2 AND 120),
+  CONSTRAINT business_pitch_length CHECK (char_length(pitch) BETWEEN 20 AND 280),
+  CONSTRAINT business_stage_length CHECK (char_length(stage) BETWEEN 2 AND 50),
+  CONSTRAINT business_location_length CHECK (char_length(location) BETWEEN 2 AND 120),
+  CONSTRAINT business_category_length CHECK (char_length(category) BETWEEN 2 AND 50),
+  CONSTRAINT business_website_length CHECK (website_url IS NULL OR char_length(website_url) <= 500),
+  CONSTRAINT business_contact_name_length CHECK (contact_name IS NULL OR char_length(contact_name) BETWEEN 2 AND 100),
+  CONSTRAINT business_contact_email_length CHECK (contact_email IS NULL OR char_length(contact_email) BETWEEN 3 AND 255)
+);
+
+CREATE UNIQUE INDEX businesses_unique_name ON businesses (lower(name));
+CREATE UNIQUE INDEX businesses_unique_slug ON businesses (slug);
+CREATE INDEX idx_businesses_published_created ON businesses (published, created_at DESC);
+
+CREATE TRIGGER update_businesses_updated_at
+BEFORE UPDATE ON businesses
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE business_founders (
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id   UUID        NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  name          TEXT        NOT NULL,
+  role          TEXT        NOT NULL,
+  linkedin_url  TEXT,
+  journey       TEXT,
+  photo_url     TEXT,
+  display_order INTEGER     NOT NULL DEFAULT 0,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT founder_name_length CHECK (char_length(name) BETWEEN 2 AND 100),
+  CONSTRAINT founder_role_length CHECK (char_length(role) BETWEEN 2 AND 50)
+);
+
+CREATE INDEX idx_business_founders_business ON business_founders (business_id, display_order);
+
+CREATE TABLE business_media (
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id   UUID        NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  media_type    TEXT        NOT NULL CHECK (media_type IN ('image', 'video')),
+  url           TEXT        NOT NULL,
+  caption       TEXT,
+  display_order INTEGER     NOT NULL DEFAULT 0,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_business_media_business ON business_media (business_id, display_order);
+
+INSERT INTO businesses (
+  slug, name, pitch, stage, location, category, tags, website_url,
+  contact_name, contact_email, journey, challenges, challenge_solution
+)
+VALUES (
+  'keyframe',
+  'Keyframe',
+  'Keyframe helps brands and creators turn ideas into launch-ready AI films—faster and more affordably than traditional video production, without compromising creative quality.',
+  'Series A',
+  'Mountain View, CA',
+  'AI',
+  ARRAY['Generative AI', 'AI Video', 'Filmmaking', 'Advertising', 'Content Creation'],
+  'https://www.keyframe.art/',
+  'digvijay',
+  'digvijay@keyframe.ai',
+  $copy$Keyframe emerged from a clear problem: producing high-quality brand video is traditionally expensive, slow and difficult to scale. Existing AI-video workflows also require creators to move between several tools, spend money experimenting with unusable generations and manually assemble the final output.
+
+The founders began developing a simpler, production-focused workflow that combines AI generation with human creative direction. Their objective is not merely to generate isolated clips, but to make professional filmmaking accessible to smaller brands and creators without traditional production budgets.$copy$,
+  $copy$Traditional video agencies require significant budgets and long timelines.
+AI-video creators often need five or more disconnected tools.
+Maintaining visual quality, creative consistency and storytelling across shots is difficult.
+AI-generated footage frequently requires expensive experimentation and manual correction.
+Brands need more content across launches, advertisements and social media than traditional production can support.$copy$,
+  $copy$Keyframe combines creative professionals with structured AI-production workflows instead of relying on a single prompt. It offers an assisted agency service alongside an application and API, allowing customers to select the level of creative and technical involvement they need.
+
+According to its website, one customer reported receiving a film within three days at substantially lower cost than traditional agency quotations. Treat performance claims as customer testimonials, not independently verified metrics.$copy$
+);
+
+INSERT INTO business_founders (business_id, name, role, linkedin_url, journey, display_order)
+SELECT id, 'Digvijay Goswami', 'Co-founder', 'https://www.linkedin.com/in/digvijaygoswami/',
+  $copy$Digvijay leads Keyframe’s business, customer and creative vision. His background combines economics, business development and community leadership. His work on Keyframe is driven by the belief that professional filmmaking should become as accessible as writing—allowing brands and creators to translate ideas into finished films without traditional production constraints.$copy$,
+  0
+FROM businesses WHERE slug = 'keyframe';
+
+INSERT INTO business_founders (business_id, name, role, journey, display_order)
+SELECT id, 'Sidharth Raja', 'Co-founder',
+  $copy$Sidharth leads Keyframe’s technology and product development. Before Keyframe, he worked at Google, where he helped develop early versions of Gemini Live and speech infrastructure used across Android products. Earlier, he was a founding engineer for Uber Lite, which reached more than ten million installations. He brings experience building large-scale AI, speech and consumer-product systems.$copy$,
+  1
+FROM businesses WHERE slug = 'keyframe';
+
 -- ─── Events ─────────────────────────────────────────────────────────────────
 
 CREATE TABLE events (
@@ -107,10 +232,57 @@ CREATE TRIGGER update_events_updated_at
 BEFORE UPDATE ON events
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- ─── Event publishing workflow ─────────────────────────────────────────────
+
+CREATE TABLE event_channels (
+  id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id          UUID        NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  channel           TEXT        NOT NULL CHECK (channel IN ('website', 'luma', 'eventbrite', 'linkedin', 'x')),
+  status            TEXT        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'ready', 'scheduled', 'published', 'failed', 'not_connected')),
+  external_url      TEXT,
+  external_event_id TEXT,
+  scheduled_at      TIMESTAMPTZ,
+  published_at      TIMESTAMPTZ,
+  last_error        TEXT,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (event_id, channel)
+);
+
+CREATE INDEX idx_event_channels_event_id ON event_channels(event_id);
+CREATE INDEX idx_event_channels_status ON event_channels(status);
+
+CREATE TABLE event_content_items (
+  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id     UUID        NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  channel      TEXT        NOT NULL CHECK (channel IN ('website', 'luma', 'eventbrite', 'linkedin', 'x')),
+  content_type TEXT        NOT NULL DEFAULT 'announcement' CHECK (content_type IN ('announcement', 'reminder', 'follow_up')),
+  title        TEXT        NOT NULL DEFAULT '',
+  body         TEXT        NOT NULL,
+  status       TEXT        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'in_review', 'approved', 'scheduled', 'published')),
+  scheduled_at TIMESTAMPTZ,
+  published_at TIMESTAMPTZ,
+  created_by   UUID        REFERENCES users(id),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_event_content_event_id ON event_content_items(event_id);
+CREATE INDEX idx_event_content_schedule ON event_content_items(scheduled_at) WHERE scheduled_at IS NOT NULL;
+
+CREATE TRIGGER update_event_channels_updated_at
+BEFORE UPDATE ON event_channels
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_event_content_updated_at
+BEFORE UPDATE ON event_content_items
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ─── Event RSVPs ─────────────────────────────────────────────────────────────
 
 CREATE TABLE event_rsvps (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID        REFERENCES users(id) ON DELETE SET NULL,
   event_id    UUID        REFERENCES events(id) ON DELETE CASCADE,
   event_slug  TEXT        NOT NULL,
   event_title TEXT        NOT NULL,
@@ -120,6 +292,9 @@ CREATE TABLE event_rsvps (
   phone       TEXT,
   company     TEXT,
   role        TEXT,
+  pitch_interest BOOLEAN     NOT NULL DEFAULT false,
+  whatsapp_opt_in BOOLEAN    NOT NULL DEFAULT false,
+  attended   BOOLEAN     NOT NULL DEFAULT false,
   notes       TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -130,6 +305,39 @@ CREATE INDEX idx_event_rsvps_created_at ON event_rsvps(created_at DESC);
 
 -- One RSVP per email per event
 CREATE UNIQUE INDEX event_rsvps_unique_event_email ON event_rsvps (event_slug, lower(email));
+
+-- First Startup A to Z session
+INSERT INTO events (
+  slug, title, date, time, venue, address, type, description,
+  long_description, agenda, speakers, spots, capacity, price, featured
+)
+VALUES (
+  'startup-a-to-z-hacker-dojo-august-12',
+  'Startup A to Z: Founders Mix & Pitch',
+  'August 12, 2026',
+  '5:00 PM - 8:00 PM',
+  'Hacker Dojo, Mountain View',
+  '855 Maude Ave, Mountain View, CA 94043',
+  'Founder Meetup',
+  'A practical evening for founders and startup builders to learn the fundamentals, hear real pitches, exchange feedback, and build useful relationships.',
+  'Startup A to Z brings founders, operators, investors, mentors, and aspiring entrepreneurs together for practical learning and meaningful connections. The first session opens with a fast-paced Startup Basics from A to Z talk, followed by two organized founder pitches, two audience pitches, direct feedback, and networking. Founder speakers will be announced soon.',
+  '[{"time":"5:00 PM","item":"Arrival, registration, and networking"},{"time":"5:30 PM","item":"Welcome + Startup Basics from A to Z with Satz"},{"time":"5:55 PM","item":"Founder pitch 1 + feedback"},{"time":"6:10 PM","item":"Founder pitch 2 + feedback"},{"time":"6:25 PM","item":"Audience pitch 1 + feedback"},{"time":"6:35 PM","item":"Audience pitch 2 + feedback"},{"time":"6:45 PM","item":"Key lessons and community announcements"},{"time":"6:55 PM","item":"Closing remarks"},{"time":"7:00 PM","item":"Post-session networking"}]'::jsonb,
+  '[{"name":"Satz","role":"Host, Startup A to Z"}]'::jsonb,
+  60,
+  60,
+  'Free',
+  true
+);
+
+INSERT INTO event_channels (event_id, channel, status, external_url, published_at)
+SELECT id, 'website', 'published', '/events/' || slug, now()
+FROM events
+ON CONFLICT (event_id, channel) DO NOTHING;
+
+INSERT INTO event_channels (event_id, channel, status)
+SELECT id, 'luma', 'draft'
+FROM events
+ON CONFLICT (event_id, channel) DO NOTHING;
 
 -- Decrement spots on RSVP insert
 CREATE OR REPLACE FUNCTION decrement_event_spots()

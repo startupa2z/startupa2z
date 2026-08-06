@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getToken, setToken } from "@/lib/auth";
-import { ApiError, sendOtp, verifyOtp } from "@/lib/api";
+import { adminPasswordLogin, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,19 +13,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Mail, ShieldCheck } from "lucide-react";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { KeyRound, ShieldCheck, User } from "lucide-react";
 import SEO from "@/components/SEO";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpStep, setOtpStep] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -33,40 +27,20 @@ const AdminLogin = () => {
     if (getToken()) navigate("/admin/submissions", { replace: true });
   }, [navigate]);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = email.trim();
-    if (!trimmed) return;
+    if (!username.trim() || !password) return;
     setLoading(true);
     try {
-      await sendOtp({ email: trimmed, mode: "signin" });
-      setOtpStep(true);
-      toast({ title: "Code sent", description: `Check ${trimmed} for your one-time code.` });
-    } catch (err) {
-      toast({
-        title: "Could not send code",
-        description: err instanceof ApiError ? err.message : "Something went wrong.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    if (otp.length < 6) return;
-    setLoading(true);
-    try {
-      const { session } = await verifyOtp({ email: email.trim(), token: otp });
+      const { session } = await adminPasswordLogin({ username: username.trim(), password });
       setToken(session.access_token);
       navigate("/admin/submissions", { replace: true });
     } catch (err) {
       toast({
-        title: "Invalid code",
-        description: err instanceof ApiError ? err.message : "Verification failed.",
+        title: "Could not sign in",
+        description: err instanceof ApiError ? err.message : "Sign-in failed.",
         variant: "destructive",
       });
-      setOtp("");
     } finally {
       setLoading(false);
     }
@@ -102,67 +76,47 @@ const AdminLogin = () => {
           <Card className="border-border/60 shadow-2xl backdrop-blur-xl bg-card/80">
             <CardHeader className="space-y-1.5 text-center">
               <CardTitle className="text-2xl font-bold tracking-tight">
-                {otpStep ? "Enter your code" : "Welcome back"}
+                Welcome back
               </CardTitle>
               <CardDescription>
-                {otpStep
-                  ? `We sent a 6-digit code to ${email}`
-                  : "Sign in with your email to access the admin dashboard."}
+                Sign in to access the admin dashboard.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {otpStep ? (
-                <div className="space-y-5">
-                  <div className="flex justify-center">
-                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
+              <form onSubmit={handleLogin} className="space-y-4 mt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="admin-username">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="admin-username"
+                      required
+                      autoComplete="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="pl-9"
+                    />
                   </div>
-                  <Button
-                    className="w-full"
-                    disabled={loading || otp.length < 6}
-                    onClick={handleVerify}
-                  >
-                    {loading ? "Verifying…" : "Verify & sign in"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full text-sm text-muted-foreground"
-                    onClick={() => { setOtpStep(false); setOtp(""); }}
-                  >
-                    ← Use a different email
-                  </Button>
                 </div>
-              ) : (
-                <form onSubmit={handleSendOtp} className="space-y-4 mt-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="admin-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="admin-email"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@startupa2z.org"
-                        className="pl-9"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="admin-password">Password</Label>
+                  <div className="relative">
+                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="admin-password"
+                      type="password"
+                      required
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-9"
+                    />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Sending…" : "Send one-time code"}
-                  </Button>
-                </form>
-              )}
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Signing in…" : "Sign in"}
+                </Button>
+              </form>
             </CardContent>
           </Card>
 

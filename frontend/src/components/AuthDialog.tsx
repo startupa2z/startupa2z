@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Linkedin } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Linkedin, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { setToken } from "@/lib/auth";
-import { ApiError, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
+import { ApiError, exchangeLinkedInCode, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
 import { assignTopLevel } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,247 +15,142 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
 
 type AuthMode = "signin" | "signup";
+type AuthStep = "choice" | "email" | "otp";
 
 type AuthDialogProps = {
   children?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  redirectTo?: string;
+  initialMode?: AuthMode;
+  initialEmail?: string;
 };
 
-const inputClass = "rounded-xl h-11";
-const ctaClass =
-  "w-full h-11 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold";
-const linkedInClass =
-  "w-full h-11 rounded-full gap-2 border-border text-foreground hover:bg-muted/50";
+const inputClass = "h-11 rounded-xl";
+const ctaClass = "h-11 w-full rounded-full bg-secondary font-semibold text-secondary-foreground hover:bg-secondary/90";
 
-function FormField({
-  id,
-  label,
-  type = "text",
-  required,
-  value,
-  onChange,
-  placeholder,
-}: {
-  id: string;
-  label: string;
-  type?: string;
-  required?: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={inputClass}
-      />
-    </div>
-  );
-}
-
-function LinkedInSignIn({
-  loading,
-  onClick,
-}: {
-  loading: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <>
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          or
-        </span>
-        <Separator className="flex-1" />
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        className={linkedInClass}
-        onClick={onClick}
-        disabled={loading}
-      >
-        <Linkedin className="h-4 w-4 text-[#0A66C2]" />
-        Sign in with LinkedIn
-      </Button>
-    </>
-  );
-}
-
-function OtpStep({
-  otp,
-  setOtp,
-  loading,
-  onVerify,
-  onBack,
-}: {
-  otp: string;
-  setOtp: (v: string) => void;
-  loading: boolean;
-  onVerify: () => void;
-  onBack: () => void;
-}) {
-  return (
-    <div className="space-y-5 pt-1">
-      <div className="flex justify-center">
-        <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-          <InputOTPGroup>
-            <InputOTPSlot index={0} />
-            <InputOTPSlot index={1} />
-            <InputOTPSlot index={2} />
-            <InputOTPSlot index={3} />
-            <InputOTPSlot index={4} />
-            <InputOTPSlot index={5} />
-          </InputOTPGroup>
-        </InputOTP>
-      </div>
-      <Button
-        className={ctaClass}
-        disabled={loading || otp.length < 6}
-        onClick={onVerify}
-      >
-        {loading ? "Verifying..." : "Verify & sign in"}
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        className="w-full text-sm text-muted-foreground hover:text-foreground"
-        onClick={onBack}
-      >
-        ← Use a different email
-      </Button>
-    </div>
-  );
-}
-
-const AuthDialog = ({ children, open: controlledOpen, onOpenChange }: AuthDialogProps) => {
+const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo = "/welcome", initialMode = "signin", initialEmail = "" }: AuthDialogProps) => {
+  const navigate = useNavigate();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
-
-  const [mode, setMode] = useState<AuthMode>("signin");
-  const [otpStep, setOtpStep] = useState(false);
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [step, setStep] = useState<AuthStep>("choice");
   const [loading, setLoading] = useState(false);
-
-  const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [organization, setOrganization] = useState("");
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-
-  const resetForm = () => {
-    setOtpStep(false);
-    setMode("signin");
-    setEmail("");
-    setFullName("");
-    setOrganization("");
-    setOtp("");
-    setLoading(false);
-  };
+  const handledLinkedInCallback = useRef(false);
 
   useEffect(() => {
-    if (!open) resetForm();
-  }, [open]);
+    if (handledLinkedInCallback.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const linkedinCode = params.get("linkedin_code");
+    const linkedinError = params.get("linkedin_error");
+    if (!linkedinCode && !linkedinError) return;
 
-  const handleModeChange = (value: string) => {
-    setMode(value as AuthMode);
-    setOtpStep(false);
+    handledLinkedInCallback.current = true;
+    params.delete("linkedin_code");
+    params.delete("linkedin_error");
+    const cleanQuery = params.toString();
+    window.history.replaceState({}, "", `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}${window.location.hash}`);
+
+    if (linkedinError) {
+      toast({ title: "LinkedIn authentication was not completed", description: "Please try again or continue with email.", variant: "destructive" });
+      return;
+    }
+
+    void exchangeLinkedInCode(linkedinCode as string)
+      .then(({ session }) => {
+        setToken(session.access_token);
+        toast({ title: "Welcome to StartupA2Z!" });
+        const resumeRsvp = new URLSearchParams(window.location.search).get("rsvp") === "1";
+        navigate(resumeRsvp ? `${window.location.pathname}?rsvp=1` : "/welcome", { replace: true });
+      })
+      .catch((error) => toast({
+        title: "LinkedIn authentication failed",
+        description: error instanceof ApiError ? error.message : "Please try again.",
+        variant: "destructive",
+      }));
+  }, [navigate]);
+
+  useEffect(() => {
+    if (open) {
+      setMode(initialMode);
+      setEmail(initialEmail);
+      setStep(initialEmail ? "email" : "choice");
+    } else {
+      setStep("choice");
+      setLoading(false);
+      setFullName("");
+      setOrganization("");
+      setEmail("");
+      setOtp("");
+    }
+  }, [initialEmail, initialMode, open]);
+
+  const changeMode = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setStep("choice");
     setOtp("");
-  };
-
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) return;
-
-    if (mode === "signup" && (!fullName.trim() || !organization.trim())) {
-      toast({
-        title: "Missing details",
-        description: "Please enter your full name and organization.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await sendOtp({
-        email: trimmedEmail,
-        mode,
-        fullName: mode === "signup" ? fullName.trim() : undefined,
-        organization: mode === "signup" ? organization.trim() : undefined,
-      });
-    } catch (err) {
-      setLoading(false);
-      toast({
-        title: "Could not send code",
-        description: err instanceof ApiError ? err.message : "Something went wrong.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setLoading(false);
-
-    setOtpStep(true);
-    toast({
-      title: "Check your email",
-      description: `We sent a one-time code to ${trimmedEmail}.`,
-    });
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otp.length < 6) return;
-
-    setLoading(true);
-    try {
-      const { session } = await verifyOtp({ email: email.trim(), token: otp });
-      setToken(session.access_token);
-    } catch (err) {
-      setLoading(false);
-      toast({
-        title: "Invalid code",
-        description: err instanceof ApiError ? err.message : "Verification failed.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setLoading(false);
-
-    toast({ title: "Welcome!", description: "You're signed in." });
-    setOpen(false);
   };
 
   const handleLinkedIn = async () => {
     setLoading(true);
     try {
-      const redirectTo = `${window.location.origin}${window.location.pathname}`;
       const { url } = await getLinkedInOAuthUrl(redirectTo);
       assignTopLevel(url);
-    } catch (err) {
+    } catch (error) {
       setLoading(false);
       toast({
-        title: "LinkedIn sign-in failed",
-        description: err instanceof ApiError ? err.message : "Something went wrong.",
+        title: "LinkedIn authentication is not ready",
+        description: error instanceof ApiError ? error.message : "Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEmail = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    if (mode === "signup" && (!fullName.trim() || !organization.trim())) return;
+
+    setLoading(true);
+    try {
+      await sendOtp({
+        email: email.trim(),
+        mode,
+        fullName: mode === "signup" ? fullName.trim() : undefined,
+        organization: mode === "signup" ? organization.trim() : undefined,
+      });
+      setStep("otp");
+      toast({ title: "Check your email", description: `We sent a code to ${email.trim()}.` });
+    } catch (error) {
+      toast({ title: "Could not send code", description: error instanceof ApiError ? error.message : "Please try again.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (otp.length < 6) return;
+    setLoading(true);
+    try {
+      const { session } = await verifyOtp({ email: email.trim(), token: otp });
+      setToken(session.access_token);
+      toast({ title: mode === "signin" ? "Welcome back!" : "Welcome to StartupA2Z!" });
+      setOpen(false);
+      navigate(redirectTo);
+    } catch (error) {
+      toast({ title: "Invalid code", description: error instanceof ApiError ? error.message : "Please try again.", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -262,110 +158,58 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange }: AuthDialog
     <Dialog open={open} onOpenChange={setOpen}>
       {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
       <DialogContent className="sm:max-w-[440px]">
-        <DialogHeader className="text-center sm:text-left">
-          <div className="flex justify-center sm:justify-start mb-2">
-            <img
-              src="/icon-only-transparent.webp"
-              alt=""
-              className="h-10 w-10"
-              aria-hidden
-            />
-          </div>
-          <DialogTitle className="font-heading text-2xl text-primary">
-            {otpStep ? "Enter your code" : "Welcome to Startupa2z"}
-          </DialogTitle>
+        <DialogHeader>
+          <div className="mb-2 flex justify-center sm:justify-start"><img src="/icon-only-transparent.webp" alt="" className="h-10 w-10" aria-hidden /></div>
+          <DialogTitle className="font-heading text-2xl text-primary">{step === "otp" ? "Verify your email" : mode === "signin" ? "Sign in" : "Create your account"}</DialogTitle>
           <DialogDescription>
-            {otpStep
-              ? `We sent a 6-digit code to ${email}`
-              : mode === "signup"
-                ? "Join founders, investors, and builders in the Bay Area."
-                : "Sign in to RSVP, save events, and connect with the community."}
+            {step === "choice" && (mode === "signin" ? "Welcome back. Choose how you want to sign in." : "Join the StartupA2Z community using LinkedIn or email.")}
+            {step === "email" && (mode === "signin" ? "Enter the email address connected to your account." : "Create your membership using your email address.")}
+            {step === "otp" && `Enter the 6-digit code sent to ${email}.`}
           </DialogDescription>
         </DialogHeader>
 
-        {otpStep ? (
-          <OtpStep
-            otp={otp}
-            setOtp={setOtp}
-            loading={loading}
-            onVerify={handleVerifyOtp}
-            onBack={() => {
-              setOtpStep(false);
-              setOtp("");
-            }}
-          />
-        ) : (
-          <Tabs value={mode} onValueChange={handleModeChange} className="mt-1">
-            <TabsList className="grid w-full grid-cols-2 h-auto rounded-full bg-muted p-1">
-              <TabsTrigger
-                value="signin"
-                className="rounded-full text-sm font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm"
-              >
-                Sign in
-              </TabsTrigger>
-              <TabsTrigger
-                value="signup"
-                className="rounded-full text-sm font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm"
-              >
-                Sign up
-              </TabsTrigger>
-            </TabsList>
+        {step !== "otp" && (
+          <div className="grid grid-cols-2 rounded-xl bg-muted p-1">
+            <button type="button" onClick={() => changeMode("signin")} className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${mode === "signin" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}>Sign In</button>
+            <button type="button" onClick={() => changeMode("signup")} className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${mode === "signup" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}>Sign Up</button>
+          </div>
+        )}
 
-            <TabsContent value="signin" className="mt-5 space-y-4">
-              <form onSubmit={handleSendOtp} className="space-y-4">
-                <FormField
-                  id="signin-email"
-                  label="Email address"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="you@company.com"
-                />
-                <Button type="submit" className={ctaClass} disabled={loading}>
-                  {loading ? "Sending..." : "Send OTP"}
-                </Button>
-              </form>
-              <LinkedInSignIn loading={loading} onClick={handleLinkedIn} />
-            </TabsContent>
+        {step === "choice" && (
+          <div className="space-y-4 pt-2">
+            <Button type="button" className="h-12 w-full rounded-full bg-[#0A66C2] text-white hover:bg-[#0958a8]" onClick={handleLinkedIn} disabled={loading}>
+              <Linkedin className="mr-2 h-5 w-5" /> {loading ? "Connecting..." : `${mode === "signin" ? "Sign in" : "Sign up"} with LinkedIn`}
+            </Button>
+            <div className="flex items-center gap-3"><Separator className="flex-1" /><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">or</span><Separator className="flex-1" /></div>
+            <Button type="button" variant="outline" className="h-12 w-full rounded-full" onClick={() => setStep("email")}>
+              <Mail className="mr-2 h-5 w-5" /> {mode === "signin" ? "Sign in with email address" : "Sign up with email address"}
+            </Button>
+            <button type="button" onClick={() => changeMode(mode === "signin" ? "signup" : "signin")} className="w-full text-center text-sm text-muted-foreground hover:text-primary">
+              {mode === "signin" ? "New to StartupA2Z? Sign up" : "Already have an account? Sign in"}
+            </button>
+          </div>
+        )}
 
-            <TabsContent value="signup" className="mt-5 space-y-4">
-              <form
-                onSubmit={handleSendOtp}
-                className="space-y-4 rounded-2xl border border-border bg-muted/30 p-4"
-              >
-                <FormField
-                  id="signup-name"
-                  label="Full name"
-                  required
-                  value={fullName}
-                  onChange={setFullName}
-                  placeholder="Jane Doe"
-                />
-                <FormField
-                  id="signup-org"
-                  label="Organization"
-                  required
-                  value={organization}
-                  onChange={setOrganization}
-                  placeholder="Your company or fund"
-                />
-                <FormField
-                  id="signup-email"
-                  label="Email address"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="you@company.com"
-                />
-                <Button type="submit" className={ctaClass} disabled={loading}>
-                  {loading ? "Sending..." : "Send OTP"}
-                </Button>
-              </form>
-              <LinkedInSignIn loading={loading} onClick={handleLinkedIn} />
-            </TabsContent>
-          </Tabs>
+        {step === "email" && (
+          <form onSubmit={handleEmail} className="space-y-4 pt-2">
+            {mode === "signup" && (
+              <>
+                <div className="space-y-1.5"><Label htmlFor="auth-name">Full name *</Label><Input id="auth-name" className={inputClass} required value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="Jane Doe" /></div>
+                <div className="space-y-1.5"><Label htmlFor="auth-organization">Company / organization *</Label><Input id="auth-organization" className={inputClass} required value={organization} onChange={(event) => setOrganization(event.target.value)} placeholder="Acme Inc." /></div>
+              </>
+            )}
+            <div className="space-y-1.5"><Label htmlFor="auth-email">Email address *</Label><Input id="auth-email" type="email" className={inputClass} required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="jane@startup.com" autoComplete="email" /></div>
+            <Button type="submit" className={ctaClass} disabled={loading}>{loading ? "Sending..." : "Send verification code"}</Button>
+            <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("choice")}><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
+          </form>
+        )}
+
+        {step === "otp" && (
+          <div className="space-y-5 pt-2">
+            <div className="flex justify-center"><InputOTP maxLength={6} value={otp} onChange={setOtp}><InputOTPGroup>{[0, 1, 2, 3, 4, 5].map((index) => <InputOTPSlot key={index} index={index} />)}</InputOTPGroup></InputOTP></div>
+            <Button type="button" className={ctaClass} disabled={loading || otp.length < 6} onClick={handleVerify}>{loading ? "Verifying..." : mode === "signin" ? "Verify and sign in" : "Verify and sign up"}</Button>
+            <Button type="button" variant="ghost" className="w-full" onClick={() => { setStep("email"); setOtp(""); }}><ArrowLeft className="mr-2 h-4 w-4" /> Change email</Button>
+          </div>
         )}
       </DialogContent>
     </Dialog>

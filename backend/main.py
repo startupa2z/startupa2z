@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from config import settings
 from database import close_pool, get_pool
-from routers import auth, contact, events, rsvp, stripe_router
+from routers import auth, businesses, contact, events, rsvp, stripe_router
 from routers import admin
 
 
@@ -25,7 +25,7 @@ origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "stripe-signature"],
     allow_credentials=True,
 )
@@ -42,6 +42,7 @@ async def health():
 
 
 app.include_router(auth.router, prefix="/api/auth")
+app.include_router(businesses.router, prefix="/api/businesses")
 app.include_router(events.router, prefix="/api/events")
 app.include_router(rsvp.router, prefix="/api/rsvp")
 app.include_router(contact.router, prefix="/api/contact")

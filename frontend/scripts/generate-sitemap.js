@@ -12,9 +12,9 @@ const baseUrl = "https://startupa2z.org";
 const staticRoutes = [
   "/",
   "/about",
-  "/community",
   "/contact",
   "/events",
+  "/events/startup-a-to-z-hacker-dojo-august-12",
   "/founders",
   "/investors",
   "/resources",

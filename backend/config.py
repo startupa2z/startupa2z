@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     linkedin_client_id: str = ""
     linkedin_client_secret: str = ""
     linkedin_redirect_uri: str = ""
+    frontend_url: str = "http://localhost:8081"
+
+    admin_dev_login_enabled: bool = False
+    admin_dev_username: str = ""
+    admin_dev_password: str = ""
 
 
 settings = Settings()

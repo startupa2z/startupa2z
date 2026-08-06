@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Linkedin, Instagram, Facebook } from "lucide-react";
+import { ArrowRight, CalendarDays, Linkedin, Instagram, Facebook } from "lucide-react";
 import { X as XIcon } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
+import { openAuthDialog } from "@/lib/auth-ui";
 
 const socialLinks = [
+  { href: "https://luma.com/startupa2z", icon: CalendarDays, label: "Luma" },
   { href: "https://linkedin.com/company/startupa2z", icon: Linkedin, label: "LinkedIn" },
   { href: "https://twitter.com/startupa2z", icon: XIcon, label: "X (Twitter)" },
   { href: "https://instagram.com/startupa2z", icon: Instagram, label: "Instagram" },
@@ -124,12 +126,13 @@ const HeroSection = () => {
               >
                 Explore Meetups <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link
-                to="/contact"
+              <button
+                type="button"
+                onClick={() => openAuthDialog("signup")}
                 className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors"
               >
                 Join the Community
-              </Link>
+              </button>
             </div>
 
             {/* Stats bar */}

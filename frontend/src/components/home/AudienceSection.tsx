@@ -22,14 +22,14 @@ const audiences = [
     title: "Mentors",
     description:
       "Guide the next generation of entrepreneurs with your experience and expertise.",
-    link: "/community",
+    link: "/contact",
   },
   {
     icon: Users,
     title: "Community",
     description:
       "Join startup circles, attend meetups, and be part of the Bay Area ecosystem.",
-    link: "/community",
+    link: "/events",
   },
 ];
 
@@ -46,10 +46,10 @@ const AudienceSection = () => (
           Founders in the room.
         </motion.h2>
         <Link
-          to="/community"
+          to="/events"
           className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
         >
-          Meet everyone <ArrowRight className="w-4 h-4" />
+          See upcoming events <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 

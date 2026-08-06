@@ -11,6 +11,7 @@ import {
   fetchAdminEventById,
   fetchEventsFromApi,
   deleteAdminRsvp,
+  updateAdminRsvpAttendance,
   deleteAdminEvent,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import {
   ArrowDown,
@@ -33,18 +34,23 @@ import {
   ArrowUpDown,
   CalendarDays,
   Download,
-  Inbox,
   Loader2,
   LogOut,
   Mail,
   Pencil,
   Search,
   ShieldAlert,
-  Sparkles,
   Trash2,
   Users,
 } from "lucide-react";
 import EventForm, { type EditableEvent } from "@/components/admin/EventForm";
+import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
+import { adminSectionLabel } from "@/lib/admin-navigation";
+import AdminOverview from "@/components/admin/AdminOverview";
+import AdminSectionTemplate from "@/components/admin/AdminSectionTemplate";
+import EventManagement from "@/components/admin/EventManagement";
+import BusinessManagement from "@/components/admin/BusinessManagement";
+import MemberManagement from "@/components/admin/MemberManagement";
 import SEO from "@/components/SEO";
 import {
   Dialog,
@@ -75,13 +81,6 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "message", label: "Message" },
 ];
 
-const StatCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-xl border bg-card/80 backdrop-blur px-4 py-3 text-center shadow-sm">
-    <p className="text-2xl font-bold tracking-tight">{value}</p>
-    <p className="text-xs text-muted-foreground">{label}</p>
-  </div>
-);
-
 const AdminSubmissions = () => {
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
@@ -103,6 +102,7 @@ const AdminSubmissions = () => {
   const [rsvpEventFilter, setRsvpEventFilter] = useState<string>("all");
   const [attendeesOpen, setAttendeesOpen] = useState(false);
   const [attendeesEvent, setAttendeesEvent] = useState<{ slug: string; title: string } | null>(null);
+  const [activeSection, setActiveSection] = useState<AdminSection>("overview");
 
   const handleEditEvent = async (id: string) => {
     setEditOpen(true);
@@ -204,17 +204,28 @@ const AdminSubmissions = () => {
     }
   };
 
+  const handleAttendance = async (rsvp: AdminRSVP) => {
+    try {
+      const { data } = await updateAdminRsvpAttendance(rsvp.id, !rsvp.attended);
+      setRsvps((current) => current.map((item) => item.id === data.id ? data : item));
+      toast({ title: data.attended ? "Marked as attended" : "Attendance removed" });
+    } catch (err) {
+      toast({ title: "Could not update attendance", description: err instanceof ApiError ? err.message : "Unknown error.", variant: "destructive" });
+    }
+  };
+
   const exportRSVPsCSV = () => {
     const filtered = filteredRsvps;
     if (filtered.length === 0) {
       toast({ title: "Nothing to export", description: "No RSVPs match your filters." });
       return;
     }
-    const headers = ["Submitted", "Event", "First Name", "Last Name", "Email", "Phone", "Company", "Role", "Notes"];
+    const headers = ["Submitted", "Event", "First Name", "Last Name", "Email", "Phone", "Company", "Role", "Attendance", "Pitch Interest", "WhatsApp Opt-in", "Notes"];
     const csvRows = filtered.map((r) => [
       new Date(r.created_at).toISOString(),
       r.event_title, r.first_name, r.last_name, r.email,
-      r.phone ?? "", r.company ?? "", r.role ?? "",
+      r.phone ?? "", r.company ?? "", r.role ?? "", r.attended ? "Attended" : "Registered",
+      r.pitch_interest ? "Yes" : "No", r.whatsapp_opt_in ? "Yes" : "No",
       (r.notes ?? "").replace(/\n/g, " "),
     ]);
     const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
@@ -338,16 +349,6 @@ const AdminSubmissions = () => {
     return rsvps.filter((r) => r.event_slug === attendeesEvent.slug);
   }, [rsvps, attendeesEvent]);
 
-  const stats = useMemo(() => {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-    return {
-      total: rows.length,
-      today: rows.filter((r) => new Date(r.created_at) >= today).length,
-      week: rows.filter((r) => new Date(r.created_at) >= weekAgo).length,
-    };
-  }, [rows]);
-
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -388,9 +389,9 @@ const AdminSubmissions = () => {
         noindex={true}
         canonical="https://startupa2z.org/admin/submissions"
       />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+      <div className="min-h-screen bg-muted/30">
         <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 md:px-8 h-16">
+          <div className="flex items-center justify-between gap-4 px-4 md:px-6 h-16">
             <Link to="/" className="inline-flex items-center gap-3">
               <img src="/logo-transparent.webp" alt="StartupA2Z" width={864} height={159} className="h-7 md:h-8 w-auto" />
               <Badge variant="secondary" className="hidden sm:inline-flex">Admin</Badge>
@@ -406,46 +407,33 @@ const AdminSubmissions = () => {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
-          <section className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 md:p-8">
-            <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex min-h-[calc(100vh-4rem)] flex-col lg:flex-row">
+          <AdminSidebar
+            active={activeSection}
+            onChange={setActiveSection}
+            counts={{ submissions: rows.length, events: adminEvents.length, rsvps: rsvps.length }}
+          />
+
+          <main className="min-w-0 flex-1 px-4 md:px-6 xl:px-8 py-6 space-y-6">
+            <section className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 px-3 py-1 rounded-full mb-3">
-                  <Sparkles className="h-3.5 w-3.5" /> Welcome to admin
-                </div>
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-                  Hello{userEmail ? `, ${userEmail.split("@")[0]}` : ""} 👋
-                </h1>
-                <p className="text-muted-foreground mt-2 max-w-xl">
-                  Manage your community submissions, monitor activity, and keep the Bay Area startup ecosystem moving.
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">StartupA2Z admin</p>
+                <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight">{adminSectionLabel(activeSection)}</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Create once, publish early and keep every channel current." : "Manage this part of the StartupA2Z community."}
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-3 md:gap-4">
-                <StatCard label="Total" value={stats.total} />
-                <StatCard label="This week" value={stats.week} />
-                <StatCard label="Today" value={stats.today} />
-              </div>
-            </div>
-          </section>
+              {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "rsvps" && activeSection !== "overview" && (
+                <Badge variant="outline" className="w-fit">Visual template only</Badge>
+              )}
+            </section>
 
-          <Tabs defaultValue="submissions" className="space-y-6">
-            <TabsList className="h-11 p-1 bg-muted/60 backdrop-blur">
-              <TabsTrigger value="submissions" className="gap-2">
-                <Inbox className="h-4 w-4" /> Contact submissions
-                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">{rows.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="events" className="gap-2">
-                <CalendarDays className="h-4 w-4" /> Events
-                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">{adminEvents.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="rsvps" className="gap-2">
-                <Users className="h-4 w-4" /> RSVPs
-                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">{rsvps.length}</Badge>
-              </TabsTrigger>
-            </TabsList>
+            <Tabs value={activeSection} className="space-y-6">
+              <TabsContent value="overview" className="mt-0">
+                <AdminOverview submissions={rows.length} events={adminEvents} rsvps={rsvps.length} onNavigate={setActiveSection} />
+              </TabsContent>
 
-            <TabsContent value="submissions" className="space-y-4">
+            <TabsContent value="submissions" className="space-y-4 mt-0">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -511,74 +499,16 @@ const AdminSubmissions = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="events" className="space-y-6">
-              <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3 border rounded-xl bg-card shadow-sm p-6">
-                  <div className="mb-5">
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
-                      <CalendarDays className="h-5 w-5 text-primary" /> Add a new event
-                    </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Published instantly to <Link to="/events" className="text-primary hover:underline">/events</Link>.
-                    </p>
-                  </div>
-                  <EventForm onCreated={fetchEvents} />
-                </div>
-                <div className="lg:col-span-2 border rounded-xl bg-card shadow-sm p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Published events</h2>
-                    <Button variant="outline" size="sm" onClick={fetchEvents} disabled={eventsLoading}>
-                      {eventsLoading ? "Refreshing…" : "Refresh"}
-                    </Button>
-                  </div>
-                  {adminEvents.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                      <p className="text-sm">No events yet. Add one to get started.</p>
-                    </div>
-                  ) : (
-                    <ul className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                      {adminEvents.map((ev) => (
-                        <li key={ev.id} className="group rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors">
-                          <div className="flex items-start gap-3">
-                            {ev.image_url ? (
-                              <img src={ev.image_url} alt={`${ev.title} cover`} className="h-14 w-14 rounded-md object-cover flex-shrink-0 border" loading="lazy" />
-                            ) : (
-                              <div className="h-14 w-14 rounded-md bg-muted flex-shrink-0 flex items-center justify-center text-muted-foreground">
-                                <CalendarDays className="h-5 w-5 opacity-60" />
-                              </div>
-                            )}
-                            <div className="min-w-0 flex-1">
-                              <Link to={`/events/${ev.slug}`} className="font-medium text-sm hover:text-primary truncate block">{ev.title}</Link>
-                              <p className="text-xs text-muted-foreground mt-0.5 truncate">{ev.date} • {ev.venue}</p>
-                              <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                <Badge variant="secondary" className="text-[10px]">{ev.type}</Badge>
-                                {ev.featured && <Badge className="text-[10px] bg-primary/10 text-primary hover:bg-primary/15">Featured</Badge>}
-                                <button
-                                  type="button"
-                                  onClick={() => { setAttendeesEvent({ slug: ev.slug, title: ev.title }); setAttendeesOpen(true); }}
-                                  className="inline-flex items-center gap-1 rounded-full bg-accent/40 hover:bg-accent/70 transition-colors px-2 py-0.5 text-[10px] font-medium text-foreground"
-                                >
-                                  <Users className="h-3 w-3" />
-                                  {rsvpCountBySlug.get(ev.slug) ?? 0} RSVP{(rsvpCountBySlug.get(ev.slug) ?? 0) === 1 ? "" : "s"}
-                                </button>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => handleEditEvent(ev.id)} aria-label="Edit event">
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteEvent(ev.id, ev.title)} aria-label="Delete event">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+            <TabsContent value="event-management" className="mt-0">
+              <EventManagement events={adminEvents} registrations={rsvps} onCreated={() => { fetchEvents(); fetchRSVPs(); }} onEdit={handleEditEvent} onDelete={handleDeleteEvent} onViewAttendees={(event) => { setAttendeesEvent(event); setAttendeesOpen(true); }} />
+            </TabsContent>
+
+            <TabsContent value="startups" className="mt-0">
+              <BusinessManagement />
+            </TabsContent>
+
+            <TabsContent value="members" className="mt-0">
+              <MemberManagement />
             </TabsContent>
 
             <TabsContent value="rsvps" className="space-y-4">
@@ -619,6 +549,9 @@ const AdminSubmissions = () => {
                       <TableHead>Phone</TableHead>
                       <TableHead>Company</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead>Attendance</TableHead>
+                      <TableHead>Pitch</TableHead>
+                      <TableHead>WhatsApp</TableHead>
                       <TableHead>Notes</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -626,7 +559,7 @@ const AdminSubmissions = () => {
                   <TableBody>
                     {filteredRsvps.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={9} className="text-center py-16">
+                        <TableCell colSpan={12} className="text-center py-16">
                           <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <Users className="h-8 w-8 opacity-40" />
                             <p>{rsvpsLoading ? "Loading…" : "No RSVPs yet."}</p>
@@ -643,6 +576,9 @@ const AdminSubmissions = () => {
                           <TableCell className="text-sm">{r.phone || <span className="text-muted-foreground">—</span>}</TableCell>
                           <TableCell className="text-sm">{r.company || <span className="text-muted-foreground">—</span>}</TableCell>
                           <TableCell>{r.role ? <Badge variant="secondary" className="capitalize">{r.role}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
+                          <TableCell><Button variant={r.attended ? "default" : "outline"} size="sm" className="h-7 whitespace-nowrap text-xs" onClick={() => handleAttendance(r)}>{r.attended ? "Attended" : "Mark attended"}</Button></TableCell>
+                          <TableCell>{r.pitch_interest ? <Badge>Yes</Badge> : <span className="text-muted-foreground">No</span>}</TableCell>
+                          <TableCell>{r.whatsapp_opt_in ? <Badge className="bg-[#25D366] hover:bg-[#25D366]">Opted in</Badge> : <span className="text-muted-foreground">No</span>}</TableCell>
                           <TableCell className="max-w-xs"><p className="truncate text-sm" title={r.notes || ""}>{r.notes || <span className="text-muted-foreground">—</span>}</p></TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteRSVP(r.id, `${r.first_name} ${r.last_name}`)} aria-label="Delete RSVP">
@@ -656,8 +592,15 @@ const AdminSubmissions = () => {
                 </Table>
               </div>
             </TabsContent>
+
+            {(["founders", "announcements", "posts", "social", "connectors", "analytics", "settings"] as AdminSection[]).map((section) => (
+              <TabsContent key={section} value={section} className="mt-0">
+                <AdminSectionTemplate section={section} />
+              </TabsContent>
+            ))}
           </Tabs>
-        </main>
+          </main>
+        </div>
 
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -698,6 +641,13 @@ const AdminSubmissions = () => {
                           {(a.company || a.role) && (
                             <p className="text-xs text-muted-foreground mt-1 truncate">{[a.role, a.company].filter(Boolean).join(" • ")}</p>
                           )}
+                          {(a.pitch_interest || a.whatsapp_opt_in) && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {a.pitch_interest && <Badge variant="secondary">Pitch interest</Badge>}
+                              {a.whatsapp_opt_in && <Badge className="bg-[#25D366] hover:bg-[#25D366]">WhatsApp opt-in</Badge>}
+                            </div>
+                          )}
+                          <Button variant={a.attended ? "default" : "outline"} size="sm" className="mt-2 h-7 text-xs" onClick={() => handleAttendance(a)}>{a.attended ? "Attended" : "Mark attended"}</Button>
                           {a.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">"{a.notes}"</p>}
                           <p className="text-[10px] text-muted-foreground mt-1.5">{new Date(a.created_at).toLocaleString()}</p>
                         </div>

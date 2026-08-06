@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
 import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
-import RSVPDialog from "@/components/RSVPDialog";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,9 +21,10 @@ import { fetchAllEvents, seedEvents, type EventItem } from "@/data/events";
 
 const Events = () => {
   const [view, setView] = useState<"list" | "grid">("grid");
-  const [rsvpOpen, setRsvpOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [events, setEvents] = useState<EventItem[]>(seedEvents);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const schedule = searchParams.get("view") === "past" ? "past" : "upcoming";
 
   useEffect(() => {
     let active = true;
@@ -39,14 +39,21 @@ const Events = () => {
   const openRSVP = (e: React.MouseEvent, event: EventItem) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedEvent(event);
-    setRsvpOpen(true);
+    navigate(`/events/${event.slug}?rsvp=1`);
   };
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPast = (event: EventItem) => {
+    const eventDate = new Date(`${event.date} 23:59:59`);
+    return !Number.isNaN(eventDate.getTime()) && eventDate < today;
+  };
+  const visibleEvents = events.filter((event) => schedule === "past" ? isPast(event) : !isPast(event));
+
   const featured =
-    events.find((e) => e.featured) ??
-    events.find((e) => e.slug === "bay-area-startup-summit") ??
-    events[0];
+    visibleEvents.find((e) => e.featured) ??
+    visibleEvents.find((e) => e.slug === "bay-area-startup-summit") ??
+    visibleEvents[0];
 
   return (
     <PageLayout>
@@ -87,7 +94,7 @@ const Events = () => {
       </section>
 
       {/* Featured Event */}
-      <section className="section-padding">
+      {schedule === "upcoming" && featured && <section className="section-padding">
         <div className="container-narrow">
           <SectionHeading
             tag="Featured Event"
@@ -160,17 +167,19 @@ const Events = () => {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section>}
 
       {/* All Events */}
       <section className="section-padding bg-muted/50">
         <div className="container-narrow">
-          <div className="flex items-center justify-between mb-10">
-            <SectionHeading
-              tag="Schedule"
-              title="Upcoming Events"
-              center={false}
-            />
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
+            <div>
+              <SectionHeading tag="Schedule" title={schedule === "past" ? "Past Events" : "Upcoming Events"} center={false} />
+              <div className="mt-4 inline-flex rounded-full border border-border bg-card p-1">
+                <Link to="/events?view=upcoming" className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${schedule === "upcoming" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-primary"}`}>Upcoming</Link>
+                <Link to="/events?view=past" className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${schedule === "past" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-primary"}`}>Past</Link>
+              </div>
+            </div>
             <div className="flex gap-1 bg-card rounded-lg p-1 border border-border">
               <button
                 onClick={() => setView("grid")}
@@ -196,7 +205,7 @@ const Events = () => {
                 : "flex flex-col gap-4"
             }
           >
-            {events.map((e, i) => (
+            {visibleEvents.map((e, i) => (
               <Link
                 key={e.slug}
                 to={`/events/${e.slug}`}
@@ -276,6 +285,11 @@ const Events = () => {
                 </AnimatedCard>
               </Link>
             ))}
+            {visibleEvents.length === 0 && (
+              <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-muted-foreground">
+                No {schedule} events to show yet.
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -284,11 +298,6 @@ const Events = () => {
         title="Want to Host an Event?"
         description="Partner with Startupa2z to host meetups, workshops, or pitch nights for the Bay Area community."
         primaryCTA="Get in Touch"
-      />
-      <RSVPDialog
-        open={rsvpOpen}
-        onOpenChange={setRsvpOpen}
-        event={selectedEvent}
       />
     </PageLayout>
   );

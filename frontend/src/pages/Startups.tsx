@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
+import BusinessSubmissionDialog from "@/components/BusinessSubmissionDialog";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,89 +23,107 @@ import {
   Heart,
   Leaf,
 } from "lucide-react";
+import { BusinessListing, fetchBusinesses } from "@/lib/api";
 
-const allStartups = [
+const featuredBusinesses: BusinessListing[] = [
   {
+    id: "featured-lumina-ai",
     name: "Lumina AI",
     pitch: "Generative video orchestration for architectural visualization.",
     stage: "Series A",
     location: "San Francisco",
     category: "Deep Tech",
     tags: ["ML", "Design"],
-    color: "hsl(var(--accent))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-chordpay",
     name: "ChordPay",
     pitch: "Instant royalty distributions for independent digital creators.",
     stage: "Seed",
     location: "London, UK",
     category: "Fintech",
     tags: ["Payments", "Web3"],
-    color: "hsl(var(--secondary))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-biosettle",
     name: "BioSettle",
     pitch: "Decentralized patient enrollment for rare disease clinical trials.",
     stage: "Pre-Seed",
     location: "Berlin",
     category: "Healthtech",
     tags: ["Pharma", "Compliance"],
-    color: "hsl(var(--accent))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-forge-robotics",
     name: "Forge Robotics",
     pitch: "Modular pick-and-place robots for dark-store fulfillment.",
     stage: "Growth",
     location: "Boston",
     category: "Deep Tech",
     tags: ["Hardware", "AI"],
-    color: "hsl(var(--navy))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-streamflow",
     name: "StreamFlow",
     pitch: "No-code data pipelines for enterprise cloud synchronization.",
     stage: "Series B",
     location: "Tel Aviv",
     category: "SaaS",
     tags: ["Enterprise", "Cloud"],
-    color: "hsl(var(--secondary))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-greenfleet",
     name: "GreenFleet",
     pitch: "Electric fleet management for last-mile delivery networks.",
     stage: "Seed",
     location: "San Francisco",
     category: "Greentech",
     tags: ["Logistics", "EV"],
-    color: "hsl(var(--accent))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-medbridge-ai",
     name: "MedBridge AI",
     pitch: "AI-powered clinical trial matching platform for hospitals.",
     stage: "Pre-Seed",
     location: "New York",
     category: "Healthtech",
     tags: ["AI", "Healthcare"],
-    color: "hsl(var(--navy))",
+    website_url: null,
+    created_at: "",
   },
   {
+    id: "featured-paynova",
     name: "PayNova",
     pitch: "Instant cross-border payments for freelancers worldwide.",
     stage: "Seed",
     location: "Singapore",
     category: "Fintech",
     tags: ["Payments", "Gig Economy"],
-    color: "hsl(var(--secondary))",
+    website_url: null,
+    created_at: "",
   },
 ];
 
 const categoryItems = [
-  { label: "All Startups", icon: Grid3X3, value: "All" },
+  { label: "All Businesses", icon: Grid3X3, value: "All" },
   { label: "SaaS", icon: Cpu, value: "SaaS" },
   { label: "Fintech", icon: Banknote, value: "Fintech" },
   { label: "Healthtech", icon: Heart, value: "Healthtech" },
   { label: "Greentech", icon: Leaf, value: "Greentech" },
   { label: "Deep Tech", icon: Cpu, value: "Deep Tech" },
+  { label: "Other", icon: Grid3X3, value: "Other" },
 ];
 
 const stages = [
@@ -113,25 +133,43 @@ const stages = [
   "Series A",
   "Series B",
   "Growth",
+  "Other",
 ];
-const locations = [
-  "Global",
-  "San Francisco",
-  "New York",
-  "London, UK",
-  "Berlin",
-  "Boston",
-  "Tel Aviv",
-  "Singapore",
-];
+
+const colorForCategory = (category: string) => {
+  if (category === "Fintech" || category === "SaaS") return "hsl(var(--secondary))";
+  if (category === "Deep Tech") return "hsl(var(--navy))";
+  return "hsl(var(--accent))";
+};
 
 const Startups = () => {
   const [search, setSearch] = useState("");
   const [stage, setStage] = useState("All Stages");
   const [location, setLocation] = useState("Global");
   const [category, setCategory] = useState("All");
+  const [businesses, setBusinesses] = useState<BusinessListing[]>(featuredBusinesses);
+  const [submissionOpen, setSubmissionOpen] = useState(false);
 
-  const filtered = allStartups.filter((s) => {
+  useEffect(() => {
+    let cancelled = false;
+    fetchBusinesses()
+      .then(({ data }) => {
+        if (!cancelled && data.length > 0) setBusinesses(data);
+      })
+      .catch(() => {
+        // Keep the featured directory visible if the API is temporarily unavailable.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const locations = [
+    "Global",
+    ...Array.from(new Set(businesses.map((business) => business.location))).sort(),
+  ];
+
+  const filtered = businesses.filter((s) => {
     const matchSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.pitch.toLowerCase().includes(search.toLowerCase());
@@ -179,8 +217,8 @@ const Startups = () => {
               stage, sector, and location to find the companies shaping
               tomorrow.
             </p>
-            <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
-              Submit Your Startup <Plus className="ml-2 w-4 h-4" />
+            <Button onClick={() => setSubmissionOpen(true)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
+              Submit Your Business <Plus className="ml-2 w-4 h-4" />
             </Button>
           </motion.div>
         </div>
@@ -219,8 +257,8 @@ const Startups = () => {
                 <p className="text-xs text-muted-foreground mb-4">
                   Join 2,400+ vetted founders in the network.
                 </p>
-                <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full text-sm font-semibold">
-                  Submit Startup
+                <Button onClick={() => setSubmissionOpen(true)} className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full text-sm font-semibold">
+                  Submit Business
                 </Button>
               </div>
             </aside>
@@ -297,18 +335,23 @@ const Startups = () => {
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-12">
                   {filtered.map((s, i) => (
                     <motion.div
-                      key={s.name}
+                      key={s.id}
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35, delay: i * 0.04 }}
-                      className="bg-card rounded-xl border border-border p-5 hover:shadow-lg hover:border-border/80 transition-all cursor-pointer group"
+                      className="relative bg-card rounded-xl border border-border p-5 hover:shadow-lg hover:border-border/80 transition-all group cursor-pointer"
                     >
+                      <Link
+                        to={`/startups/${s.slug ?? s.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+                        aria-label={`View ${s.name} profile`}
+                        className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      />
                       <div className="flex items-start justify-between mb-4">
                         <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-heading font-bold"
-                          style={{ backgroundColor: s.color, color: "white" }}
+                          className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center text-lg font-heading font-bold"
+                          style={{ backgroundColor: colorForCategory(s.category), color: "white" }}
                         >
-                          {s.name[0]}
+                          {s.logo_url ? <img src={s.logo_url} alt="" className="h-full w-full object-cover" /> : s.name[0]}
                         </div>
                         <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
                           {s.category}
@@ -341,6 +384,7 @@ const Startups = () => {
                           </span>
                         ))}
                       </div>
+                      {s.founders && s.founders.length > 0 && <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">Founded by <span className="font-medium text-foreground">{s.founders.map((founder) => founder.name).join(", ")}</span></p>}
                     </motion.div>
                   ))}
 
@@ -350,7 +394,7 @@ const Startups = () => {
                       <Plus className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <h3 className="font-heading font-semibold text-foreground mb-1">
-                      Your Startup Here?
+                      Your Business Here?
                     </h3>
                     <p className="text-xs text-muted-foreground mb-4 max-w-[200px]">
                       Join our editorialized directory of the next generation of
@@ -359,6 +403,7 @@ const Startups = () => {
                     <Button
                       variant="outline"
                       className="rounded-full text-sm font-semibold"
+                      onClick={() => setSubmissionOpen(true)}
                     >
                       Apply to List
                     </Button>
@@ -369,6 +414,11 @@ const Startups = () => {
           </div>
         </div>
       </section>
+      <BusinessSubmissionDialog
+        open={submissionOpen}
+        onOpenChange={setSubmissionOpen}
+        onSubmitted={() => undefined}
+      />
     </PageLayout>
   );
 };

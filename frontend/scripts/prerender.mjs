@@ -23,7 +23,7 @@ const ROUTES = [
   '/investors',
   '/startups',
   '/events',
-  '/community',
+  '/events/startup-a-to-z-hacker-dojo-august-12',
   '/resources',
   '/gallery',
   '/contact',
@@ -59,7 +59,7 @@ function startServer() {
     fs.createReadStream(filePath).pipe(res)
   })
 
-  return new Promise((resolve) => server.listen(PORT, () => resolve(server)))
+  return new Promise((resolve) => server.listen(PORT, '127.0.0.1', () => resolve(server)))
 }
 
 async function prerender() {

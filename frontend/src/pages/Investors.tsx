@@ -5,6 +5,7 @@ import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { openAuthDialog } from "@/lib/auth-ui";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -86,12 +87,11 @@ const Investors = () => (
             founders, and invest in the future — all in one curated community.
           </p>
           <Button
-            asChild
+            type="button"
+            onClick={() => openAuthDialog("signup")}
             className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold"
           >
-            <Link to="/contact">
-              Register as Investor <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
+            Register as Investor <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </motion.div>
       </div>
@@ -157,6 +157,7 @@ const Investors = () => (
       title="Start Sourcing Better Deals"
       description="Join our investor network and get access to curated Bay Area startups."
       primaryCTA="Register Now"
+      primaryAction="signup"
     />
   </PageLayout>
 );

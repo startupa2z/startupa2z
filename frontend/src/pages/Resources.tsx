@@ -11,13 +11,13 @@ import {
   Scale,
   BarChart3,
   Presentation,
-  ArrowRight,
 } from "lucide-react";
 
 const categories = [
   {
     icon: Presentation,
     title: "Pitch Deck Resources",
+    id: "pitch-deck-resources",
     items: [
       "Pitch Deck Template",
       "Storytelling Framework",
@@ -28,6 +28,7 @@ const categories = [
   {
     icon: DollarSign,
     title: "Fundraising Guides",
+    id: "fundraising-guides",
     items: [
       "Pre-Seed Fundraising 101",
       "How to Find Angel Investors",
@@ -38,6 +39,7 @@ const categories = [
   {
     icon: Briefcase,
     title: "Founder Playbooks",
+    id: "founder-playbooks",
     items: [
       "Idea Validation Checklist",
       "MVP Launch Guide",
@@ -48,6 +50,7 @@ const categories = [
   {
     icon: BarChart3,
     title: "Growth & Marketing",
+    id: "growth-marketing",
     items: [
       "Startup Growth Metrics",
       "Content Marketing for Startups",
@@ -58,6 +61,7 @@ const categories = [
   {
     icon: Scale,
     title: "Legal & Compliance",
+    id: "legal-compliance",
     items: [
       "Incorporation Guide (Delaware vs. CA)",
       "IP Protection Basics",
@@ -68,6 +72,7 @@ const categories = [
   {
     icon: FileText,
     title: "Product & Engineering",
+    id: "product-engineering",
     items: [
       "Technical Architecture for MVPs",
       "Hiring Your First Engineer",
@@ -124,7 +129,8 @@ const Resources = () => (
         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((cat, i) => (
-            <AnimatedCard key={i} delay={i * 0.1}>
+            <div key={cat.id} id={cat.id} className="scroll-mt-24">
+              <AnimatedCard delay={i * 0.1} className="h-full">
               <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
                 <cat.icon className="w-5 h-5 text-accent" />
               </div>
@@ -135,14 +141,14 @@ const Resources = () => (
                 {cat.items.map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer group"
+                    className="text-sm text-muted-foreground"
                   >
-                    <ArrowRight className="w-3 h-3 text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
                     {item}
                   </li>
                 ))}
               </ul>
-            </AnimatedCard>
+              </AnimatedCard>
+            </div>
           ))}
         </div>
       </div>

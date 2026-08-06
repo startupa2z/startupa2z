@@ -8,6 +8,7 @@
     "build": "npm run build --prefix frontend",
     "build:dev": "npm run build:dev --prefix frontend",
     "lint": "npm run lint --prefix frontend",
+    "test": "npm run test --prefix frontend",
     "preview": "npm run preview --prefix frontend"
   },
   "devDependencies": {

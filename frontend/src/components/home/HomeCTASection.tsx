@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { openAuthDialog } from "@/lib/auth-ui";
 
 const HomeCTASection = () => (
   <section className="section-padding bg-primary">
@@ -18,7 +19,7 @@ const HomeCTASection = () => (
             Build one.
           </h2>
           <p className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-white/45 mt-3">
-            Next meetup in 15 days · San Francisco
+            Explore upcoming meetups across the Bay Area
           </p>
         </motion.div>
 
@@ -35,12 +36,13 @@ const HomeCTASection = () => (
           >
             Explore Meetups
           </Link>
-          <Link
-            to="/contact"
+          <button
+            type="button"
+            onClick={() => openAuthDialog("signup")}
             className="inline-flex items-center px-7 py-3 rounded-full text-white text-[0.9rem] font-semibold shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.45)] hover:bg-white/10 transition-all"
           >
             Join Free →
-          </Link>
+          </button>
         </motion.div>
       </div>
     </div>

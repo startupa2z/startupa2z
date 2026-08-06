@@ -22,6 +22,23 @@ async function parseJson<T>(res: Response): Promise<T> {
   }
 }
 
+function apiErrorMessage(data: { error?: unknown; detail?: unknown }, fallback: string) {
+  if (typeof data.error === "string") return data.error;
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail)) {
+    const messages = data.detail
+      .map((item) => {
+        if (item && typeof item === "object" && "msg" in item) {
+          return String((item as { msg: unknown }).msg);
+        }
+        return null;
+      })
+      .filter(Boolean);
+    if (messages.length > 0) return messages.join(" ");
+  }
+  return fallback;
+}
+
 export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
@@ -42,14 +59,13 @@ export async function apiRequest<T>(
     );
   }
 
-  const data = await parseJson<T & { error?: string }>(res);
+  const data = await parseJson<T & { error?: unknown; detail?: unknown }>(res);
 
   if (!res.ok) {
-    const message =
-      (data as { error?: string }).error ??
-      (res.status === 500 && !API_BASE
-        ? "API error — ensure the backend is running (`npm run dev:backend`)."
-        : res.statusText);
+    const fallback = res.status === 500 && !API_BASE
+      ? "API error — ensure the backend is running (`npm run dev:backend`)."
+      : res.statusText;
+    const message = apiErrorMessage(data, fallback);
     throw new ApiError(message, res.status);
   }
 
@@ -98,6 +114,45 @@ export function getLinkedInOAuthUrl(redirectTo?: string) {
   });
 }
 
+export function exchangeLinkedInCode(code: string) {
+  return apiRequest<{
+    ok: boolean;
+    session: AuthSessionPayload;
+    user: unknown;
+  }>("/api/auth/oauth/linkedin/exchange", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+export type MemberProfile = {
+  user: {
+    id: string;
+    email: string;
+    full_name: string | null;
+    organization: string | null;
+    linkedin_connected: boolean;
+    created_at: string;
+  };
+  summary: {
+    registered_sessions: number;
+    attended_sessions: number;
+  };
+  sessions: {
+    event_slug: string;
+    event_title: string;
+    registered_at: string;
+    attended: boolean;
+  }[];
+};
+
+export function fetchMemberProfile() {
+  const token = getToken();
+  return apiRequest<MemberProfile & { ok: boolean }>("/api/auth/me", {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+}
+
 // ——— Contact ———
 
 export type ContactPayload = {
@@ -117,6 +172,188 @@ export function submitContact(payload: ContactPayload) {
   });
 }
 
+// ——— Business directory ———
+
+export type BusinessListing = {
+  id: string;
+  slug?: string;
+  name: string;
+  pitch: string;
+  stage: string;
+  location: string;
+  category: string;
+  tags: string[];
+  website_url: string | null;
+  logo_url?: string | null;
+  journey?: string | null;
+  challenges?: string | null;
+  challenge_solution?: string | null;
+  founders?: BusinessFounder[];
+  media?: BusinessMedia[];
+  created_at: string;
+};
+
+export type BusinessFounder = {
+  id?: string;
+  name: string;
+  role: "Founder" | "Co-founder";
+  linkedin_url?: string | null;
+  journey?: string | null;
+  photo_url?: string | null;
+  display_order?: number;
+};
+
+export type BusinessMedia = {
+  id?: string;
+  media_type: "image" | "video";
+  url: string;
+  caption?: string | null;
+  display_order?: number;
+};
+
+export type BusinessSubmissionPayload = {
+  name: string;
+  pitch: string;
+  stage: string;
+  location: string;
+  category: string;
+  tags: string[];
+  website_url?: string | null;
+  logo_url?: string | null;
+  journey: string;
+  challenges?: string | null;
+  challenge_solution?: string | null;
+  founders: BusinessFounder[];
+  media: BusinessMedia[];
+  contact_name: string;
+  contact_email: string;
+  consent_to_publish: boolean;
+};
+
+export type AdminBusiness = BusinessListing & {
+  contact_name: string | null;
+  contact_email: string | null;
+  published: boolean;
+  status: "pending" | "published" | "hidden";
+  updated_at: string;
+};
+
+export type AdminMember = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  organization: string | null;
+  linkedin_id: string | null;
+  registered_sessions: number;
+  attended_sessions: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminMemberUpdatePayload = {
+  email?: string;
+  full_name?: string | null;
+  organization?: string | null;
+};
+
+export type AdminMemberSession = {
+  id: string;
+  event_slug: string;
+  event_title: string;
+  created_at: string;
+  attended: boolean;
+};
+
+export type AdminBusinessUpdatePayload = Partial<{
+  name: string;
+  pitch: string;
+  stage: string;
+  location: string;
+  category: string;
+  tags: string[];
+  website_url: string | null;
+  clear_website_url: boolean;
+  logo_url: string | null;
+  journey: string;
+  challenges: string | null;
+  challenge_solution: string | null;
+  contact_name: string;
+  contact_email: string;
+  published: boolean;
+  media: BusinessMedia[];
+}>;
+
+export function fetchBusinesses() {
+  return apiRequest<{ ok: boolean; data: BusinessListing[] }>("/api/businesses");
+}
+
+export function fetchBusiness(slug: string) {
+  return apiRequest<{ ok: boolean; data: BusinessListing }>(
+    `/api/businesses/${encodeURIComponent(slug)}`,
+  );
+}
+
+export async function uploadBusinessImage(file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch(`${API_BASE}/api/businesses/media/upload`, {
+    method: "POST",
+    body: form,
+  });
+  const data = await parseJson<{ ok?: boolean; url?: string; detail?: unknown }>(response);
+  if (!response.ok || !data.url) {
+    throw new ApiError(apiErrorMessage(data, "Could not upload image."), response.status);
+  }
+  return { ok: true, url: data.url };
+}
+
+export function submitBusiness(payload: BusinessSubmissionPayload) {
+  return apiRequest<{ ok: boolean; message: string; data: BusinessListing }>(
+    "/api/businesses",
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export function fetchAdminBusinesses() {
+  return adminRequest<{ ok: boolean; data: AdminBusiness[] }>("/api/admin/businesses");
+}
+
+export function updateAdminBusiness(id: string, payload: AdminBusinessUpdatePayload) {
+  return adminRequest<{ ok: boolean; data: AdminBusiness }>(
+    `/api/admin/businesses/${encodeURIComponent(id)}`,
+    { method: "PUT", body: JSON.stringify(payload) },
+  );
+}
+
+export function deleteAdminBusiness(id: string) {
+  return adminRequest<{ ok: boolean }>(`/api/admin/businesses/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+export function fetchAdminMembers() {
+  return adminRequest<{ ok: boolean; data: AdminMember[] }>("/api/admin/members");
+}
+
+export function fetchAdminMemberSessions(id: string) {
+  return adminRequest<{ ok: boolean; data: AdminMemberSession[] }>(
+    `/api/admin/members/${encodeURIComponent(id)}/sessions`,
+  );
+}
+
+export function updateAdminMember(id: string, payload: AdminMemberUpdatePayload) {
+  return adminRequest<{ ok: boolean; data: AdminMember }>(
+    `/api/admin/members/${encodeURIComponent(id)}`,
+    { method: "PUT", body: JSON.stringify(payload) },
+  );
+}
+
+export function deleteAdminMember(id: string) {
+  return adminRequest<{ ok: boolean }>(`/api/admin/members/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
 // ——— RSVP ———
 
 export type RsvpPayload = {
@@ -129,12 +366,27 @@ export type RsvpPayload = {
   phone?: string | null;
   company?: string | null;
   role: string;
+  pitch_interest: boolean;
+  whatsapp_opt_in: boolean;
   notes?: string | null;
 };
 
 export function submitRsvp(payload: RsvpPayload) {
   return apiRequest<{ ok: boolean; message: string }>("/api/rsvp", {
     method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function submitMemberRsvp(payload: {
+  event_id?: string | null;
+  event_slug: string;
+  event_title: string;
+}) {
+  const token = getToken();
+  return apiRequest<{ ok: boolean; message: string }>("/api/rsvp/member", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: JSON.stringify(payload),
   });
 }
@@ -206,6 +458,16 @@ function adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   });
 }
 
+export function adminPasswordLogin(payload: { username: string; password: string }) {
+  return apiRequest<{
+    ok: boolean;
+    session: { access_token: string; token_type: string; expires_in: number };
+  }>("/api/auth/admin/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export type AdminSubmission = {
   id: string;
   created_at: string;
@@ -229,6 +491,9 @@ export type AdminRSVP = {
   phone: string | null;
   company: string | null;
   role: string | null;
+  pitch_interest: boolean;
+  whatsapp_opt_in: boolean;
+  attended: boolean;
   notes: string | null;
   created_at: string;
 };
@@ -283,6 +548,13 @@ export function deleteAdminRsvp(id: string) {
   });
 }
 
+export function updateAdminRsvpAttendance(id: string, attended: boolean) {
+  return adminRequest<{ ok: boolean; data: AdminRSVP }>(`/api/admin/rsvps/${encodeURIComponent(id)}/attendance`, {
+    method: "PATCH",
+    body: JSON.stringify({ attended }),
+  });
+}
+
 export function fetchAdminEventById(id: string) {
   return adminRequest<{ ok: boolean; data: AdminEventFull }>(`/api/admin/events/${encodeURIComponent(id)}`);
 }
@@ -303,6 +575,112 @@ export function updateAdminEvent(id: string, payload: Partial<EventMutationPaylo
 
 export function deleteAdminEvent(id: string) {
   return adminRequest<{ ok: boolean }>(`/api/admin/events/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+export type PublishingChannelName = "website" | "luma" | "eventbrite" | "linkedin" | "x";
+export type PublishingChannelStatus = "draft" | "ready" | "scheduled" | "published" | "failed" | "not_connected";
+export type ContentItemStatus = "draft" | "in_review" | "approved" | "scheduled" | "published";
+export type ContentItemType = "announcement" | "reminder" | "follow_up";
+
+export type EventChannel = {
+  id: string;
+  event_id: string;
+  channel: PublishingChannelName;
+  status: PublishingChannelStatus;
+  external_url: string | null;
+  external_event_id: string | null;
+  scheduled_at: string | null;
+  published_at: string | null;
+  last_error: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type EventContentItem = {
+  id: string;
+  event_id: string;
+  channel: PublishingChannelName;
+  content_type: ContentItemType;
+  title: string;
+  body: string;
+  status: ContentItemStatus;
+  scheduled_at: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type EventPublishingWorkspace = {
+  event: AdminEventFull;
+  channels: EventChannel[];
+  content: EventContentItem[];
+};
+
+export function fetchEventPublishing(eventId: string) {
+  return adminRequest<{ ok: boolean; data: EventPublishingWorkspace }>(
+    `/api/admin/events/${encodeURIComponent(eventId)}/publishing`,
+  );
+}
+
+export function updateEventChannel(eventId: string, payload: {
+  channel: PublishingChannelName;
+  status: PublishingChannelStatus;
+  external_url?: string | null;
+  external_event_id?: string | null;
+  scheduled_at?: string | null;
+  last_error?: string | null;
+}) {
+  return adminRequest<{ ok: boolean; data: EventChannel }>(
+    `/api/admin/events/${encodeURIComponent(eventId)}/channels`,
+    { method: "PUT", body: JSON.stringify(payload) },
+  );
+}
+
+export function generateEventContent(eventId: string, payload: {
+  channel: PublishingChannelName;
+  content_type: ContentItemType;
+}) {
+  const params = new URLSearchParams({ event_id: eventId });
+  return adminRequest<{ ok: boolean; data: { title: string; body: string } }>(
+    `/api/admin/content/generate?${params.toString()}`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export function createEventContent(payload: {
+  event_id: string;
+  channel: PublishingChannelName;
+  content_type: ContentItemType;
+  title: string;
+  body: string;
+  status: ContentItemStatus;
+  scheduled_at?: string | null;
+}) {
+  return adminRequest<{ ok: boolean; data: EventContentItem }>("/api/admin/content", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateEventContent(id: string, payload: Partial<{
+  channel: PublishingChannelName;
+  content_type: ContentItemType;
+  title: string;
+  body: string;
+  status: ContentItemStatus;
+  scheduled_at: string | null;
+  clear_schedule: boolean;
+}>) {
+  return adminRequest<{ ok: boolean; data: EventContentItem }>(
+    `/api/admin/content/${encodeURIComponent(id)}`,
+    { method: "PUT", body: JSON.stringify(payload) },
+  );
+}
+
+export function deleteEventContent(id: string) {
+  return adminRequest<{ ok: boolean }>(`/api/admin/content/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
 }

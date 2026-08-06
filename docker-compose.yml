@@ -40,6 +40,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_WHATSAPP_COMMUNITY_URL: ${VITE_WHATSAPP_COMMUNITY_URL:-}
     restart: unless-stopped
     ports:
       - "8081:80"

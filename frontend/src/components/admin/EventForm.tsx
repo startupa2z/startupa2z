@@ -12,9 +12,6 @@ import { ImagePlus, Loader2, Plus, Save, X } from "lucide-react";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
-const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
-
 const schema = z.object({
   title: z.string().trim().min(2).max(150),
   date: z.string().trim().min(2).max(60),
@@ -57,6 +54,7 @@ export type EditableEvent = {
 
 type Props = {
   event?: EditableEvent;
+  initialDate?: string;
   onSaved?: () => void;
   onCreated?: () => void;
 };
@@ -95,7 +93,7 @@ const formFromEvent = (e: EditableEvent): typeof emptyForm => ({
   agenda_text: agendaToText(e.agenda), speakers_text: speakersToText(e.speakers),
 });
 
-const EventForm = ({ event, onSaved, onCreated }: Props) => {
+const EventForm = ({ event, initialDate = "", onSaved, onCreated }: Props) => {
   const isEdit = !!event;
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -103,7 +101,7 @@ const EventForm = ({ event, onSaved, onCreated }: Props) => {
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(event?.image_url ?? null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState(event ? formFromEvent(event) : emptyForm);
+  const [form, setForm] = useState(event ? formFromEvent(event) : { ...emptyForm, date: initialDate });
 
   useEffect(() => {
     if (event) {
@@ -209,8 +207,7 @@ const EventForm = ({ event, onSaved, onCreated }: Props) => {
         toast({ title: "Event updated", description: `${parsed.data.title} has been saved.` });
         onSaved?.();
       } else {
-        const slug = slugify(parsed.data.title) + "-" + Math.random().toString(36).slice(2, 6);
-        await createAdminEvent({ slug, ...basePayload, image_url: finalImageUrl ?? null });
+        await createAdminEvent({ ...basePayload, image_url: finalImageUrl ?? null });
         toast({ title: "Event created", description: `${parsed.data.title} is now live on /events.` });
         resetCreateForm();
         onCreated?.();

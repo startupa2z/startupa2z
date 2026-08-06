@@ -2,9 +2,12 @@ import json
 import os
 import re
 import uuid
+from datetime import datetime, timezone
+from typing import Literal
 
+from asyncpg import UniqueViolationError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
 
 from auth_middleware import require_admin
 from database import get_pool
@@ -15,12 +18,24 @@ IMAGES_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "images")
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
 
+ChannelName = Literal["website", "luma", "eventbrite", "linkedin", "x"]
+ChannelStatus = Literal["draft", "ready", "scheduled", "published", "failed", "not_connected"]
+ContentType = Literal["announcement", "reminder", "follow_up"]
+ContentStatus = Literal["draft", "in_review", "approved", "scheduled", "published"]
+
 
 def _slugify(s: str) -> str:
     s = s.lower().strip()
     s = re.sub(r"[^a-z0-9\s-]", "", s)
     s = re.sub(r"\s+", "-", s)
     return re.sub(r"-+", "-", s)[:80]
+
+
+def _created_by(user: dict) -> uuid.UUID | None:
+    try:
+        return uuid.UUID(str(user.get("sub")))
+    except (TypeError, ValueError, AttributeError):
+        return None
 
 
 # ——— Submissions ——————————————————————————————————————————————————————————————
@@ -32,6 +47,264 @@ async def list_submissions(user: dict = Depends(require_admin)):
     return {"ok": True, "data": [dict(r) for r in rows]}
 
 
+# ——— Members ————————————————————————————————————————————————————————————————
+
+@router.get("/members")
+async def list_members(user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    rows = await pool.fetch(
+        """SELECT u.*,
+                  (SELECT COUNT(DISTINCT r.event_slug)
+                     FROM event_rsvps r
+                    WHERE r.user_id = u.id OR lower(r.email) = lower(u.email)) AS registered_sessions,
+                  (SELECT COUNT(DISTINCT r.event_slug)
+                     FROM event_rsvps r
+                    WHERE (r.user_id = u.id OR lower(r.email) = lower(u.email))
+                      AND r.attended = true) AS attended_sessions
+             FROM users u
+             ORDER BY u.created_at DESC"""
+    )
+    return {"ok": True, "data": [dict(row) for row in rows]}
+
+
+@router.get("/members/{member_id}/sessions")
+async def list_member_sessions(member_id: str, user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    member = await pool.fetchrow("SELECT id, email FROM users WHERE id = $1", member_id)
+    if not member:
+        raise HTTPException(404, "Member not found.")
+    rows = await pool.fetch(
+        """SELECT id, event_slug, event_title, created_at, attended
+             FROM event_rsvps
+            WHERE user_id = $1 OR lower(email) = lower($2)
+            ORDER BY created_at DESC""",
+        member["id"], member["email"],
+    )
+    return {"ok": True, "data": [dict(row) for row in rows]}
+
+
+class MemberUpdatePayload(BaseModel):
+    email: EmailStr | None = None
+    full_name: str | None = Field(default=None, max_length=120)
+    organization: str | None = Field(default=None, max_length=160)
+
+    @field_validator("full_name", "organization")
+    @classmethod
+    def trim_optional_member_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return value.strip() or None
+
+
+@router.put("/members/{member_id}")
+async def update_member(member_id: str, body: MemberUpdatePayload, user: dict = Depends(require_admin)):
+    updates = body.model_dump(exclude_unset=True)
+    if not updates:
+        raise HTTPException(400, "No fields to update.")
+
+    sets: list[str] = []
+    values: list = []
+    for field in ("email", "full_name", "organization"):
+        if field not in updates:
+            continue
+        value = str(updates[field]).lower() if field == "email" and updates[field] is not None else updates[field]
+        values.append(value)
+        sets.append(f"{field} = ${len(values)}")
+    sets.append("updated_at = now()")
+    values.append(member_id)
+
+    pool = await get_pool()
+    try:
+        row = await pool.fetchrow(
+            f"UPDATE users SET {', '.join(sets)} WHERE id = ${len(values)} RETURNING *",
+            *values,
+        )
+    except UniqueViolationError:
+        raise HTTPException(409, "A member with this email already exists.")
+    if not row:
+        raise HTTPException(404, "Member not found.")
+
+    registered_sessions = await pool.fetchval(
+        "SELECT COUNT(DISTINCT event_slug) FROM event_rsvps WHERE user_id = $1 OR lower(email) = lower($2)",
+        row["id"], row["email"],
+    )
+    attended_sessions = await pool.fetchval(
+        """SELECT COUNT(DISTINCT event_slug) FROM event_rsvps
+             WHERE (user_id = $1 OR lower(email) = lower($2)) AND attended = true""",
+        row["id"], row["email"],
+    )
+    return {"ok": True, "data": {**dict(row), "registered_sessions": registered_sessions or 0, "attended_sessions": attended_sessions or 0}}
+
+
+@router.delete("/members/{member_id}")
+async def delete_member(member_id: str, user: dict = Depends(require_admin)):
+    if str(user.get("sub")) == member_id:
+        raise HTTPException(400, "You cannot delete your own admin account.")
+    pool = await get_pool()
+    result = await pool.execute("DELETE FROM users WHERE id = $1", member_id)
+    if result == "DELETE 0":
+        raise HTTPException(404, "Member not found.")
+    return {"ok": True}
+
+
+# ——— Businesses ——————————————————————————————————————————————————————————————
+
+@router.get("/businesses")
+async def list_businesses(user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    rows = await pool.fetch("SELECT * FROM businesses ORDER BY created_at DESC")
+    data = []
+    for row in rows:
+        business = dict(row)
+        business["founders"] = [dict(item) for item in await pool.fetch(
+            "SELECT * FROM business_founders WHERE business_id = $1 ORDER BY display_order, created_at",
+            row["id"],
+        )]
+        business["media"] = [dict(item) for item in await pool.fetch(
+            "SELECT * FROM business_media WHERE business_id = $1 ORDER BY display_order, created_at",
+            row["id"],
+        )]
+        data.append(business)
+    return {"ok": True, "data": data}
+
+
+class AdminBusinessMediaPayload(BaseModel):
+    media_type: Literal["image", "video"]
+    url: str = Field(min_length=1, max_length=500)
+    caption: str | None = Field(default=None, max_length=200)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not (cleaned.startswith("https://") or cleaned.startswith("http://") or cleaned.startswith("/static/")):
+            raise ValueError("Use a complete media URL or an uploaded image.")
+        return cleaned
+
+    @field_validator("caption")
+    @classmethod
+    def trim_caption(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return value.strip() or None
+
+
+class BusinessUpdatePayload(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=120)
+    pitch: str | None = Field(default=None, min_length=20, max_length=280)
+    stage: str | None = Field(default=None, min_length=2, max_length=50)
+    location: str | None = Field(default=None, min_length=2, max_length=120)
+    category: str | None = Field(default=None, min_length=2, max_length=50)
+    tags: list[str] | None = Field(default=None, max_length=5)
+    website_url: HttpUrl | None = None
+    clear_website_url: bool = False
+    logo_url: str | None = Field(default=None, max_length=500)
+    journey: str | None = Field(default=None, max_length=4000)
+    challenges: str | None = Field(default=None, max_length=3000)
+    challenge_solution: str | None = Field(default=None, max_length=3000)
+    contact_name: str | None = Field(default=None, min_length=2, max_length=100)
+    contact_email: EmailStr | None = None
+    published: bool | None = None
+    media: list[AdminBusinessMediaPayload] | None = Field(default=None, max_length=10)
+
+    @field_validator("name", "pitch", "stage", "location", "category", "contact_name", "journey", "challenges", "challenge_solution")
+    @classmethod
+    def trim_text(cls, value: str | None) -> str | None:
+        return value.strip() if value is not None else None
+
+    @field_validator("tags")
+    @classmethod
+    def clean_tags(cls, values: list[str] | None) -> list[str] | None:
+        if values is None:
+            return None
+        cleaned: list[str] = []
+        for value in values:
+            tag = value.strip()
+            if not tag or tag in cleaned:
+                continue
+            if len(tag) > 30:
+                raise ValueError("Each tag must be 30 characters or fewer.")
+            cleaned.append(tag)
+        return cleaned
+@router.put("/businesses/{business_id}")
+async def update_business(
+    business_id: str,
+    body: BusinessUpdatePayload,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    sets: list[str] = []
+    values: list = []
+
+    for field in ("name", "pitch", "stage", "location", "category", "tags", "contact_name", "logo_url", "journey", "challenges", "challenge_solution", "published"):
+        value = getattr(body, field)
+        if value is not None:
+            values.append(value)
+            sets.append(f"{field} = ${len(values)}")
+
+    if body.published is not None:
+        values.append("published" if body.published else "hidden")
+        sets.append(f"status = ${len(values)}")
+
+    if body.contact_email is not None:
+        values.append(str(body.contact_email))
+        sets.append(f"contact_email = ${len(values)}")
+
+    if body.clear_website_url:
+        sets.append("website_url = NULL")
+    elif body.website_url is not None:
+        values.append(str(body.website_url))
+        sets.append(f"website_url = ${len(values)}")
+
+    if not sets and body.media is None:
+        raise HTTPException(400, "No fields to update.")
+
+    try:
+        async with pool.acquire() as connection:
+            async with connection.transaction():
+                if sets:
+                    values.append(business_id)
+                    row = await connection.fetchrow(
+                        f"UPDATE businesses SET {', '.join(sets)} WHERE id = ${len(values)} RETURNING *",
+                        *values,
+                    )
+                else:
+                    row = await connection.fetchrow("SELECT * FROM businesses WHERE id = $1", business_id)
+                if not row:
+                    raise HTTPException(404, "Business not found.")
+                if body.media is not None:
+                    await connection.execute("DELETE FROM business_media WHERE business_id = $1", row["id"])
+                    for index, media_item in enumerate(body.media):
+                        await connection.execute(
+                            """INSERT INTO business_media
+                                   (business_id, media_type, url, caption, display_order)
+                                 VALUES ($1, $2, $3, $4, $5)""",
+                            row["id"], media_item.media_type, media_item.url, media_item.caption, index,
+                        )
+    except UniqueViolationError:
+        raise HTTPException(409, "A business with this name is already listed.")
+
+    data = dict(row)
+    data["founders"] = [dict(item) for item in await pool.fetch(
+        "SELECT * FROM business_founders WHERE business_id = $1 ORDER BY display_order, created_at",
+        row["id"],
+    )]
+    data["media"] = [dict(item) for item in await pool.fetch(
+        "SELECT * FROM business_media WHERE business_id = $1 ORDER BY display_order, created_at",
+        row["id"],
+    )]
+    return {"ok": True, "data": data}
+
+
+@router.delete("/businesses/{business_id}")
+async def delete_business(business_id: str, user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    result = await pool.execute("DELETE FROM businesses WHERE id = $1", business_id)
+    if result == "DELETE 0":
+        raise HTTPException(404, "Business not found.")
+    return {"ok": True}
+
+
 # ——— RSVPs ————————————————————————————————————————————————————————————————————
 
 @router.get("/rsvps")
@@ -39,6 +312,23 @@ async def list_rsvps(user: dict = Depends(require_admin)):
     pool = await get_pool()
     rows = await pool.fetch("SELECT * FROM event_rsvps ORDER BY created_at DESC")
     return {"ok": True, "data": [dict(r) for r in rows]}
+
+
+class AttendancePayload(BaseModel):
+    attended: bool
+
+
+@router.patch("/rsvps/{rsvp_id}/attendance")
+async def update_rsvp_attendance(rsvp_id: str, body: AttendancePayload, user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    row = await pool.fetchrow(
+        "UPDATE event_rsvps SET attended = $1 WHERE id = $2 RETURNING *",
+        body.attended,
+        rsvp_id,
+    )
+    if not row:
+        raise HTTPException(404, "RSVP not found.")
+    return {"ok": True, "data": dict(row)}
 
 
 @router.delete("/rsvps/{rsvp_id}")
@@ -56,7 +346,11 @@ async def get_event_by_id(event_id: str, user: dict = Depends(require_admin)):
     row = await pool.fetchrow("SELECT * FROM events WHERE id = $1", event_id)
     if not row:
         raise HTTPException(404, "Event not found.")
-    return {"ok": True, "data": dict(row)}
+    data = dict(row)
+    for field in ("agenda", "speakers"):
+        if isinstance(data.get(field), str):
+            data[field] = json.loads(data[field])
+    return {"ok": True, "data": data}
 
 
 class EventCreatePayload(BaseModel):
@@ -92,7 +386,13 @@ async def create_event(body: EventCreatePayload, user: dict = Depends(require_ad
         body.type, body.description, body.long_description, body.spots, body.capacity,
         body.price, body.featured,
         json.dumps(body.agenda or []), json.dumps(body.speakers or []),
-        body.image_url, user.get("sub"),
+        body.image_url, _created_by(user),
+    )
+    await pool.execute(
+        """INSERT INTO event_channels (event_id, channel, status, external_url, published_at)
+           VALUES ($1, 'website', 'published', $2, now()), ($1, 'luma', 'draft', NULL, NULL)
+           ON CONFLICT (event_id, channel) DO NOTHING""",
+        event_id, f"/events/{slug}",
     )
     return {"ok": True, "id": event_id, "slug": slug}
 
@@ -165,6 +465,189 @@ async def update_event(event_id: str, body: EventUpdatePayload, user: dict = Dep
 async def delete_event(event_id: str, user: dict = Depends(require_admin)):
     pool = await get_pool()
     await pool.execute("DELETE FROM events WHERE id = $1", event_id)
+    return {"ok": True}
+
+
+# ——— Publishing workflow ————————————————————————————————————————————————————
+
+class ChannelUpdatePayload(BaseModel):
+    channel: ChannelName
+    status: ChannelStatus = "draft"
+    external_url: str | None = None
+    external_event_id: str | None = None
+    scheduled_at: datetime | None = None
+    last_error: str | None = None
+
+
+class ContentCreatePayload(BaseModel):
+    event_id: str
+    channel: ChannelName
+    content_type: ContentType = "announcement"
+    title: str = ""
+    body: str
+    status: ContentStatus = "draft"
+    scheduled_at: datetime | None = None
+
+
+class ContentUpdatePayload(BaseModel):
+    channel: ChannelName | None = None
+    content_type: ContentType | None = None
+    title: str | None = None
+    body: str | None = None
+    status: ContentStatus | None = None
+    scheduled_at: datetime | None = None
+    clear_schedule: bool = False
+
+
+class GenerateContentPayload(BaseModel):
+    channel: ChannelName
+    content_type: ContentType = "announcement"
+
+
+@router.get("/events/{event_id}/publishing")
+async def get_event_publishing(event_id: str, user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    event = await pool.fetchrow("SELECT * FROM events WHERE id = $1", event_id)
+    if not event:
+        raise HTTPException(404, "Event not found.")
+    channels = await pool.fetch(
+        "SELECT * FROM event_channels WHERE event_id = $1 ORDER BY channel", event_id,
+    )
+    content = await pool.fetch(
+        """SELECT * FROM event_content_items
+           WHERE event_id = $1
+           ORDER BY COALESCE(scheduled_at, created_at), created_at DESC""",
+        event_id,
+    )
+    return {
+        "ok": True,
+        "data": {
+            "event": dict(event),
+            "channels": [dict(row) for row in channels],
+            "content": [dict(row) for row in content],
+        },
+    }
+
+
+@router.put("/events/{event_id}/channels")
+async def upsert_event_channel(
+    event_id: str,
+    body: ChannelUpdatePayload,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    if not await pool.fetchval("SELECT 1 FROM events WHERE id = $1", event_id):
+        raise HTTPException(404, "Event not found.")
+    published_at = datetime.now(timezone.utc) if body.status == "published" else None
+    row = await pool.fetchrow(
+        """INSERT INTO event_channels
+             (event_id, channel, status, external_url, external_event_id, scheduled_at, published_at, last_error)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+           ON CONFLICT (event_id, channel) DO UPDATE SET
+             status = EXCLUDED.status,
+             external_url = EXCLUDED.external_url,
+             external_event_id = EXCLUDED.external_event_id,
+             scheduled_at = EXCLUDED.scheduled_at,
+             published_at = COALESCE(EXCLUDED.published_at, event_channels.published_at),
+             last_error = EXCLUDED.last_error
+           RETURNING *""",
+        event_id, body.channel, body.status, body.external_url,
+        body.external_event_id, body.scheduled_at, published_at, body.last_error,
+    )
+    return {"ok": True, "data": dict(row)}
+
+
+@router.post("/content/generate")
+async def generate_content_draft(
+    body: GenerateContentPayload,
+    event_id: str,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    event = await pool.fetchrow("SELECT * FROM events WHERE id = $1", event_id)
+    if not event:
+        raise HTTPException(404, "Event not found.")
+
+    event_url = f"https://startupa2z.org/events/{event['slug']}"
+    prefix = {
+        "announcement": "Join us",
+        "reminder": "Reminder",
+        "follow_up": "Thank you for joining us",
+    }[body.content_type]
+    if body.channel == "x":
+        draft = f"{prefix}: {event['title']} — {event['date']} at {event['venue']}. {event_url}"
+    elif body.channel == "linkedin":
+        draft = (
+            f"{prefix} for {event['title']} on {event['date']} at {event['venue']}.\n\n"
+            f"{event['description']}\n\nDetails and registration: {event_url}"
+        )
+    else:
+        draft = (
+            f"{prefix} for {event['title']}\n\n{event['description']}\n\n"
+            f"Date: {event['date']}\nTime: {event['time']}\nLocation: {event['venue']}\n\n"
+            f"Register: {event_url}"
+        )
+    return {"ok": True, "data": {"title": event["title"], "body": draft}}
+
+
+@router.post("/content")
+async def create_content_item(body: ContentCreatePayload, user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    if not await pool.fetchval("SELECT 1 FROM events WHERE id = $1", body.event_id):
+        raise HTTPException(404, "Event not found.")
+    if not body.body.strip():
+        raise HTTPException(400, "Content body is required.")
+    published_at = datetime.now(timezone.utc) if body.status == "published" else None
+    row = await pool.fetchrow(
+        """INSERT INTO event_content_items
+             (event_id, channel, content_type, title, body, status, scheduled_at, published_at, created_by)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           RETURNING *""",
+        body.event_id, body.channel, body.content_type, body.title.strip(), body.body.strip(),
+        body.status, body.scheduled_at, published_at, _created_by(user),
+    )
+    return {"ok": True, "data": dict(row)}
+
+
+@router.put("/content/{content_id}")
+async def update_content_item(
+    content_id: str,
+    body: ContentUpdatePayload,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    sets: list[str] = []
+    vals: list = []
+    for field in ("channel", "content_type", "title", "body", "status"):
+        value = getattr(body, field)
+        if value is not None:
+            vals.append(value.strip() if isinstance(value, str) else value)
+            sets.append(f"{field} = ${len(vals)}")
+    if body.clear_schedule:
+        sets.append("scheduled_at = NULL")
+    elif body.scheduled_at is not None:
+        vals.append(body.scheduled_at)
+        sets.append(f"scheduled_at = ${len(vals)}")
+    if body.status == "published":
+        sets.append("published_at = now()")
+    if not sets:
+        raise HTTPException(400, "No fields to update.")
+    vals.append(content_id)
+    row = await pool.fetchrow(
+        f"UPDATE event_content_items SET {', '.join(sets)} WHERE id = ${len(vals)} RETURNING *",
+        *vals,
+    )
+    if not row:
+        raise HTTPException(404, "Content item not found.")
+    return {"ok": True, "data": dict(row)}
+
+
+@router.delete("/content/{content_id}")
+async def delete_content_item(content_id: str, user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    result = await pool.execute("DELETE FROM event_content_items WHERE id = $1", content_id)
+    if result == "DELETE 0":
+        raise HTTPException(404, "Content item not found.")
     return {"ok": True}
 
 

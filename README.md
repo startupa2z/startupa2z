@@ -1,56 +1,32 @@
-# Startupa2z
+# StartupA2Z
 
-Monorepo for the Startupa2z community site.
+Monorepo for the StartupA2Z community website.
 
-## Structure
+## Architecture
 
-```
-├── frontend/   # Vite + React app (port 8080)
-├── backend/    # Express API (port 3001)
-└── supabase/   # Database migrations & config
-```
+- `frontend/` — React, Vite, TypeScript, and TailwindCSS
+- `backend/` — FastAPI and asyncpg
+- `docker/` — PostgreSQL schema and production migrations
+- `docker-compose.yml` — PostgreSQL, backend, and frontend services
 
-## Setup
-
-1. Add a repo root `.env` with Supabase keys (see `backend/env.example`):
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-or-publishable-key
-```
-
-2. Install dependencies:
+## Local Docker setup
 
 ```bash
-cd frontend && npm install
-cd ../backend && npm install
-cd .. && npm install
+cp .env.example .env
+docker compose up -d --build
 ```
 
-## Run locally
+Open `http://localhost:8081`.
 
-**One command** (recommended — starts frontend **and** backend):
-
-```bash
-npm run dev
-```
-
-- Frontend: http://localhost:8080  
-- API: http://localhost:3001 (proxied at `/api` from the frontend)
-
-Or run separately:
+## Frontend checks
 
 ```bash
-npm run dev:frontend   # port 8080 only
-npm run dev:backend    # port 3001 only — required for /api/* routes
-```
-
-If you only start the frontend, `/api/events` returns **500** because nothing is listening on port 3001.
-
-## Build
-
-```bash
+npm ci --prefix frontend
+npm run lint
 npm run build
 ```
 
-Output: `frontend/dist/`
+## Deployment
+
+Coolify builds the Docker Compose application from GitHub. Updating `main`
+can trigger production deployment, so merge only after review and approval.

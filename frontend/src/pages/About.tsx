@@ -43,7 +43,7 @@ const About = () => (
   <PageLayout>
     <SEO
       title={`About StartupA2Z | StartupA2Z`}
-      description={`Building the most connected startup ecosystem in the Bay Area — one founder, one investor, one idea at a time.`}
+      description="StartupA2Z brings founders, mentors, and investors together to share knowledge, solve real problems, and help startups grow."
       canonical={`https://startupa2z.org/about`}
       ogImage={`https://startupa2z.org/assets/og-about.jpg`}
       jsonLd={{
@@ -66,12 +66,11 @@ const About = () => (
           <span className="inline-block text-xs font-semibold tracking-widest uppercase mb-4 px-4 py-1.5 rounded-full bg-white/10 text-secondary">
             About Us
           </span>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">
-            From A to Z of Startups
+          <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-5">
+            Helping Founders Build Better
           </h1>
-          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
-            Building the most connected startup ecosystem in the Bay Area — one
-            founder, one investor, one idea at a time.
+          <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto">
+            Learn from others, solve real problems, and grow together.
           </p>
         </motion.div>
       </div>
@@ -79,33 +78,37 @@ const About = () => (
 
     <section className="section-padding">
       <div className="container-narrow">
-        <div className="grid md:grid-cols-2 gap-16">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-16">
           <div>
             <SectionHeading
-              tag="Mission"
-              title="Empower Every Startup Journey"
+              tag="Vision"
+              title="Founders helping founders succeed"
               center={false}
+              size="compact"
             />
             <p className="text-muted-foreground leading-relaxed">
-              Startupa2z exists to democratize access to the Bay Area startup
-              ecosystem. We believe that every founder deserves meaningful
-              connections, every investor deserves quality deal flow, and every
-              community member deserves a seat at the table. Our mission is to
-              be the bridge between ambition and achievement.
+              Building a startup is hard. Founders should not have to learn
+              every lesson alone. Startupa2z brings people together so useful
+              experience, advice, and connections reach founders when they need them.
             </p>
           </div>
           <div>
             <SectionHeading
-              tag="Vision"
-              title="The Go-To Startup Community"
+              tag="Mission"
+              title="Connect people. Share knowledge. Solve problems."
               center={false}
+              size="compact"
             />
-            <p className="text-muted-foreground leading-relaxed">
-              We envision a Bay Area where starting a company isn't about who
-              you know — it's about what you're building. A world where the best
-              ideas find the right people, capital flows to genuine innovation,
-              and community is the ultimate competitive advantage.
+            <p className="text-muted-foreground leading-relaxed mb-5">
+              Startupa2z connects founders, mentors, and investors to work on
+              real startup challenges—not just exchange business cards. We:
             </p>
+            <ul className="space-y-3 text-muted-foreground leading-relaxed">
+              <li className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" /><span>Connect founders with people who have solved similar problems.</span></li>
+              <li className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" /><span>Turn recurring startup lessons into practical playbooks.</span></li>
+              <li className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" /><span>Build trusted relationships between founders and investors.</span></li>
+              <li className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" /><span>Grow a strong Bay Area community for AI and cybersecurity startups.</span></li>
+            </ul>
           </div>
         </div>
       </div>
@@ -115,26 +118,23 @@ const About = () => (
       <div className="container-narrow">
         <SectionHeading
           tag="Our Story"
-          title="Built by Founders, for Founders"
+          title="Why We Started"
+          size="compact"
         />
         <div className="max-w-3xl mx-auto space-y-6 text-muted-foreground leading-relaxed">
           <p>
-            Startupa2z was born from a simple observation: the Bay Area has the
-            densest concentration of entrepreneurial talent on the planet, yet
-            many founders still struggle to find the right co-founder, the right
-            advisor, or the right investor.
+            Startupa2z began after we saw the same problem again and again:
+            capable founders were losing months solving challenges that other
+            founders had already faced.
           </p>
           <p>
-            We started as a small monthly meetup in SOMA, San Francisco — just a
-            handful of founders sharing ideas over coffee. The energy was
-            electric. Within months, investors started showing up. Then mentors.
-            Then engineers looking for their next startup adventure.
+            The knowledge existed, but it was not reaching the right people at
+            the right time. Founders needed a trusted place to ask honest
+            questions, learn from experience, and find useful connections.
           </p>
           <p>
-            Today, Startupa2z is a thriving ecosystem platform that connects
-            thousands of startup enthusiasts across the Bay Area. From A to Z —
-            from the first spark of an idea to a funded, scaling company — we're
-            here for every step of the journey.
+            We created Startupa2z to make that knowledge easier to access—so
+            founders can avoid preventable mistakes and spend more time building.
           </p>
         </div>
       </div>
@@ -144,8 +144,9 @@ const About = () => (
       <div className="container-narrow">
         <SectionHeading
           tag="Values"
-          title="What We Stand For"
-          description="The principles that guide everything we do at Startupa2z."
+          title="How We Work"
+          description="Simple principles that guide our community."
+          size="compact"
         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {values.map((v, i) => (
@@ -164,8 +165,8 @@ const About = () => (
     </section>
 
     <CTABanner
-      title="Join Our Growing Community"
-      description="Be part of something bigger. Connect, build, and grow with the Bay Area's best."
+      title="Join the Community"
+      description="Connect with founders, share what you know, and build together."
     />
   </PageLayout>
 );

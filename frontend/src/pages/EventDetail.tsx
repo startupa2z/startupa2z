@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { Link, useParams, Navigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
-import RSVPDialog from "@/components/RSVPDialog";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
@@ -18,12 +17,19 @@ import {
 import { fetchEventBySlug, type EventItem } from "@/data/events";
 import eventsImg from "@/assets/events.jpg";
 import { toast } from "@/hooks/use-toast";
+import { ApiError, submitMemberRsvp } from "@/lib/api";
+import { isMemberAuthenticated } from "@/lib/auth";
+import { openAuthDialog } from "@/lib/auth-ui";
 
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [event, setEvent] = useState<EventItem | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [rsvpOpen, setRsvpOpen] = useState(false);
+  const [rsvpSubmitting, setRsvpSubmitting] = useState(false);
+  const [rsvpConfirmed, setRsvpConfirmed] = useState(false);
+  const [authVersion, setAuthVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -40,6 +46,43 @@ const EventDetail = () => {
     };
   }, [slug]);
 
+  useEffect(() => {
+    const refreshAuth = () => setAuthVersion((version) => version + 1);
+    window.addEventListener("startupa2z-auth-change", refreshAuth);
+    return () => window.removeEventListener("startupa2z-auth-change", refreshAuth);
+  }, []);
+
+  const confirmMemberRsvp = useCallback(async () => {
+    if (!event || rsvpSubmitting || rsvpConfirmed) return;
+    setRsvpSubmitting(true);
+    try {
+      await submitMemberRsvp({ event_id: event.id ?? null, event_slug: event.slug, event_title: event.title });
+      setRsvpConfirmed(true);
+      toast({ title: "RSVP confirmed!", description: `You're registered for ${event.title}.` });
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        setRsvpConfirmed(true);
+        toast({ title: "Already registered", description: "You are already on the guest list for this event." });
+      } else {
+        toast({ title: "RSVP failed", description: error instanceof ApiError ? error.message : "Please try again.", variant: "destructive" });
+      }
+    } finally {
+      setRsvpSubmitting(false);
+    }
+  }, [event, rsvpConfirmed, rsvpSubmitting]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (!event || params.get("rsvp") !== "1") return;
+    if (!isMemberAuthenticated()) {
+      openAuthDialog("signin", `${location.pathname}?rsvp=1`);
+      return;
+    }
+    params.delete("rsvp");
+    navigate(`${location.pathname}${params.toString() ? `?${params}` : ""}`, { replace: true });
+    void confirmMemberRsvp();
+  }, [authVersion, confirmMemberRsvp, event, location.pathname, location.search, navigate]);
+
   if (loading) {
     return (
       <PageLayout>
@@ -50,6 +93,14 @@ const EventDetail = () => {
     );
   }
   if (!event) return <Navigate to="/events" replace />;
+
+  const handleRsvp = () => {
+    if (isMemberAuthenticated()) {
+      void confirmMemberRsvp();
+      return;
+    }
+    openAuthDialog("signin", `${location.pathname}?rsvp=1`);
+  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -292,10 +343,11 @@ const EventDetail = () => {
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => setRsvpOpen(true)}
+                    onClick={handleRsvp}
+                    disabled={rsvpSubmitting || rsvpConfirmed}
                     className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2"
                   >
-                    RSVP Now
+                    {rsvpConfirmed ? "RSVP Confirmed" : rsvpSubmitting ? "Confirming…" : "RSVP Now"}
                   </Button>
                 )}
                 <Button
@@ -311,7 +363,6 @@ const EventDetail = () => {
         </div>
       </section>
 
-      <RSVPDialog open={rsvpOpen} onOpenChange={setRsvpOpen} event={event} />
     </PageLayout>
   );
 };

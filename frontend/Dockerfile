@@ -1,6 +1,8 @@
 # Build stage
 FROM node:22-alpine AS builder
 WORKDIR /app
+ARG VITE_WHATSAPP_COMMUNITY_URL=""
+ENV VITE_WHATSAPP_COMMUNITY_URL=$VITE_WHATSAPP_COMMUNITY_URL
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY . .

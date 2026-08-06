@@ -165,6 +165,7 @@ const Founders = () => (
       title="Ready to Build Your Startup?"
       description="Join the founder network and get connected with the resources you need."
       primaryCTA="Join as Founder"
+      primaryAction="signup"
     />
   </PageLayout>
 );
