@@ -41,9 +41,15 @@ requireText(eventHtml, "https://luma.com/m0eu7bw9", "Luma registration destinati
 rejectText(eventHtml, 'rel="canonical" href="https://startupa2z.org/"', "event canonical");
 
 const eventsHtml = readRoute("/events");
-requireText(eventsHtml, "Startup Events — Bay Area | StartupA2Z", "events title");
+requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup Events | StartupA2Z", "events title");
+requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup and Founder Events", "events primary heading");
 requireText(eventsHtml, 'href="https://startupa2z.org/events"', "events canonical");
 requireText(eventsHtml, "Bay Area Founders Pitch &amp; Startup Networking", "events listing");
+requireText(eventsHtml, "Founder Networking Events", "events search guide");
+requireText(eventsHtml, "Startup Pitch Events", "events search guide");
+requireText(eventsHtml, "Silicon Valley Meetups", "events search guide");
+requireText(eventsHtml, '"@type": "CollectionPage"', "events collection schema");
+requireText(eventsHtml, '"@type": "FAQPage"', "events FAQ schema");
 
 const robots = fs.readFileSync(path.join(dist, "robots.txt"), "utf8");
 requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");

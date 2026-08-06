@@ -19,6 +19,29 @@ import {
 import eventsImg from "@/assets/events.jpg";
 import { fetchAllEvents, seedEvents, type EventItem } from "@/data/events";
 
+const eventFaqs = [
+  {
+    question: "Where can I find startup events in the Bay Area?",
+    answer:
+      "StartupA2Z lists upcoming Bay Area startup events for founders, builders, investors, mentors, and aspiring entrepreneurs. Each event page includes the date, venue, agenda, and registration link.",
+  },
+  {
+    question: "Are StartupA2Z founder events free?",
+    answer:
+      "Many StartupA2Z founder meetups and networking events are free. Check the individual event page for current pricing, capacity, and registration details.",
+  },
+  {
+    question: "Where are StartupA2Z events held?",
+    answer:
+      "StartupA2Z hosts in-person startup events across the San Francisco Bay Area and Silicon Valley. Current event pages show the confirmed city and venue, including programs at Hacker Dojo in Mountain View.",
+  },
+  {
+    question: "Can founders pitch their startups at an event?",
+    answer:
+      "Selected events include organized founder pitches and short audience pitch opportunities. Review the agenda and registration instructions on the event page before attending.",
+  },
+];
+
 const Events = () => {
   const [view, setView] = useState<"list" | "grid">("grid");
   const [events, setEvents] = useState<EventItem[]>(seedEvents);
@@ -62,15 +85,43 @@ const Events = () => {
   return (
     <PageLayout>
       <SEO
-        title={`Startup Events — Bay Area | StartupA2Z`}
-        description={`Network, learn, and pitch at Bay Area startup events designed for founders, investors, and builders.`}
+        title={`Bay Area & Silicon Valley Startup Events | StartupA2Z`}
+        description={`Find Bay Area startup events, Silicon Valley founder meetups, pitch events, workshops, and networking opportunities in Mountain View and nearby cities.`}
         canonical={`https://startupa2z.org/events`}
         ogImage={`https://startupa2z.org/assets/og-events.jpg`}
         jsonLd={{
           "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: "StartupA2Z Events",
-          url: "https://startupa2z.org/events",
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              "@id": "https://startupa2z.org/events#page",
+              name: "Bay Area and Silicon Valley Startup and Founder Events",
+              description:
+                "Upcoming startup events, founder meetups, pitch events, workshops, and networking opportunities across the Bay Area and Silicon Valley.",
+              url: "https://startupa2z.org/events",
+            },
+            {
+              "@type": "ItemList",
+              name: "Upcoming StartupA2Z Events",
+              itemListElement: events.map((event, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                name: event.title,
+                url: `https://startupa2z.org/events/${event.slug}`,
+              })),
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: eventFaqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.answer,
+                },
+              })),
+            },
+          ],
         }}
       />
       <section
@@ -87,11 +138,12 @@ const Events = () => {
               Events
             </span>
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">
-              Meetups & Events
+              Bay Area &amp; Silicon Valley Startup and Founder Events
             </h1>
-            <p className="text-lg text-white/70 max-w-xl mx-auto">
-              Network, learn, and pitch at Bay Area startup events designed for
-              founders, investors, and builders.
+            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              Discover Silicon Valley founder meetups, startup pitch events,
+              workshops, and high-value networking for founders, investors,
+              builders, and aspiring entrepreneurs.
             </p>
           </motion.div>
         </div>
@@ -294,6 +346,54 @@ const Events = () => {
                 No {schedule} events to show yet.
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section-padding bg-background" aria-label="Bay Area event guide">
+        <div className="container-narrow">
+          <SectionHeading
+            tag="Bay Area Event Guide"
+            title="Find the Right Founder and Startup Event"
+            description="StartupA2Z brings the Bay Area startup community together through practical learning, real founder pitches, direct feedback, and meaningful connections."
+          />
+          <div className="grid gap-6 md:grid-cols-3">
+            <article className="rounded-2xl border border-border bg-card p-6">
+              <h2 className="font-heading text-xl font-bold text-primary">Founder Networking Events</h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                Meet founders, operators, mentors, investors, and startup builders through intentional Bay Area networking events designed for useful conversations—not business-card collecting.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-border bg-card p-6">
+              <h2 className="font-heading text-xl font-bold text-primary">Startup Pitch Events</h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                Watch early-stage founders present their companies, learn how startup pitches improve, and join selected audience pitch opportunities with direct community feedback.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-border bg-card p-6">
+              <h2 className="font-heading text-xl font-bold text-primary">Silicon Valley Meetups</h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                Explore startup meetups and workshops for people across Mountain View, San Jose, San Francisco, and the wider Silicon Valley and Bay Area ecosystem.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-padding bg-muted/50" aria-label="Startup events frequently asked questions">
+        <div className="container-narrow max-w-4xl">
+          <SectionHeading
+            tag="Frequently Asked Questions"
+            title="Bay Area Startup Events FAQ"
+            description="Quick answers for founders and builders looking for startup events, pitch nights, and networking opportunities."
+          />
+          <div className="grid gap-4">
+            {eventFaqs.map((faq) => (
+              <article key={faq.question} className="rounded-2xl border border-border bg-card p-6">
+                <h2 className="font-heading text-lg font-bold text-primary">{faq.question}</h2>
+                <p className="mt-2 leading-7 text-muted-foreground">{faq.answer}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

@@ -89,13 +89,13 @@ const EventsSection = () => {
             viewport={{ once: true }}
             className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold tracking-[-0.025em] leading-[1.1] text-primary flex-1"
           >
-            Upcoming Events
+            Upcoming Bay Area Startup Events
           </motion.h2>
           <Link
             to="/events"
             className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
           >
-            View all <ArrowRight className="w-4 h-4" />
+            Browse events <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 

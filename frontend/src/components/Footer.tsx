@@ -30,7 +30,7 @@ const Footer = () => {
                 { to: "/founders", label: "For Founders" },
                 { to: "/investors", label: "For Investors" },
                 { to: "/startups", label: "Startup Directory" },
-                { to: "/events", label: "Events & Meetups" },
+                { to: "/events", label: "Bay Area Startup Events" },
                 { to: "/resources", label: "Resources" },
               ].map((link) => <Link key={link.to} to={link.to} className="text-[0.875rem] text-dark-muted hover:text-white transition-colors">{link.label}</Link>)}
             </div>

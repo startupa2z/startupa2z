@@ -19,8 +19,8 @@ const navItems: NavItem[] = [
     to: "/events",
     label: "Events",
     children: [
-      { to: "/events?view=upcoming", label: "Upcoming Events" },
-      { to: "/events?view=past", label: "Past Events" },
+      { to: "/events?view=upcoming", label: "Bay Area Startup Events" },
+      { to: "/events?view=past", label: "Past Founder Events" },
     ],
   },
   {
