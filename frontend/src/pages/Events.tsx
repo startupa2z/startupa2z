@@ -164,11 +164,14 @@ const Events = () => {
             className="rounded-2xl overflow-hidden glass-card"
           >
             <div className="grid md:grid-cols-2">
-              <Link to={`/events/${featured.slug}`} className="block">
+              <Link
+                to={`/events/${featured.slug}`}
+                className="flex min-h-64 items-center bg-[#5b392e] md:min-h-full"
+              >
                 <img
                   src={featured.imageUrl || eventsImg}
                   alt={`${featured.title} event`}
-                  className="w-full h-64 md:h-full object-cover hover:scale-105 transition-transform duration-500"
+                  className="h-auto w-full object-contain transition-opacity duration-300 hover:opacity-95"
                   loading="lazy"
                   width={1280}
                   height={720}
