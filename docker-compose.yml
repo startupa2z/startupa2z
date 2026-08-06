@@ -37,7 +37,7 @@ services:
     networks:
       - default
     labels:
-      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID:-}"
+      - "traefik.docker.network=lr52bqjdhgft47h5gppqbose"
 
   frontend:
     build:
@@ -52,7 +52,7 @@ services:
     networks:
       - default
     labels:
-      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID:-}"
+      - "traefik.docker.network=lr52bqjdhgft47h5gppqbose"
 
 volumes:
   postgres_data:
