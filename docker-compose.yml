@@ -29,6 +29,9 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/startupa2z
       PORT: "8080"
+      ADMIN_DEV_LOGIN_ENABLED: ${ADMIN_DEV_LOGIN_ENABLED:-false}
+      ADMIN_DEV_USERNAME: ${ADMIN_DEV_USERNAME:-}
+      ADMIN_DEV_PASSWORD: ${ADMIN_DEV_PASSWORD:-}
     volumes:
       - event_images:/app/static/images
     depends_on:
