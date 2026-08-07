@@ -204,6 +204,36 @@ const BusinessManagement = () => {
       return;
     }
 
+    let mediaToSave = media;
+    const pendingVideoUrl = videoUrl.trim();
+    if (pendingVideoUrl) {
+      const parsedUrl = z.string().url().safeParse(pendingVideoUrl);
+      if (!parsedUrl.success) {
+        toast({
+          title: "Enter a complete video URL",
+          description: "Use a YouTube, Vimeo, Loom, or other public video URL.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const isDuplicate = media.some((item) => item.media_type === "video" && item.url === parsedUrl.data);
+      if (!isDuplicate) {
+        if (media.filter((item) => item.media_type === "video").length >= 3 || media.length >= 10) {
+          toast({
+            title: "Video limit reached",
+            description: "A profile can contain up to 3 videos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        mediaToSave = [
+          ...media,
+          { media_type: "video", url: parsedUrl.data, caption: videoCaption.trim() },
+        ];
+      }
+    }
+
     setSaving(true);
     try {
       const tags = result.data.tags.split(",").map((tag) => tag.trim()).filter(Boolean).slice(0, 5);
@@ -222,7 +252,7 @@ const BusinessManagement = () => {
         ...(result.data.contact_name ? { contact_name: result.data.contact_name } : {}),
         ...(result.data.contact_email ? { contact_email: result.data.contact_email } : {}),
         published: result.data.published,
-        media: media.map((item) => ({ media_type: item.media_type, url: item.url, caption: item.caption?.trim() || null })),
+        media: mediaToSave.map((item) => ({ media_type: item.media_type, url: item.url, caption: item.caption?.trim() || null })),
       });
       setBusinesses((current) => current.map((business) => business.id === data.id ? data : business));
       closeEdit();

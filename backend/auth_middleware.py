@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import Depends, Header, HTTPException
 from auth_utils import verify_jwt
 from config import settings
@@ -15,16 +17,22 @@ async def get_current_user(authorization: str | None = Header(default=None)) -> 
 
 
 async def require_admin(user: dict = Depends(get_current_user)) -> dict:
-    if settings.admin_dev_login_enabled and user.get("dev_admin") is True:
+    if settings.admin_dev_login_enabled and (
+        user.get("dev_admin") is True or user.get("sub") == "local-admin"
+    ):
         return user
 
     user_id = user.get("sub")
     if not user_id:
         raise HTTPException(401, "Invalid token payload.")
+    try:
+        user_uuid = uuid.UUID(str(user_id))
+    except (TypeError, ValueError):
+        raise HTTPException(401, "Invalid token payload.")
     pool = await get_pool()
     row = await pool.fetchrow(
         "SELECT role FROM user_roles WHERE user_id = $1 AND role = 'admin'",
-        user_id,
+        user_uuid,
     )
     if not row:
         raise HTTPException(403, "Admin access required.")
