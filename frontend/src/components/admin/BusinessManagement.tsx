@@ -33,6 +33,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   ApiError,
   type AdminBusiness,
+  type BusinessFounder,
   type BusinessMedia,
   deleteAdminBusiness,
   fetchAdminBusinesses,
@@ -55,6 +56,12 @@ const editSchema = z.object({
   journey: z.string().trim().max(4000),
   challenges: z.string().trim().max(3000),
   challenge_solution: z.string().trim().max(3000),
+  ask_text: z.string().trim().max(3000),
+  offer_text: z.string().trim().max(3000),
+  founded_year: z.string().trim().regex(/^$|^\d{4}$/, "Use a four-digit year"),
+  team_size: z.string().trim().regex(/^$|^[1-9]\d{0,5}$/, "Enter a valid team size"),
+  linkedin_url: z.string().trim().url("Enter a complete LinkedIn URL").optional().or(z.literal("")),
+  x_url: z.string().trim().url("Enter a complete X URL").optional().or(z.literal("")),
   contact_name: z.string().trim().max(100),
   contact_email: z.string().trim().email("Enter a valid email address").max(255).optional().or(z.literal("")),
   published: z.boolean(),
@@ -72,6 +79,7 @@ const BusinessManagement = () => {
   const [errors, setErrors] = useState<EditErrors>({});
   const [saving, setSaving] = useState(false);
   const [media, setMedia] = useState<BusinessMedia[]>([]);
+  const [founders, setFounders] = useState<BusinessFounder[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
   const [videoCaption, setVideoCaption] = useState("");
@@ -120,11 +128,18 @@ const BusinessManagement = () => {
       journey: business.journey ?? "",
       challenges: business.challenges ?? "",
       challenge_solution: business.challenge_solution ?? "",
+      ask_text: business.ask_text ?? "",
+      offer_text: business.offer_text ?? "",
+      founded_year: business.founded_year?.toString() ?? "",
+      team_size: business.team_size?.toString() ?? "",
+      linkedin_url: (business.channels ?? []).find((channel) => channel.label.toLowerCase() === "linkedin")?.url ?? "",
+      x_url: (business.channels ?? []).find((channel) => ["x", "twitter"].includes(channel.label.toLowerCase()))?.url ?? "",
       contact_name: business.contact_name ?? "",
       contact_email: business.contact_email ?? "",
       published: business.published,
     });
     setMedia((business.media ?? []).map((item) => ({ ...item })));
+    setFounders((business.founders ?? []).map((founder) => ({ ...founder })));
     setVideoUrl("");
     setVideoCaption("");
   };
@@ -134,6 +149,7 @@ const BusinessManagement = () => {
     setForm(null);
     setErrors({});
     setMedia([]);
+    setFounders([]);
     setVideoUrl("");
     setVideoCaption("");
   };
@@ -141,9 +157,9 @@ const BusinessManagement = () => {
   const uploadImages = async (files: FileList | null) => {
     if (!files?.length) return;
     const imageCount = media.filter((item) => item.media_type === "image").length;
-    const available = Math.min(6 - imageCount, 10 - media.length);
+    const available = Math.min(3 - imageCount, 6 - media.length);
     if (available <= 0) {
-      toast({ title: "Photo limit reached", description: "A profile can contain up to 6 photos.", variant: "destructive" });
+      toast({ title: "Photo limit reached", description: "A profile can contain up to 3 photos.", variant: "destructive" });
       return;
     }
     const selected = Array.from(files).slice(0, available);
@@ -161,13 +177,26 @@ const BusinessManagement = () => {
     }
   };
 
+  const uploadFounderPhoto = async (index: number, file?: File) => {
+    if (!file) return;
+    setUploadingImages(true);
+    try {
+      const { url } = await uploadBusinessImage(file);
+      updateFounder(index, "photo_url", url);
+    } catch (error) {
+      toast({ title: "Could not upload founder photo", description: error instanceof ApiError ? error.message : "Unknown error.", variant: "destructive" });
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const addVideo = () => {
     const parsedUrl = z.string().url().safeParse(videoUrl.trim());
     if (!parsedUrl.success) {
       toast({ title: "Enter a complete video URL", description: "Use a YouTube, Vimeo, Loom, or other public video URL.", variant: "destructive" });
       return;
     }
-    if (media.filter((item) => item.media_type === "video").length >= 3 || media.length >= 10) {
+    if (media.filter((item) => item.media_type === "video").length >= 3 || media.length >= 6) {
       toast({ title: "Video limit reached", description: "A profile can contain up to 3 videos.", variant: "destructive" });
       return;
     }
@@ -189,6 +218,12 @@ const BusinessManagement = () => {
     if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
+  const updateFounder = <K extends keyof BusinessFounder>(index: number, field: K, value: BusinessFounder[K]) => {
+    setFounders((current) => current.map((founder, founderIndex) =>
+      founderIndex === index ? { ...founder, [field]: value } : founder,
+    ));
+  };
+
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!editing || !form) return;
@@ -201,6 +236,10 @@ const BusinessManagement = () => {
         if (field && !nextErrors[field]) nextErrors[field] = issue.message;
       });
       setErrors(nextErrors);
+      return;
+    }
+    if (result.data.team_size && Number(result.data.team_size) < founders.length) {
+      toast({ title: "Check team size", description: "Team size cannot be smaller than the number of founders listed.", variant: "destructive" });
       return;
     }
 
@@ -219,7 +258,7 @@ const BusinessManagement = () => {
 
       const isDuplicate = media.some((item) => item.media_type === "video" && item.url === parsedUrl.data);
       if (!isDuplicate) {
-        if (media.filter((item) => item.media_type === "video").length >= 3 || media.length >= 10) {
+        if (media.filter((item) => item.media_type === "video").length >= 3 || media.length >= 6) {
           toast({
             title: "Video limit reached",
             description: "A profile can contain up to 3 videos.",
@@ -237,6 +276,18 @@ const BusinessManagement = () => {
     setSaving(true);
     try {
       const tags = result.data.tags.split(",").map((tag) => tag.trim()).filter(Boolean).slice(0, 5);
+      const normalizePoints = (value: string) => value.split("\n").map((point) => point.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").trim()).filter(Boolean);
+      const askPoints = normalizePoints(result.data.ask_text);
+      const offerPoints = normalizePoints(result.data.offer_text);
+      if (askPoints.length > 3 || offerPoints.length > 3 || [...askPoints, ...offerPoints].some((point) => point.length > 120)) {
+        toast({ title: "Check Our Ask and Our Offer", description: "Use no more than 3 points per section and keep each point under 120 characters.", variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+      const channels = [
+        result.data.linkedin_url ? { label: "LinkedIn", url: result.data.linkedin_url } : null,
+        result.data.x_url ? { label: "X", url: result.data.x_url } : null,
+      ].filter((channel): channel is { label: string; url: string } => channel !== null);
       const { data } = await updateAdminBusiness(editing.id, {
         name: result.data.name,
         pitch: result.data.pitch,
@@ -249,10 +300,24 @@ const BusinessManagement = () => {
         journey: result.data.journey,
         challenges: result.data.challenges || null,
         challenge_solution: result.data.challenge_solution || null,
+        ask_text: askPoints.join("\n") || null,
+        offer_text: offerPoints.join("\n") || null,
+        founded_year: result.data.founded_year ? Number(result.data.founded_year) : null,
+        team_size: result.data.team_size ? Number(result.data.team_size) : null,
+        channels,
         ...(result.data.contact_name ? { contact_name: result.data.contact_name } : {}),
         ...(result.data.contact_email ? { contact_email: result.data.contact_email } : {}),
         published: result.data.published,
         media: mediaToSave.map((item) => ({ media_type: item.media_type, url: item.url, caption: item.caption?.trim() || null })),
+        founders: founders.filter((founder): founder is BusinessFounder & { id: string } => Boolean(founder.id)).map((founder) => ({
+          id: founder.id,
+          name: founder.name,
+          role: founder.role,
+          linkedin_url: founder.linkedin_url?.trim() || null,
+          journey: founder.journey?.trim() || null,
+          photo_url: founder.photo_url?.trim() || null,
+          directory_visible: founder.directory_visible !== false,
+        })),
       });
       setBusinesses((current) => current.map((business) => business.id === data.id ? data : business));
       closeEdit();
@@ -333,19 +398,19 @@ const BusinessManagement = () => {
               </TableRow>
             ) : filtered.map((business) => (
               <TableRow key={business.id}>
-                <TableCell className="max-w-sm">
+                <TableCell className="min-w-64 max-w-md whitespace-normal">
                   <div className="font-medium flex items-center gap-1.5">
                     {business.name}
                     {business.website_url && <a href={business.website_url} target="_blank" rel="noreferrer" aria-label={`Open ${business.name} website`} className="text-primary"><ExternalLink className="h-3.5 w-3.5" /></a>}
                   </div>
-                  <p className="text-xs text-muted-foreground truncate" title={business.pitch}>{business.pitch}</p>
+                  <p className="text-xs text-muted-foreground whitespace-normal break-words">{business.pitch}</p>
                 </TableCell>
                 <TableCell><Badge variant="secondary">{business.stage}</Badge></TableCell>
                 <TableCell>{business.category}</TableCell>
-                <TableCell>{business.location}</TableCell>
+                <TableCell className="max-w-56 whitespace-normal break-words">{business.location}</TableCell>
                 <TableCell>
                   <p className="text-sm">{business.contact_name || "—"}</p>
-                  {business.contact_email && <a href={`mailto:${business.contact_email}`} className="text-xs text-primary hover:underline">{business.contact_email}</a>}
+                  {business.contact_email && <a href={`mailto:${business.contact_email}`} className="text-xs text-primary hover:underline break-all">{business.contact_email}</a>}
                 </TableCell>
                 <TableCell>{business.status === "pending" ? <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Pending review</Badge> : business.published ? <Badge>Published</Badge> : <Badge variant="outline">Hidden</Badge>}</TableCell>
                 <TableCell className="text-right whitespace-nowrap">
@@ -380,12 +445,40 @@ const BusinessManagement = () => {
                 <div className="space-y-1.5"><Label htmlFor="admin-business-location">Location *</Label><Input id="admin-business-location" value={form.location} onChange={(event) => updateField("location", event.target.value)} />{errors.location && <p className="text-xs text-destructive">{errors.location}</p>}</div>
               </div>
               <div className="space-y-1.5"><Label htmlFor="admin-business-tags">Tags</Label><Input id="admin-business-tags" value={form.tags} onChange={(event) => updateField("tags", event.target.value)} placeholder="AI, B2B, Developer Tools" />{errors.tags && <p className="text-xs text-destructive">{errors.tags}</p>}</div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5"><Label htmlFor="admin-business-founded">Founded</Label><Input id="admin-business-founded" inputMode="numeric" value={form.founded_year} onChange={(event) => updateField("founded_year", event.target.value)} placeholder="2025" />{errors.founded_year && <p className="text-xs text-destructive">{errors.founded_year}</p>}</div>
+                <div className="space-y-1.5"><Label htmlFor="admin-business-team-size">Team size</Label><Input id="admin-business-team-size" inputMode="numeric" value={form.team_size} onChange={(event) => updateField("team_size", event.target.value)} placeholder="2" />{errors.team_size && <p className="text-xs text-destructive">{errors.team_size}</p>}</div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5"><Label htmlFor="admin-business-linkedin">Company LinkedIn</Label><Input id="admin-business-linkedin" type="url" value={form.linkedin_url} onChange={(event) => updateField("linkedin_url", event.target.value)} placeholder="https://linkedin.com/company/..." />{errors.linkedin_url && <p className="text-xs text-destructive">{errors.linkedin_url}</p>}</div>
+                <div className="space-y-1.5"><Label htmlFor="admin-business-x">Company X</Label><Input id="admin-business-x" type="url" value={form.x_url} onChange={(event) => updateField("x_url", event.target.value)} placeholder="https://x.com/..." />{errors.x_url && <p className="text-xs text-destructive">{errors.x_url}</p>}</div>
+              </div>
               <div className="space-y-1.5"><Label htmlFor="admin-business-journey">Startup journey</Label><Textarea id="admin-business-journey" className="min-h-28" value={form.journey} onChange={(event) => updateField("journey", event.target.value)} />{errors.journey && <p className="text-xs text-destructive">{errors.journey}</p>}</div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5"><Label htmlFor="admin-business-challenges">Challenges</Label><Textarea id="admin-business-challenges" className="min-h-24" value={form.challenges} onChange={(event) => updateField("challenges", event.target.value)} />{errors.challenges && <p className="text-xs text-destructive">{errors.challenges}</p>}</div>
                 <div className="space-y-1.5"><Label htmlFor="admin-business-solution">How they overcame them</Label><Textarea id="admin-business-solution" className="min-h-24" value={form.challenge_solution} onChange={(event) => updateField("challenge_solution", event.target.value)} />{errors.challenge_solution && <p className="text-xs text-destructive">{errors.challenge_solution}</p>}</div>
               </div>
-              {editing && (editing.founders?.length ?? 0) > 0 && <div className="rounded-xl bg-muted/50 p-4 space-y-3"><p className="text-sm font-semibold">Founders</p>{editing.founders?.map((founder) => <div key={founder.id ?? founder.name} className="rounded-lg border bg-background p-3"><p className="font-medium">{founder.name} <span className="text-xs font-normal text-muted-foreground">· {founder.role}</span></p>{founder.journey && <p className="mt-1 text-xs leading-5 text-muted-foreground">{founder.journey}</p>}</div>)}</div>}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5"><Label htmlFor="admin-business-ask">Our Ask</Label><Textarea id="admin-business-ask" className="min-h-24" value={form.ask_text} onChange={(event) => updateField("ask_text", event.target.value)} placeholder={"One short point per line\nMaximum 3 points"} /><p className="text-xs text-muted-foreground">One key point per line · maximum 3</p>{errors.ask_text && <p className="text-xs text-destructive">{errors.ask_text}</p>}</div>
+                <div className="space-y-1.5"><Label htmlFor="admin-business-offer">Our Offer</Label><Textarea id="admin-business-offer" className="min-h-24" value={form.offer_text} onChange={(event) => updateField("offer_text", event.target.value)} placeholder={"One short point per line\nMaximum 3 points"} /><p className="text-xs text-muted-foreground">One key point per line · maximum 3</p>{errors.offer_text && <p className="text-xs text-destructive">{errors.offer_text}</p>}</div>
+              </div>
+              {founders.length > 0 && (
+                <div className="rounded-xl bg-muted/50 p-4 space-y-4">
+                  <div><p className="text-sm font-semibold">Founders</p><p className="text-xs text-muted-foreground">Maintain the founder profile and choose whether it appears in the public Founder Directory.</p></div>
+                  {founders.map((founder, index) => (
+                    <div key={founder.id ?? founder.name} className="space-y-3 rounded-lg border bg-background p-4">
+                      <div className="flex items-center gap-4"><div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">{founder.photo_url ? <img src={founder.photo_url} alt={`${founder.name} preview`} className="h-full w-full object-cover" /> : <Building2 className="h-6 w-6 text-muted-foreground" />}</div><Label className="cursor-pointer text-sm text-primary">Upload founder photo<Input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingImages} onChange={(event) => { void uploadFounderPhoto(index, event.target.files?.[0]); event.target.value = ""; }} /></Label></div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1.5"><Label htmlFor={`admin-founder-name-${index}`}>Founder name</Label><Input id={`admin-founder-name-${index}`} value={founder.name} onChange={(event) => updateFounder(index, "name", event.target.value)} /></div>
+                        <div className="space-y-1.5"><Label htmlFor={`admin-founder-role-${index}`}>Role</Label><Input id={`admin-founder-role-${index}`} value={founder.role} onChange={(event) => updateFounder(index, "role", event.target.value)} placeholder="Founder & CEO" /></div>
+                      </div>
+                      <div className="space-y-1.5"><Label htmlFor={`admin-founder-linkedin-${index}`}>LinkedIn</Label><Input id={`admin-founder-linkedin-${index}`} type="url" value={founder.linkedin_url ?? ""} onChange={(event) => updateFounder(index, "linkedin_url", event.target.value)} placeholder="https://linkedin.com/in/..." /></div>
+                      <div className="space-y-1.5"><Label htmlFor={`admin-founder-journey-${index}`}>Founder journey</Label><Textarea id={`admin-founder-journey-${index}`} className="min-h-24" value={founder.journey ?? ""} onChange={(event) => updateFounder(index, "journey", event.target.value)} /></div>
+                      <div className="flex items-center gap-3"><Checkbox id={`admin-founder-visible-${index}`} checked={founder.directory_visible !== false} onCheckedChange={(checked) => updateFounder(index, "directory_visible", checked === true)} /><div><Label htmlFor={`admin-founder-visible-${index}`} className="cursor-pointer">Show in Founder Directory</Label><p className="text-xs text-muted-foreground">The founder will still remain connected to this startup profile.</p></div></div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="rounded-xl border p-4 space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div><p className="font-semibold">Photos and videos</p><p className="text-xs text-muted-foreground">Changes are applied when you save this profile.</p></div>
@@ -401,7 +494,7 @@ const BusinessManagement = () => {
                   <Button type="button" variant="outline" size="sm" onClick={addVideo}>Add video</Button>
                 </div>
                 {media.some((item) => item.media_type === "video") && <div className="space-y-2">{media.map((item, index) => item.media_type === "video" && <div key={`${item.url}-${index}`} className="grid gap-2 rounded-lg border bg-background p-3 sm:grid-cols-[1fr_1fr_auto]"><Input type="url" value={item.url} onChange={(event) => setMedia((current) => current.map((entry, itemIndex) => itemIndex === index ? { ...entry, url: event.target.value } : entry))} aria-label="Video URL" /><Input value={item.caption ?? ""} onChange={(event) => updateMediaCaption(index, event.target.value)} placeholder="Video caption" maxLength={200} /><Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeMedia(index)} aria-label="Remove video"><Trash2 className="h-4 w-4" /></Button></div>)}</div>}
-                <p className="text-xs text-muted-foreground">{media.filter((item) => item.media_type === "image").length}/6 photos · {media.filter((item) => item.media_type === "video").length}/3 videos</p>
+                <p className="text-xs text-muted-foreground">{media.filter((item) => item.media_type === "image").length}/3 photos · {media.filter((item) => item.media_type === "video").length}/3 videos</p>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5"><Label htmlFor="admin-business-contact-name">Contact name</Label><Input id="admin-business-contact-name" value={form.contact_name} onChange={(event) => updateField("contact_name", event.target.value)} />{errors.contact_name && <p className="text-xs text-destructive">{errors.contact_name}</p>}</div>

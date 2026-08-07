@@ -304,7 +304,7 @@ const PublishingWorkspace = ({ events }: { events: AdminEvent[] }) => {
                             <div><div className="flex flex-wrap gap-2"><Badge variant="outline">{item.channel}</Badge><Badge variant="secondary">{statusLabel(item.content_type)}</Badge><Badge className={statusClass(item.status)}>{statusLabel(item.status)}</Badge></div><p className="font-medium mt-2">{item.title || workspace.event.title}</p></div>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeContent(item.id)}><Trash2 className="h-4 w-4" /></Button>
                           </div>
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-5">{item.body}</p>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{item.body}</p>
                           {item.scheduled_at && <p className="text-xs flex items-center gap-1 text-muted-foreground"><CalendarClock className="h-3.5 w-3.5" /> {new Date(item.scheduled_at).toLocaleString()}</p>}
                           <div className="flex items-center gap-2">
                             <Label className="text-xs">Move to</Label>

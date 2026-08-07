@@ -152,8 +152,8 @@ const MemberManagement = () => {
           <TableBody>
             {filtered.length === 0 ? <TableRow><TableCell colSpan={6} className="py-16 text-center text-muted-foreground"><Users className="mx-auto mb-2 h-8 w-8 opacity-40" /><p>{loading ? "Loading…" : "No members found."}</p></TableCell></TableRow> : filtered.map((member) => (
               <TableRow key={member.id}>
-                <TableCell><p className="font-medium">{member.full_name || "Name not provided"}</p><a href={`mailto:${member.email}`} className="text-xs text-primary hover:underline">{member.email}</a></TableCell>
-                <TableCell>{member.organization || <span className="text-muted-foreground">—</span>}</TableCell>
+                <TableCell className="max-w-64 whitespace-normal"><p className="font-medium break-words">{member.full_name || "Name not provided"}</p><a href={`mailto:${member.email}`} className="text-xs text-primary hover:underline break-all">{member.email}</a></TableCell>
+                <TableCell className="max-w-64 whitespace-normal break-words">{member.organization || <span className="text-muted-foreground">—</span>}</TableCell>
                 <TableCell><Badge variant="secondary">{member.linkedin_id ? "LinkedIn" : "Email"}</Badge></TableCell>
                 <TableCell><p className="text-sm">{member.attended_sessions > 0 ? `${member.attended_sessions} attended` : "Has not attended any sessions"}</p><p className="text-xs text-muted-foreground">{member.registered_sessions} registered</p></TableCell>
                 <TableCell className="text-sm text-muted-foreground">{new Date(member.created_at).toLocaleDateString()}</TableCell>

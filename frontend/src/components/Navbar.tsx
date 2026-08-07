@@ -27,9 +27,9 @@ const navItems: NavItem[] = [
     to: "/startups",
     label: "Community",
     children: [
-      { to: "/startups", label: "Startups" },
-      { to: "/founders", label: "Founders" },
-      { to: "/investors", label: "Investors" },
+      { to: "/startups", label: "Startup Directory" },
+      { to: "/founders", label: "Founder Directory" },
+      { to: "/investors", label: "Investor Network" },
     ],
   },
   {

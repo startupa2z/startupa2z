@@ -7,7 +7,7 @@ from typing import Literal
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator, model_validator
 
 from auth_middleware import require_admin
 from database import get_pool
@@ -156,6 +156,8 @@ async def list_businesses(user: dict = Depends(require_admin)):
     data = []
     for row in rows:
         business = dict(row)
+        if isinstance(business.get("channels"), str):
+            business["channels"] = json.loads(business["channels"])
         business["founders"] = [dict(item) for item in await pool.fetch(
             "SELECT * FROM business_founders WHERE business_id = $1 ORDER BY display_order, created_at",
             row["id"],
@@ -189,6 +191,50 @@ class AdminBusinessMediaPayload(BaseModel):
         return value.strip() or None
 
 
+class AdminBusinessFounderPayload(BaseModel):
+    id: uuid.UUID
+    name: str = Field(min_length=2, max_length=100)
+    role: str = Field(min_length=2, max_length=50)
+    linkedin_url: HttpUrl | None = None
+    journey: str | None = Field(default=None, max_length=2000)
+    photo_url: str | None = Field(default=None, max_length=500)
+    directory_visible: bool = True
+
+    @field_validator("name", "role")
+    @classmethod
+    def trim_founder_name(cls, value: str) -> str:
+        return value.strip()
+
+    @field_validator("journey")
+    @classmethod
+    def trim_founder_journey(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return value.strip() or None
+
+    @field_validator("photo_url")
+    @classmethod
+    def validate_photo_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        cleaned = value.strip()
+        if not cleaned:
+            return None
+        if not (cleaned.startswith("https://") or cleaned.startswith("http://") or cleaned.startswith("/static/")):
+            raise ValueError("Use a complete photo URL or an uploaded image.")
+        return cleaned
+
+
+class AdminBusinessChannelPayload(BaseModel):
+    label: str = Field(min_length=1, max_length=40)
+    url: HttpUrl
+
+    @field_validator("label")
+    @classmethod
+    def trim_label(cls, value: str) -> str:
+        return value.strip()
+
+
 class BusinessUpdatePayload(BaseModel):
     name: str | None = Field(default=None, min_length=2, max_length=120)
     pitch: str | None = Field(default=None, min_length=20, max_length=280)
@@ -202,15 +248,35 @@ class BusinessUpdatePayload(BaseModel):
     journey: str | None = Field(default=None, max_length=4000)
     challenges: str | None = Field(default=None, max_length=3000)
     challenge_solution: str | None = Field(default=None, max_length=3000)
+    ask_text: str | None = Field(default=None, max_length=3000)
+    offer_text: str | None = Field(default=None, max_length=3000)
+    founded_year: int | None = Field(default=None, ge=1800, le=2200)
+    team_size: int | None = Field(default=None, ge=1, le=100000)
+    company_status: str | None = Field(default=None, max_length=50)
+    channels: list[AdminBusinessChannelPayload] | None = Field(default=None, max_length=8)
     contact_name: str | None = Field(default=None, min_length=2, max_length=100)
     contact_email: EmailStr | None = None
     published: bool | None = None
-    media: list[AdminBusinessMediaPayload] | None = Field(default=None, max_length=10)
+    media: list[AdminBusinessMediaPayload] | None = Field(default=None, max_length=6)
+    founders: list[AdminBusinessFounderPayload] | None = Field(default=None, max_length=5)
 
-    @field_validator("name", "pitch", "stage", "location", "category", "contact_name", "journey", "challenges", "challenge_solution")
+    @field_validator("name", "pitch", "stage", "location", "category", "contact_name", "journey", "challenges", "challenge_solution", "company_status")
     @classmethod
     def trim_text(cls, value: str | None) -> str | None:
         return value.strip() if value is not None else None
+
+    @field_validator("ask_text", "offer_text", mode="before")
+    @classmethod
+    def normalize_points(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        points = [re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", line).strip() for line in value.splitlines()]
+        points = [point for point in points if point]
+        if len(points) > 3:
+            raise ValueError("Use no more than 3 points.")
+        if any(len(point) > 120 for point in points):
+            raise ValueError("Keep each point to 120 characters or fewer.")
+        return "\n".join(points) or None
 
     @field_validator("tags")
     @classmethod
@@ -226,6 +292,16 @@ class BusinessUpdatePayload(BaseModel):
                 raise ValueError("Each tag must be 30 characters or fewer.")
             cleaned.append(tag)
         return cleaned
+
+    @model_validator(mode="after")
+    def validate_media_counts(self):
+        if self.media is None:
+            return self
+        if sum(item.media_type == "image" for item in self.media) > 3:
+            raise ValueError("A profile can contain up to 3 photos.")
+        if sum(item.media_type == "video" for item in self.media) > 3:
+            raise ValueError("A profile can contain up to 3 videos.")
+        return self
 @router.put("/businesses/{business_id}")
 async def update_business(
     business_id: str,
@@ -236,11 +312,13 @@ async def update_business(
     sets: list[str] = []
     values: list = []
 
-    for field in ("name", "pitch", "stage", "location", "category", "tags", "contact_name", "logo_url", "journey", "challenges", "challenge_solution", "published"):
+    for field in ("name", "pitch", "stage", "location", "category", "tags", "contact_name", "logo_url", "journey", "challenges", "challenge_solution", "ask_text", "offer_text", "founded_year", "team_size", "company_status", "channels", "published"):
         value = getattr(body, field)
         if value is not None:
+            if field == "channels":
+                value = json.dumps([item.model_dump(mode="json") for item in value])
             values.append(value)
-            sets.append(f"{field} = ${len(values)}")
+            sets.append(f"{field} = ${len(values)}::jsonb" if field == "channels" else f"{field} = ${len(values)}")
 
     if body.published is not None:
         values.append("published" if body.published else "hidden")
@@ -256,7 +334,7 @@ async def update_business(
         values.append(str(body.website_url))
         sets.append(f"website_url = ${len(values)}")
 
-    if not sets and body.media is None:
+    if not sets and body.media is None and body.founders is None:
         raise HTTPException(400, "No fields to update.")
 
     try:
@@ -281,10 +359,31 @@ async def update_business(
                                  VALUES ($1, $2, $3, $4, $5)""",
                             row["id"], media_item.media_type, media_item.url, media_item.caption, index,
                         )
+                if body.founders is not None:
+                    founder_ids = [founder.id for founder in body.founders]
+                    owned_founder_ids = {item["id"] for item in await connection.fetch(
+                        "SELECT id FROM business_founders WHERE business_id = $1 AND id = ANY($2::uuid[])",
+                        row["id"], founder_ids,
+                    )}
+                    if len(owned_founder_ids) != len(founder_ids):
+                        raise HTTPException(400, "One or more founders do not belong to this business.")
+                    for index, founder in enumerate(body.founders):
+                        await connection.execute(
+                            """UPDATE business_founders
+                                  SET name = $1, role = $2, linkedin_url = $3, journey = $4,
+                                      photo_url = $5, directory_visible = $6, display_order = $7
+                                WHERE id = $8 AND business_id = $9""",
+                            founder.name, founder.role,
+                            str(founder.linkedin_url) if founder.linkedin_url else None,
+                            founder.journey, founder.photo_url, founder.directory_visible, index,
+                            founder.id, row["id"],
+                        )
     except UniqueViolationError:
         raise HTTPException(409, "A business with this name is already listed.")
 
     data = dict(row)
+    if isinstance(data.get("channels"), str):
+        data["channels"] = json.loads(data["channels"])
     data["founders"] = [dict(item) for item in await pool.fetch(
         "SELECT * FROM business_founders WHERE business_id = $1 ORDER BY display_order, created_at",
         row["id"],

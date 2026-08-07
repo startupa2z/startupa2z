@@ -44,10 +44,16 @@ type FormData = {
   category: string;
   tags: string;
   website_url: string;
+  founded_year: string;
+  team_size: string;
+  linkedin_url: string;
+  x_url: string;
   logo_url: string;
   journey: string;
   challenges: string;
   challenge_solution: string;
+  ask_points: string[];
+  offer_points: string[];
   contact_name: string;
   contact_email: string;
   consent_to_publish: boolean;
@@ -69,10 +75,16 @@ const emptyForm: FormData = {
   category: "",
   tags: "",
   website_url: "",
+  founded_year: "",
+  team_size: "",
+  linkedin_url: "",
+  x_url: "",
   logo_url: "",
   journey: "",
   challenges: "",
   challenge_solution: "",
+  ask_points: ["", "", ""],
+  offer_points: ["", "", ""],
   contact_name: "",
   contact_email: "",
   consent_to_publish: true,
@@ -85,11 +97,15 @@ const businessStepSchema = z.object({
   location: z.string().trim().min(2, "Enter a location").max(120),
   category: z.string().min(1, "Select a category"),
   website_url: z.string().trim().url("Enter a complete website URL").optional().or(z.literal("")),
+  founded_year: z.string().trim().regex(/^$|^\d{4}$/, "Use a four-digit founding year"),
+  team_size: z.string().trim().regex(/^$|^[1-9]\d{0,5}$/, "Enter a valid team size"),
+  linkedin_url: z.string().trim().url("Enter a complete LinkedIn URL").optional().or(z.literal("")),
+  x_url: z.string().trim().url("Enter a complete X URL").optional().or(z.literal("")),
 });
 
 const founderSchema = z.object({
   name: z.string().trim().min(2, "Founder name is required").max(100),
-  role: z.enum(["Founder", "Co-founder"]),
+  role: z.string().trim().min(2, "Founder role is required").max(50),
   linkedin_url: z.string().trim().url("Enter a complete LinkedIn URL").optional().or(z.literal("")),
   journey: z.string().trim().max(2000),
   photo_url: z.string(),
@@ -128,6 +144,14 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
     setError("");
   };
 
+  const updatePoint = (field: "ask_points" | "offer_points", index: number, value: string) => {
+    setForm((current) => ({
+      ...current,
+      [field]: current[field].map((point, pointIndex) => pointIndex === index ? value : point),
+    }));
+    setError("");
+  };
+
   const validateStep = () => {
     if (step === 0) {
       const result = businessStepSchema.safeParse(form);
@@ -138,8 +162,13 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
         const result = founderSchema.safeParse(founder);
         if (!result.success) return result.error.issues[0]?.message ?? "Check the founder details.";
       }
+      if (form.team_size && Number(form.team_size) < founders.length) return "Team size cannot be smaller than the number of founders listed.";
     }
-    if (step === 2 && form.journey.trim().length < 20) return "Tell the startup journey in at least 20 characters.";
+    if (step === 2) {
+      if (form.journey.trim().length < 20) return "Tell the startup journey in at least 20 characters.";
+      const points = [...form.ask_points, ...form.offer_points].map((point) => point.trim()).filter(Boolean);
+      if (points.some((point) => point.length > 120)) return "Keep each ask and offer point to 120 characters or fewer.";
+    }
     if (step === 4) {
       const result = reviewSchema.safeParse(form);
       if (!result.success) return result.error.issues[0]?.message ?? "Check the contact details.";
@@ -189,10 +218,10 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
 
   const handleGalleryImages = async (files: FileList | null) => {
     if (!files?.length) return;
-    const available = Math.max(0, 6 - media.filter((item) => item.media_type === "image").length);
+    const available = Math.max(0, 3 - media.filter((item) => item.media_type === "image").length);
     const selected = Array.from(files).slice(0, available);
     if (!selected.length) {
-      setError("You can add up to 6 gallery photos.");
+      setError("You can add up to 3 profile photos.");
       return;
     }
     setUploading(true);
@@ -253,10 +282,18 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
         category: form.category,
         tags: form.tags.split(",").map((tag) => tag.trim()).filter(Boolean).slice(0, 5),
         website_url: form.website_url.trim() || null,
+        founded_year: form.founded_year ? Number(form.founded_year) : null,
+        team_size: form.team_size ? Number(form.team_size) : null,
+        channels: [
+          form.linkedin_url.trim() ? { label: "LinkedIn", url: form.linkedin_url.trim() } : null,
+          form.x_url.trim() ? { label: "X", url: form.x_url.trim() } : null,
+        ].filter((channel): channel is { label: string; url: string } => channel !== null),
         logo_url: form.logo_url || null,
         journey: form.journey.trim(),
         challenges: form.challenges.trim() || null,
         challenge_solution: form.challenge_solution.trim() || null,
+        ask_text: form.ask_points.map((point) => point.trim()).filter(Boolean).join("\n") || null,
+        offer_text: form.offer_points.map((point) => point.trim()).filter(Boolean).join("\n") || null,
         founders: founders.map((founder) => ({
           name: founder.name.trim(),
           role: founder.role,
@@ -317,6 +354,14 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
               <div><Label>Category *</Label><Select value={form.category} onValueChange={(value) => update("category", value)}><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger><SelectContent>{categories.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
               <div><Label htmlFor="business-location">Location *</Label><Input id="business-location" value={form.location} onChange={(event) => update("location", event.target.value)} placeholder="Mountain View, CA" /></div>
             </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div><Label htmlFor="business-founded-year">Founded year</Label><Input id="business-founded-year" inputMode="numeric" maxLength={4} value={form.founded_year} onChange={(event) => update("founded_year", event.target.value)} placeholder="2025" /></div>
+              <div><Label htmlFor="business-team-size">Team size</Label><Input id="business-team-size" inputMode="numeric" value={form.team_size} onChange={(event) => update("team_size", event.target.value)} placeholder="2" /><p className="mt-1 text-xs text-muted-foreground">Include founders and employees.</p></div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div><Label htmlFor="business-linkedin">Company LinkedIn</Label><Input id="business-linkedin" type="url" value={form.linkedin_url} onChange={(event) => update("linkedin_url", event.target.value)} placeholder="https://linkedin.com/company/..." /></div>
+              <div><Label htmlFor="business-x">Company X</Label><Input id="business-x" type="url" value={form.x_url} onChange={(event) => update("x_url", event.target.value)} placeholder="https://x.com/..." /></div>
+            </div>
             <div><Label htmlFor="business-tags">Tags</Label><Input id="business-tags" value={form.tags} onChange={(event) => update("tags", event.target.value)} placeholder="AI, B2B, Developer Tools (up to 5)" /></div>
           </div>
         )}
@@ -330,7 +375,7 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
                 <div className="grid sm:grid-cols-[100px_1fr] gap-4">
                   <div className="space-y-2"><div className="h-24 w-24 overflow-hidden rounded-xl bg-muted flex items-center justify-center">{founder.photo_url ? <img src={founder.photo_url} alt={`${founder.name || "Founder"} preview`} className="h-full w-full object-cover" /> : <UserRound className="h-7 w-7 text-muted-foreground" />}</div><Label className="cursor-pointer text-xs text-primary">Upload photo<Input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => handleFounderPhoto(index, event.target.files?.[0])} disabled={uploading} /></Label></div>
                   <div className="space-y-3">
-                    <div className="grid sm:grid-cols-2 gap-3"><div><Label htmlFor={`founder-name-${index}`}>Name *</Label><Input id={`founder-name-${index}`} value={founder.name} onChange={(event) => updateFounder(index, "name", event.target.value)} /></div><div><Label htmlFor={`founder-role-${index}`}>Role *</Label><Select value={founder.role} onValueChange={(value: "Founder" | "Co-founder") => updateFounder(index, "role", value)}><SelectTrigger id={`founder-role-${index}`}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Founder">Founder</SelectItem><SelectItem value="Co-founder">Co-founder</SelectItem></SelectContent></Select></div></div>
+                    <div className="grid sm:grid-cols-2 gap-3"><div><Label htmlFor={`founder-name-${index}`}>Name *</Label><Input id={`founder-name-${index}`} value={founder.name} onChange={(event) => updateFounder(index, "name", event.target.value)} /></div><div><Label htmlFor={`founder-role-${index}`}>Position *</Label><Input id={`founder-role-${index}`} value={founder.role} onChange={(event) => updateFounder(index, "role", event.target.value)} placeholder="Founder & CEO" maxLength={50} /></div></div>
                     <div><Label htmlFor={`founder-linkedin-${index}`}>LinkedIn</Label><Input id={`founder-linkedin-${index}`} type="url" value={founder.linkedin_url} onChange={(event) => updateFounder(index, "linkedin_url", event.target.value)} placeholder="https://linkedin.com/in/..." /></div>
                   </div>
                 </div>
@@ -347,14 +392,18 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
             <div><Label htmlFor="business-journey">Journey to reach here *</Label><Textarea id="business-journey" className="min-h-28" value={form.journey} onChange={(event) => update("journey", event.target.value)} maxLength={4000} placeholder="How did the idea begin, and what important milestones brought the team here?" /></div>
             <div><Label htmlFor="business-challenges">What were the biggest challenges?</Label><Textarea id="business-challenges" className="min-h-24" value={form.challenges} onChange={(event) => update("challenges", event.target.value)} maxLength={3000} placeholder="Product, customers, hiring, fundraising, co-founder decisions…" /></div>
             <div><Label htmlFor="business-solutions">How did the team overcome them?</Label><Textarea id="business-solutions" className="min-h-24" value={form.challenge_solution} onChange={(event) => update("challenge_solution", event.target.value)} maxLength={3000} placeholder="What changed, and what did the team learn?" /></div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2"><div><Label>Our Ask</Label><p className="text-xs text-muted-foreground">Up to 3 short one-line points.</p></div>{form.ask_points.map((point, index) => <Input key={`ask-${index}`} aria-label={`Our Ask point ${index + 1}`} value={point} onChange={(event) => updatePoint("ask_points", index, event.target.value)} maxLength={120} placeholder={["Customers or users needed", "Partners or advisors needed", "Talent or investment needed"][index]} />)}</div>
+              <div className="space-y-2"><div><Label>Our Offer</Label><p className="text-xs text-muted-foreground">Up to 3 short one-line points.</p></div>{form.offer_points.map((point, index) => <Input key={`offer-${index}`} aria-label={`Our Offer point ${index + 1}`} value={point} onChange={(event) => updatePoint("offer_points", index, event.target.value)} maxLength={120} placeholder={["Product or service offered", "Expertise shared", "Partnership opportunity"][index]} />)}</div>
+            </div>
           </div>
         )}
 
         {step === 3 && (
           <div className="space-y-5">
-            <div><h3 className="font-heading text-lg font-semibold">Bring the story to life</h3><p className="text-sm text-muted-foreground">Add product, team, or event photos. Videos remain hosted on YouTube, Vimeo, or Loom.</p></div>
-            <div className="rounded-xl border border-dashed p-5 text-center"><ImagePlus className="mx-auto mb-2 h-7 w-7 text-secondary" /><Label className="cursor-pointer font-medium text-primary">Upload gallery photos<Input type="file" multiple accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => handleGalleryImages(event.target.files)} disabled={uploading} /></Label><p className="mt-1 text-xs text-muted-foreground">Up to 6 photos · 5 MB each</p></div>
-            {media.some((item) => item.media_type === "image") && <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">{media.map((item, index) => item.media_type === "image" && <div key={`${item.url}-${index}`} className="group relative aspect-square overflow-hidden rounded-lg bg-muted"><img src={item.url} alt="Gallery preview" className="h-full w-full object-cover" /><button type="button" aria-label="Remove photo" onClick={() => setMedia((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"><Trash2 className="h-3 w-3" /></button></div>)}</div>}
+            <div><h3 className="font-heading text-lg font-semibold">Bring the story to life</h3><p className="text-sm text-muted-foreground">Add one main photo and up to two supporting photos. Videos remain hosted on YouTube, Vimeo, or Loom.</p></div>
+            <div className="rounded-xl border border-dashed p-5 text-center"><ImagePlus className="mx-auto mb-2 h-7 w-7 text-secondary" /><Label className="cursor-pointer font-medium text-primary">Upload profile photos<Input type="file" multiple accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => handleGalleryImages(event.target.files)} disabled={uploading} /></Label><p className="mt-1 text-xs text-muted-foreground">Maximum 3 photos · first photo is the main image · 5 MB each</p></div>
+            {media.some((item) => item.media_type === "image") && <div className="grid grid-cols-3 gap-3">{media.map((item, index) => item.media_type === "image" && <div key={`${item.url}-${index}`} className="group relative aspect-square overflow-hidden rounded-lg bg-muted"><img src={item.url} alt="Gallery preview" className="h-full w-full object-cover" /><span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">{media.filter((entry) => entry.media_type === "image").findIndex((entry) => entry === item) === 0 ? "Main" : "Supporting"}</span><button type="button" aria-label="Remove photo" onClick={() => setMedia((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"><Trash2 className="h-3 w-3" /></button></div>)}</div>}
             <div className="rounded-xl border p-4 space-y-3"><div className="flex items-center gap-2 font-medium"><Video className="h-4 w-4 text-secondary" /> Add video</div><div className="grid sm:grid-cols-2 gap-3"><Input type="url" value={videoUrl} onChange={(event) => setVideoUrl(event.target.value)} placeholder="YouTube, Vimeo, or Loom URL" /><Input value={videoCaption} onChange={(event) => setVideoCaption(event.target.value)} placeholder="Caption (optional)" /></div><Button type="button" variant="outline" onClick={addVideo}>Add video link</Button></div>
             {media.filter((item) => item.media_type === "video").map((item, index) => <div key={item.url} className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-sm"><span className="truncate">{item.caption || item.url}</span><Button type="button" variant="ghost" size="icon" onClick={() => setMedia((current) => current.filter((entry) => entry !== item))}><Trash2 className="h-4 w-4" /></Button></div>)}
           </div>
@@ -362,7 +411,7 @@ const BusinessSubmissionDialog = ({ open, onOpenChange, onSubmitted }: BusinessS
 
         {step === 4 && (
           <div className="space-y-5">
-            <div className="rounded-xl bg-muted/60 p-5"><p className="text-xs font-semibold uppercase tracking-wider text-secondary">Ready for review</p><h3 className="mt-1 font-heading text-xl font-semibold">{form.name}</h3><p className="mt-2 text-sm text-muted-foreground">{form.pitch}</p><div className="mt-3 flex flex-wrap gap-2 text-xs"><span>{founders.length} founder{founders.length === 1 ? "" : "s"}</span><span>·</span><span>{media.filter((item) => item.media_type === "image").length} photos</span><span>·</span><span>{media.filter((item) => item.media_type === "video").length} videos</span></div></div>
+            <div className="rounded-xl bg-muted/60 p-5"><p className="text-xs font-semibold uppercase tracking-wider text-secondary">Ready for review</p><h3 className="mt-1 font-heading text-xl font-semibold">{form.name}</h3><p className="mt-2 text-sm text-muted-foreground">{form.pitch}</p><div className="mt-3 flex flex-wrap gap-2 text-xs">{form.founded_year && <><span>Founded {form.founded_year}</span><span>·</span></>}<span>{form.team_size || founders.length} team members</span><span>·</span><span>{founders.length} founder{founders.length === 1 ? "" : "s"}</span><span>·</span><span>{media.filter((item) => item.media_type === "image").length} photos</span><span>·</span><span>{media.filter((item) => item.media_type === "video").length} videos</span></div></div>
             <div className="grid sm:grid-cols-2 gap-4"><div><Label htmlFor="business-contact-name">Your name *</Label><Input id="business-contact-name" value={form.contact_name} onChange={(event) => update("contact_name", event.target.value)} /></div><div><Label htmlFor="business-contact-email">Your email *</Label><Input id="business-contact-email" type="email" value={form.contact_email} onChange={(event) => update("contact_email", event.target.value)} /></div></div>
             <div className="flex items-start gap-3 rounded-lg border p-3"><Checkbox id="business-consent" checked={form.consent_to_publish} onCheckedChange={(checked) => update("consent_to_publish", checked === true)} /><Label htmlFor="business-consent" className="cursor-pointer leading-relaxed">I confirm that I have permission to submit this information and media for review and possible publication by StartupA2Z.org.</Label></div>
           </div>

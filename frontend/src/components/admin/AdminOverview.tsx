@@ -65,7 +65,7 @@ const AdminOverview = ({
               return (
                 <button key={action.label} type="button" onClick={() => onNavigate(action.section)} className="flex items-center gap-3 rounded-xl border bg-background/60 p-4 text-left hover:border-primary/40 transition-colors">
                   <div className="h-10 w-10 shrink-0 rounded-lg bg-muted flex items-center justify-center"><Icon className="h-4 w-4" /></div>
-                  <div className="min-w-0"><p className="text-sm font-medium">{action.label}</p><p className="text-xs text-muted-foreground truncate">{action.note}</p></div>
+                  <div className="min-w-0"><p className="text-sm font-medium">{action.label}</p><p className="text-xs text-muted-foreground whitespace-normal break-words">{action.note}</p></div>
                 </button>
               );
             })}

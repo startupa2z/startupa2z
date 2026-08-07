@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
 const Founders = lazy(() => import("./pages/Founders.tsx"));
+const FounderDetail = lazy(() => import("./pages/FounderDetail.tsx"));
 const Investors = lazy(() => import("./pages/Investors.tsx"));
 const Startups = lazy(() => import("./pages/Startups.tsx"));
 const BusinessDetail = lazy(() => import("./pages/BusinessDetail.tsx"));
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/founders" element={<Founders />} />
+          <Route path="/founders/:slug" element={<FounderDetail />} />
           <Route path="/investors" element={<Investors />} />
           <Route path="/startups" element={<Startups />} />
           <Route path="/startups/:slug" element={<BusinessDetail />} />

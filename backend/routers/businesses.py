@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import uuid
@@ -5,7 +6,7 @@ from typing import Literal
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator, model_validator
 
 from database import get_pool
 
@@ -38,14 +39,27 @@ def _validate_media_url(value: str | None) -> str | None:
     return value
 
 
+def _normalize_profile_points(value: str | None) -> str | None:
+    value = _clean_optional_text(value)
+    if value is None:
+        return None
+    points = [re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", line).strip() for line in value.splitlines()]
+    points = [point for point in points if point]
+    if len(points) > 3:
+        raise ValueError("Use no more than 3 points.")
+    if any(len(point) > 120 for point in points):
+        raise ValueError("Keep each point to 120 characters or fewer.")
+    return "\n".join(points)
+
+
 class FounderSubmission(BaseModel):
     name: str = Field(min_length=2, max_length=100)
-    role: Literal["Founder", "Co-founder"]
+    role: str = Field(min_length=2, max_length=50)
     linkedin_url: HttpUrl | None = None
     journey: str | None = Field(default=None, max_length=2000)
     photo_url: str | None = Field(default=None, max_length=500)
 
-    @field_validator("name")
+    @field_validator("name", "role")
     @classmethod
     def trim_name(cls, value: str) -> str:
         return value.strip()
@@ -80,6 +94,11 @@ class MediaSubmission(BaseModel):
         return _clean_optional_text(value)
 
 
+class BusinessChannelSubmission(BaseModel):
+    label: Literal["LinkedIn", "X"]
+    url: HttpUrl
+
+
 class BusinessSubmission(BaseModel):
     name: str = Field(min_length=2, max_length=120)
     pitch: str = Field(min_length=20, max_length=280)
@@ -92,8 +111,13 @@ class BusinessSubmission(BaseModel):
     journey: str = Field(min_length=20, max_length=4000)
     challenges: str | None = Field(default=None, max_length=3000)
     challenge_solution: str | None = Field(default=None, max_length=3000)
+    ask_text: str | None = Field(default=None, max_length=3000)
+    offer_text: str | None = Field(default=None, max_length=3000)
+    founded_year: int | None = Field(default=None, ge=1800, le=2200)
+    team_size: int | None = Field(default=None, ge=1, le=100000)
+    channels: list[BusinessChannelSubmission] = Field(default_factory=list, max_length=2)
     founders: list[FounderSubmission] = Field(min_length=1, max_length=5)
-    media: list[MediaSubmission] = Field(default_factory=list, max_length=10)
+    media: list[MediaSubmission] = Field(default_factory=list, max_length=6)
     contact_name: str = Field(min_length=2, max_length=100)
     contact_email: EmailStr
     consent_to_publish: bool
@@ -107,6 +131,11 @@ class BusinessSubmission(BaseModel):
     @classmethod
     def trim_optional_text(cls, value: str | None) -> str | None:
         return _clean_optional_text(value)
+
+    @field_validator("ask_text", "offer_text", mode="before")
+    @classmethod
+    def normalize_points(cls, value: str | None) -> str | None:
+        return _normalize_profile_points(value)
 
     @field_validator("logo_url", mode="before")
     @classmethod
@@ -126,10 +155,23 @@ class BusinessSubmission(BaseModel):
             cleaned.append(tag)
         return cleaned
 
+    @model_validator(mode="after")
+    def validate_profile_counts(self):
+        image_count = sum(item.media_type == "image" for item in self.media)
+        video_count = sum(item.media_type == "video" for item in self.media)
+        if image_count > 3:
+            raise ValueError("A profile can contain up to 3 photos.")
+        if video_count > 3:
+            raise ValueError("A profile can contain up to 3 videos.")
+        if self.team_size is not None and self.team_size < len(self.founders):
+            raise ValueError("Team size cannot be smaller than the number of listed founders.")
+        return self
+
 
 PUBLIC_COLUMNS = """
     id, slug, name, pitch, stage, location, category, tags, website_url,
-    logo_url, journey, challenges, challenge_solution, created_at
+    logo_url, journey, challenges, challenge_solution, ask_text, offer_text,
+    founded_year, team_size, company_status, channels, created_at
 """
 
 
@@ -137,7 +179,8 @@ async def _related_records(pool, business_ids: list[uuid.UUID]):
     if not business_ids:
         return {}, {}
     founder_rows = await pool.fetch(
-        """SELECT id, business_id, name, role, linkedin_url, journey, photo_url, display_order
+        """SELECT id, business_id, slug, name, role, linkedin_url, journey, photo_url,
+                  directory_visible, display_order
              FROM business_founders WHERE business_id = ANY($1::uuid[])
              ORDER BY display_order, created_at""",
         business_ids,
@@ -157,8 +200,35 @@ async def _related_records(pool, business_ids: list[uuid.UUID]):
     return founders, media
 
 
+def _public_founder(row) -> dict:
+    return {
+        "id": row["id"],
+        "slug": row["founder_slug"],
+        "name": row["founder_name"],
+        "role": row["founder_role"],
+        "linkedin_url": row["linkedin_url"],
+        "journey": row["founder_journey"],
+        "photo_url": row["photo_url"],
+        "company": {
+            "id": row["business_id"],
+            "slug": row["business_slug"],
+            "name": row["business_name"],
+            "pitch": row["pitch"],
+            "stage": row["stage"],
+            "location": row["location"],
+            "category": row["category"],
+            "tags": row["tags"],
+            "logo_url": row["logo_url"],
+            "ask_text": row["ask_text"],
+            "offer_text": row["offer_text"],
+        },
+    }
+
+
 def _public_business(row, founders: dict, media: dict) -> dict:
     item = dict(row)
+    if isinstance(item.get("channels"), str):
+        item["channels"] = json.loads(item["channels"])
     business_id = row["id"]
     item["founders"] = founders.get(business_id, [])
     item["media"] = media.get(business_id, [])
@@ -196,6 +266,37 @@ async def list_businesses():
     return {"ok": True, "data": [_public_business(row, founders, media) for row in rows]}
 
 
+FOUNDER_DIRECTORY_QUERY = """
+    SELECT bf.id, bf.slug AS founder_slug, bf.name AS founder_name,
+           bf.role AS founder_role, bf.linkedin_url, bf.journey AS founder_journey,
+           bf.photo_url, b.id AS business_id, b.slug AS business_slug,
+           b.name AS business_name, b.pitch, b.stage, b.location, b.category,
+           b.tags, b.logo_url, b.ask_text, b.offer_text
+      FROM business_founders bf
+      JOIN businesses b ON b.id = bf.business_id
+     WHERE b.published = true
+       AND bf.directory_visible = true
+"""
+
+
+@router.get("/founders")
+async def list_founders():
+    pool = await get_pool()
+    rows = await pool.fetch(
+        FOUNDER_DIRECTORY_QUERY + " ORDER BY bf.created_at DESC, bf.display_order, bf.name"
+    )
+    return {"ok": True, "data": [_public_founder(row) for row in rows]}
+
+
+@router.get("/founders/{slug}")
+async def get_founder(slug: str):
+    pool = await get_pool()
+    row = await pool.fetchrow(FOUNDER_DIRECTORY_QUERY + " AND bf.slug = $1", slug)
+    if not row:
+        raise HTTPException(404, "Founder not found.")
+    return {"ok": True, "data": _public_founder(row)}
+
+
 @router.get("/{slug}")
 async def get_business(slug: str):
     pool = await get_pool()
@@ -228,9 +329,9 @@ async def submit_business(body: BusinessSubmission):
                 row = await connection.fetchrow(
                     f"""INSERT INTO businesses
                            (slug, name, pitch, stage, location, category, tags, website_url,
-                            logo_url, journey, challenges, challenge_solution,
-                            contact_name, contact_email, published, status)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false, 'pending')
+                            logo_url, journey, challenges, challenge_solution, ask_text, offer_text,
+                            founded_year, team_size, channels, contact_name, contact_email, published, status)
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17::jsonb, $18, $19, false, 'pending')
                          RETURNING {PUBLIC_COLUMNS}""",
                     slug,
                     body.name,
@@ -244,15 +345,26 @@ async def submit_business(body: BusinessSubmission):
                     body.journey,
                     body.challenges,
                     body.challenge_solution,
+                    body.ask_text,
+                    body.offer_text,
+                    body.founded_year,
+                    body.team_size,
+                    json.dumps([channel.model_dump(mode="json") for channel in body.channels]),
                     body.contact_name,
                     str(body.contact_email),
                 )
                 for index, founder in enumerate(body.founders):
+                    founder_slug = _slugify(founder.name)
+                    suffix = 2
+                    while await connection.fetchval("SELECT 1 FROM business_founders WHERE slug = $1", founder_slug):
+                        founder_slug = f"{_slugify(founder.name)}-{suffix}"
+                        suffix += 1
                     await connection.execute(
                         """INSERT INTO business_founders
-                               (business_id, name, role, linkedin_url, journey, photo_url, display_order)
-                             VALUES ($1, $2, $3, $4, $5, $6, $7)""",
-                        row["id"], founder.name, founder.role,
+                               (business_id, slug, name, role, linkedin_url, journey, photo_url,
+                                directory_visible, display_order)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8)""",
+                        row["id"], founder_slug, founder.name, founder.role,
                         str(founder.linkedin_url) if founder.linkedin_url else None,
                         founder.journey, founder.photo_url, index,
                     )

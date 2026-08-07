@@ -21,11 +21,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS businesses_unique_slug ON businesses (slug);
 CREATE TABLE IF NOT EXISTS business_founders (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id   UUID        NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  slug          TEXT,
   name          TEXT        NOT NULL,
   role          TEXT        NOT NULL,
   linkedin_url  TEXT,
   journey       TEXT,
   photo_url     TEXT,
+  directory_visible BOOLEAN NOT NULL DEFAULT true,
   display_order INTEGER     NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT founder_name_length CHECK (char_length(name) BETWEEN 2 AND 100),

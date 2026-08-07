@@ -4,6 +4,7 @@ const publicRoutes = [
   "/",
   "/about",
   "/founders",
+  "/founders/digvijay-goswami",
   "/investors",
   "/startups",
   "/startups/keyframe",
@@ -17,12 +18,14 @@ const publicRoutes = [
 
 test("all public routes render without browser errors", async ({ page }) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  let currentRoute = "before navigation";
+  page.on("pageerror", (error) => errors.push(`${currentRoute}: ${error.message}`));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error") errors.push(`${currentRoute}: ${message.text()}`);
   });
 
   for (const route of publicRoutes) {
+    currentRoute = route;
     const response = await page.goto(route);
     expect(response?.status(), route).toBeLessThan(400);
     await expect(page.locator("main")).toBeVisible();
@@ -36,9 +39,9 @@ test("header groups expose the expected destinations", async ({ page }) => {
   const navigation = page.getByRole("navigation");
 
   await navigation.getByRole("link", { name: "Community", exact: true }).hover();
-  await expect(navigation.getByRole("link", { name: "Startups", exact: true })).toBeVisible();
-  await expect(navigation.getByRole("link", { name: "Founders", exact: true })).toBeVisible();
-  await expect(navigation.getByRole("link", { name: "Investors", exact: true })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Startup Directory", exact: true })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Founder Directory", exact: true })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Investor Network", exact: true })).toBeVisible();
 
   await navigation.getByRole("link", { name: "Resources", exact: true }).hover();
   await expect(navigation.getByRole("link", { name: "Gallery", exact: true })).toBeVisible();
@@ -140,9 +143,39 @@ test("resource shortcuts land on the intended sections", async ({ page }) => {
 
 test("startup cards open dedicated internal profiles", async ({ page }) => {
   await page.goto("/startups");
-  await page.getByRole("link", { name: "View Keyframe profile" }).click();
+  await page.getByRole("link", { name: "View keyframe.art profile" }).click();
   await expect(page).toHaveURL(/\/startups\/keyframe$/);
-  await expect(page.getByRole("heading", { name: "Keyframe", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "keyframe.art", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What keyframe.art is looking for" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What keyframe.art provides" })).toBeVisible();
+  await expect(page.getByText("Founded", { exact: true })).toBeVisible();
+  await expect(page.getByText("2025", { exact: true })).toBeVisible();
+  await expect(page.getByText("Team size", { exact: true })).toBeVisible();
+  await expect(page.getByText("Founder & CEO", { exact: true })).toBeVisible();
+  const askAndOffer = page.getByLabel("keyframe.art ask and offer");
+  await expect(askAndOffer.getByRole("list")).toHaveCount(2);
+  await expect(askAndOffer.getByRole("listitem")).toHaveCount(6);
+  await expect(askAndOffer.getByText("1", { exact: true })).toHaveCount(0);
+  await expect(askAndOffer.getByText("2", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "keyframe.art website" })).toHaveAttribute("href", "https://www.keyframe.art/");
+  await expect(page.getByRole("link", { name: "Book a call" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "API docs" })).toHaveCount(0);
+  const offerHeading = page.getByRole("heading", { name: "What keyframe.art provides" });
+  const videoHeading = page.getByRole("heading", { name: "See what keyframe.art is building" });
+  if (await videoHeading.count()) {
+    expect(await offerHeading.evaluate((offer, video) => Boolean(offer.compareDocumentPosition(video as Node) & Node.DOCUMENT_POSITION_FOLLOWING), await videoHeading.elementHandle())).toBe(true);
+  }
+});
+
+test("founder directory opens a founder profile linked to the startup story", async ({ page }) => {
+  await page.goto("/founders");
+  await expect(page.getByRole("heading", { name: "Founder Directory", level: 1 })).toBeVisible();
+  await page.getByRole("link", { name: /Digvijay Goswami/ }).click();
+  await expect(page).toHaveURL(/\/founders\/digvijay-goswami$/);
+  await expect(page.getByRole("heading", { name: "Digvijay Goswami", level: 1 })).toBeVisible();
+  await expect(page.getByRole("link", { name: /View startup story/ })).toHaveAttribute("href", "/startups/keyframe");
+  await expect(page.getByRole("heading", { name: "What keyframe.art is looking for" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What keyframe.art provides" })).toBeVisible();
 });
 
 test("business submission captures founders and stays pending for review", async ({ page }) => {
@@ -166,6 +199,9 @@ test("business submission captures founders and stays pending for review", async
   await dialog.getByLabel("Business name *").fill("Health Check Labs");
   await dialog.getByLabel("What does your business do? *").fill("A complete startup profile workflow used for automated validation.");
   await dialog.getByLabel("Location *").fill("Mountain View, CA");
+  await dialog.getByLabel("Founded year").fill("2024");
+  await dialog.getByLabel("Team size").fill("3");
+  await dialog.getByLabel("Company LinkedIn").fill("https://linkedin.com/company/health-check-labs");
   await dialog.getByRole("combobox").nth(0).click();
   await page.getByRole("option", { name: "Seed", exact: true }).click();
   await dialog.getByRole("combobox").nth(1).click();
@@ -176,6 +212,8 @@ test("business submission captures founders and stays pending for review", async
   await dialog.getByLabel("Founder journey").fill("The founder encountered this problem directly and built the first solution.");
   await dialog.getByRole("button", { name: "Continue" }).click();
   await dialog.getByLabel("Journey to reach here *").fill("The team validated the problem, built a prototype, and earned its first customer pilot.");
+  await dialog.getByLabel("Our Ask point 1").fill("Pilot customers in the Bay Area");
+  await dialog.getByLabel("Our Offer point 1").fill("Automated startup health checks");
   await dialog.getByRole("button", { name: "Continue" }).click();
   await dialog.getByRole("button", { name: "Continue" }).click();
   await dialog.getByLabel("Your name *").fill("Test Submitter");
@@ -185,7 +223,12 @@ test("business submission captures founders and stays pending for review", async
   await expect(page.getByText("Profile submitted for review", { exact: true })).toBeVisible();
   expect(submittedPayload).toMatchObject({
     name: "Health Check Labs",
+    founded_year: 2024,
+    team_size: 3,
+    channels: [{ label: "LinkedIn", url: "https://linkedin.com/company/health-check-labs" }],
     journey: "The team validated the problem, built a prototype, and earned its first customer pilot.",
+    ask_text: "Pilot customers in the Bay Area",
+    offer_text: "Automated startup health checks",
     founders: [{ name: "Test Founder", role: "Founder" }],
     consent_to_publish: true,
   });

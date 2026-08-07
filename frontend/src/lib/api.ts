@@ -1,4 +1,4 @@
-import { getToken } from "@/lib/auth";
+import { clearToken, getToken } from "@/lib/auth";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -188,6 +188,12 @@ export type BusinessListing = {
   journey?: string | null;
   challenges?: string | null;
   challenge_solution?: string | null;
+  ask_text?: string | null;
+  offer_text?: string | null;
+  founded_year?: number | null;
+  team_size?: number | null;
+  company_status?: string | null;
+  channels?: BusinessChannel[];
   founders?: BusinessFounder[];
   media?: BusinessMedia[];
   created_at: string;
@@ -195,12 +201,30 @@ export type BusinessListing = {
 
 export type BusinessFounder = {
   id?: string;
+  slug?: string;
   name: string;
-  role: "Founder" | "Co-founder";
+  role: string;
   linkedin_url?: string | null;
   journey?: string | null;
   photo_url?: string | null;
+  directory_visible?: boolean;
   display_order?: number;
+};
+
+export type FounderListing = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
+  linkedin_url?: string | null;
+  journey?: string | null;
+  photo_url?: string | null;
+  company: Pick<BusinessListing, "id" | "slug" | "name" | "pitch" | "stage" | "location" | "category" | "tags" | "logo_url" | "ask_text" | "offer_text">;
+};
+
+export type BusinessChannel = {
+  label: string;
+  url: string;
 };
 
 export type BusinessMedia = {
@@ -223,6 +247,11 @@ export type BusinessSubmissionPayload = {
   journey: string;
   challenges?: string | null;
   challenge_solution?: string | null;
+  ask_text?: string | null;
+  offer_text?: string | null;
+  founded_year?: number | null;
+  team_size?: number | null;
+  channels?: BusinessChannel[];
   founders: BusinessFounder[];
   media: BusinessMedia[];
   contact_name: string;
@@ -277,10 +306,17 @@ export type AdminBusinessUpdatePayload = Partial<{
   journey: string;
   challenges: string | null;
   challenge_solution: string | null;
+  ask_text: string | null;
+  offer_text: string | null;
+  founded_year: number | null;
+  team_size: number | null;
+  company_status: string | null;
+  channels: BusinessChannel[];
   contact_name: string;
   contact_email: string;
   published: boolean;
   media: BusinessMedia[];
+  founders: BusinessFounder[];
 }>;
 
 export function fetchBusinesses() {
@@ -290,6 +326,16 @@ export function fetchBusinesses() {
 export function fetchBusiness(slug: string) {
   return apiRequest<{ ok: boolean; data: BusinessListing }>(
     `/api/businesses/${encodeURIComponent(slug)}`,
+  );
+}
+
+export function fetchFounders() {
+  return apiRequest<{ ok: boolean; data: FounderListing[] }>("/api/businesses/founders");
+}
+
+export function fetchFounder(slug: string) {
+  return apiRequest<{ ok: boolean; data: FounderListing }>(
+    `/api/businesses/founders/${encodeURIComponent(slug)}`,
   );
 }
 
@@ -447,15 +493,25 @@ export function createCheckoutSession(payload: {
 
 // ——— Admin (require Bearer token) ——————————————————————————————————————————
 
-function adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  return apiRequest<T>(path, {
-    ...options,
-    headers: {
-      ...options.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  try {
+    return await apiRequest<T>(path, {
+      ...options,
+      headers: {
+        ...options.headers,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      clearToken();
+      if (window.location.pathname !== "/admin/login") {
+        window.location.replace("/admin/login");
+      }
+    }
+    throw error;
+  }
 }
 
 export function adminPasswordLogin(payload: { username: string; password: string }) {

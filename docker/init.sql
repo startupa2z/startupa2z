@@ -108,6 +108,12 @@ CREATE TABLE businesses (
   journey        TEXT,
   challenges     TEXT,
   challenge_solution TEXT,
+  ask_text       TEXT,
+  offer_text     TEXT,
+  founded_year   INTEGER,
+  team_size      INTEGER,
+  company_status TEXT,
+  channels       JSONB       NOT NULL DEFAULT '[]'::jsonb,
   status         TEXT        NOT NULL DEFAULT 'published' CHECK (status IN ('pending', 'published', 'hidden')),
   contact_name   TEXT,
   contact_email  TEXT,
@@ -120,6 +126,7 @@ CREATE TABLE businesses (
   CONSTRAINT business_stage_length CHECK (char_length(stage) BETWEEN 2 AND 50),
   CONSTRAINT business_location_length CHECK (char_length(location) BETWEEN 2 AND 120),
   CONSTRAINT business_category_length CHECK (char_length(category) BETWEEN 2 AND 50),
+  CONSTRAINT business_team_size_positive CHECK (team_size IS NULL OR team_size > 0),
   CONSTRAINT business_website_length CHECK (website_url IS NULL OR char_length(website_url) <= 500),
   CONSTRAINT business_contact_name_length CHECK (contact_name IS NULL OR char_length(contact_name) BETWEEN 2 AND 100),
   CONSTRAINT business_contact_email_length CHECK (contact_email IS NULL OR char_length(contact_email) BETWEEN 3 AND 255)
@@ -136,11 +143,13 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TABLE business_founders (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id   UUID        NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  slug          TEXT        NOT NULL,
   name          TEXT        NOT NULL,
   role          TEXT        NOT NULL,
   linkedin_url  TEXT,
   journey       TEXT,
   photo_url     TEXT,
+  directory_visible BOOLEAN NOT NULL DEFAULT true,
   display_order INTEGER     NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT founder_name_length CHECK (char_length(name) BETWEEN 2 AND 100),
@@ -148,6 +157,7 @@ CREATE TABLE business_founders (
 );
 
 CREATE INDEX idx_business_founders_business ON business_founders (business_id, display_order);
+CREATE UNIQUE INDEX business_founders_unique_slug ON business_founders (slug);
 
 CREATE TABLE business_media (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -163,11 +173,12 @@ CREATE INDEX idx_business_media_business ON business_media (business_id, display
 
 INSERT INTO businesses (
   slug, name, pitch, stage, location, category, tags, website_url,
-  contact_name, contact_email, journey, challenges, challenge_solution
+  contact_name, contact_email, journey, challenges, challenge_solution,
+  ask_text, offer_text, founded_year, team_size, company_status, channels
 )
 VALUES (
   'keyframe',
-  'Keyframe',
+  'keyframe.art',
   'Keyframe helps brands and creators turn ideas into launch-ready AI films—faster and more affordably than traditional video production, without compromising creative quality.',
   'Series A',
   'Mountain View, CA',
@@ -186,17 +197,27 @@ AI-generated footage frequently requires expensive experimentation and manual co
 Brands need more content across launches, advertisements and social media than traditional production can support.$copy$,
   $copy$Keyframe combines creative professionals with structured AI-production workflows instead of relying on a single prompt. It offers an assisted agency service alongside an application and API, allowing customers to select the level of creative and technical involvement they need.
 
-According to its website, one customer reported receiving a film within three days at substantially lower cost than traditional agency quotations. Treat performance claims as customer testimonials, not independently verified metrics.$copy$
+According to its website, one customer reported receiving a film within three days at substantially lower cost than traditional agency quotations. Treat performance claims as customer testimonials, not independently verified metrics.$copy$,
+  $copy$Brands and startups needing launch-ready video
+Early users for practical product feedback
+Product teams exploring API integrations$copy$,
+  $copy$Managed creative video production
+Self-service AI video workspace
+Embedded video workflow API$copy$,
+  2025,
+  2,
+  'Active',
+  '[]'::jsonb
 );
 
-INSERT INTO business_founders (business_id, name, role, linkedin_url, journey, display_order)
-SELECT id, 'Digvijay Goswami', 'Co-founder', 'https://www.linkedin.com/in/digvijaygoswami/',
+INSERT INTO business_founders (business_id, slug, name, role, linkedin_url, journey, display_order)
+SELECT id, 'digvijay-goswami', 'Digvijay Goswami', 'Founder & CEO', 'https://www.linkedin.com/in/digvijaygoswami/',
   $copy$Digvijay leads Keyframe’s business, customer and creative vision. His background combines economics, business development and community leadership. His work on Keyframe is driven by the belief that professional filmmaking should become as accessible as writing—allowing brands and creators to translate ideas into finished films without traditional production constraints.$copy$,
   0
 FROM businesses WHERE slug = 'keyframe';
 
-INSERT INTO business_founders (business_id, name, role, journey, display_order)
-SELECT id, 'Sidharth Raja', 'Co-founder',
+INSERT INTO business_founders (business_id, slug, name, role, linkedin_url, journey, display_order)
+SELECT id, 'sidharth-raja', 'Sidharth Raja', 'Founder & CTO', 'https://www.linkedin.com/in/sidharthraja/',
   $copy$Sidharth leads Keyframe’s technology and product development. Before Keyframe, he worked at Google, where he helped develop early versions of Gemini Live and speech infrastructure used across Android products. Earlier, he was a founding engineer for Uber Lite, which reached more than ten million installations. He brings experience building large-scale AI, speech and consumer-product systems.$copy$,
   1
 FROM businesses WHERE slug = 'keyframe';

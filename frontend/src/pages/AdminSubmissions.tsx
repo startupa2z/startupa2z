@@ -480,16 +480,16 @@ const AdminSubmissions = () => {
                           <TableCell className="whitespace-nowrap text-sm text-muted-foreground">{new Date(r.created_at).toLocaleString()}</TableCell>
                           <TableCell className="font-medium">{r.first_name}</TableCell>
                           <TableCell className="font-medium">{r.last_name}</TableCell>
-                          <TableCell><a href={`mailto:${r.email}`} className="text-primary hover:underline">{r.email}</a></TableCell>
-                          <TableCell>{r.role || <span className="text-muted-foreground">—</span>}</TableCell>
+                          <TableCell className="max-w-64 whitespace-normal"><a href={`mailto:${r.email}`} className="text-primary hover:underline break-all">{r.email}</a></TableCell>
+                          <TableCell className="max-w-48 whitespace-normal break-words">{r.role || <span className="text-muted-foreground">—</span>}</TableCell>
                           <TableCell><Badge variant="secondary">{r.inquiry_type}</Badge></TableCell>
                           <TableCell>
                             {r.linkedin_url ? (
                               <a href={r.linkedin_url} target="_blank" rel="noreferrer" className="text-primary hover:underline">Profile</a>
                             ) : <span className="text-muted-foreground">—</span>}
                           </TableCell>
-                          <TableCell className="max-w-xs">
-                            <p className="truncate text-sm" title={r.message || ""}>{r.message || <span className="text-muted-foreground">—</span>}</p>
+                          <TableCell className="min-w-72 max-w-md whitespace-normal">
+                            <p className="break-words text-sm">{r.message || <span className="text-muted-foreground">—</span>}</p>
                           </TableCell>
                         </TableRow>
                       ))
@@ -572,14 +572,14 @@ const AdminSubmissions = () => {
                           <TableCell className="whitespace-nowrap text-sm text-muted-foreground">{new Date(r.created_at).toLocaleString()}</TableCell>
                           <TableCell><Link to={`/events/${r.event_slug}`} className="text-primary hover:underline text-sm font-medium">{r.event_title}</Link></TableCell>
                           <TableCell className="font-medium whitespace-nowrap">{r.first_name} {r.last_name !== "—" ? r.last_name : ""}</TableCell>
-                          <TableCell><a href={`mailto:${r.email}`} className="text-primary hover:underline">{r.email}</a></TableCell>
+                          <TableCell className="max-w-64 whitespace-normal"><a href={`mailto:${r.email}`} className="text-primary hover:underline break-all">{r.email}</a></TableCell>
                           <TableCell className="text-sm">{r.phone || <span className="text-muted-foreground">—</span>}</TableCell>
-                          <TableCell className="text-sm">{r.company || <span className="text-muted-foreground">—</span>}</TableCell>
-                          <TableCell>{r.role ? <Badge variant="secondary" className="capitalize">{r.role}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
+                          <TableCell className="max-w-56 whitespace-normal break-words text-sm">{r.company || <span className="text-muted-foreground">—</span>}</TableCell>
+                          <TableCell className="max-w-48 whitespace-normal break-words">{r.role ? <Badge variant="secondary" className="h-auto whitespace-normal text-left capitalize">{r.role}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                           <TableCell><Button variant={r.attended ? "default" : "outline"} size="sm" className="h-7 whitespace-nowrap text-xs" onClick={() => handleAttendance(r)}>{r.attended ? "Attended" : "Mark attended"}</Button></TableCell>
                           <TableCell>{r.pitch_interest ? <Badge>Yes</Badge> : <span className="text-muted-foreground">No</span>}</TableCell>
                           <TableCell>{r.whatsapp_opt_in ? <Badge className="bg-[#25D366] hover:bg-[#25D366]">Opted in</Badge> : <span className="text-muted-foreground">No</span>}</TableCell>
-                          <TableCell className="max-w-xs"><p className="truncate text-sm" title={r.notes || ""}>{r.notes || <span className="text-muted-foreground">—</span>}</p></TableCell>
+                          <TableCell className="min-w-64 max-w-md whitespace-normal"><p className="break-words text-sm">{r.notes || <span className="text-muted-foreground">—</span>}</p></TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteRSVP(r.id, `${r.first_name} ${r.last_name}`)} aria-label="Delete RSVP">
                               <Trash2 className="h-4 w-4" />
@@ -621,7 +621,7 @@ const AdminSubmissions = () => {
         <Sheet open={attendeesOpen} onOpenChange={setAttendeesOpen}>
           <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
             <SheetHeader>
-              <SheetTitle className="truncate">{attendeesEvent?.title ?? "Attendees"}</SheetTitle>
+              <SheetTitle className="whitespace-normal break-words pr-6">{attendeesEvent?.title ?? "Attendees"}</SheetTitle>
               <SheetDescription>{attendeesForSelected.length} {attendeesForSelected.length === 1 ? "person" : "people"} RSVP'd</SheetDescription>
             </SheetHeader>
             <div className="mt-4 flex-1 overflow-y-auto -mx-6 px-6">
@@ -636,10 +636,10 @@ const AdminSubmissions = () => {
                     <li key={a.id} className="rounded-lg border bg-background/60 p-3 hover:border-primary/40 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm truncate">{a.first_name} {a.last_name !== "—" ? a.last_name : ""}</p>
+                          <p className="font-medium text-sm whitespace-normal break-words">{a.first_name} {a.last_name !== "—" ? a.last_name : ""}</p>
                           <a href={`mailto:${a.email}`} className="text-xs text-primary hover:underline break-all">{a.email}</a>
                           {(a.company || a.role) && (
-                            <p className="text-xs text-muted-foreground mt-1 truncate">{[a.role, a.company].filter(Boolean).join(" • ")}</p>
+                            <p className="text-xs text-muted-foreground mt-1 whitespace-normal break-words">{[a.role, a.company].filter(Boolean).join(" • ")}</p>
                           )}
                           {(a.pitch_interest || a.whatsapp_opt_in) && (
                             <div className="flex flex-wrap gap-1 mt-1.5">
@@ -648,7 +648,7 @@ const AdminSubmissions = () => {
                             </div>
                           )}
                           <Button variant={a.attended ? "default" : "outline"} size="sm" className="mt-2 h-7 text-xs" onClick={() => handleAttendance(a)}>{a.attended ? "Attended" : "Mark attended"}</Button>
-                          {a.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">"{a.notes}"</p>}
+                          {a.notes && <p className="text-xs text-muted-foreground mt-1 italic whitespace-pre-wrap break-words">"{a.notes}"</p>}
                           <p className="text-[10px] text-muted-foreground mt-1.5">{new Date(a.created_at).toLocaleString()}</p>
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => handleDeleteRSVP(a.id, `${a.first_name} ${a.last_name}`)} aria-label="Remove RSVP">
