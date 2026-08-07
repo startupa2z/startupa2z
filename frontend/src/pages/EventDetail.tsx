@@ -20,6 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { ApiError, submitMemberRsvp } from "@/lib/api";
 import { isMemberAuthenticated } from "@/lib/auth";
 import { openAuthDialog } from "@/lib/auth-ui";
+import { profileCompletionUrl } from "@/lib/member-profile";
 
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -63,13 +64,15 @@ const EventDetail = () => {
       if (error instanceof ApiError && error.status === 409) {
         setRsvpConfirmed(true);
         toast({ title: "Already registered", description: "You are already on the guest list for this event." });
+      } else if (error instanceof ApiError && error.status === 428) {
+        navigate(profileCompletionUrl(`${location.pathname}?rsvp=1`));
       } else {
         toast({ title: "RSVP failed", description: error instanceof ApiError ? error.message : "Please try again.", variant: "destructive" });
       }
     } finally {
       setRsvpSubmitting(false);
     }
-  }, [event, rsvpConfirmed, rsvpSubmitting]);
+  }, [event, location.pathname, navigate, rsvpConfirmed, rsvpSubmitting]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

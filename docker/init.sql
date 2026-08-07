@@ -8,11 +8,21 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE users (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   email        TEXT        NOT NULL UNIQUE,
-  full_name    TEXT,
-  organization TEXT,
   linkedin_id  TEXT        UNIQUE,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ─── Member Profiles ─────────────────────────────────────────────────────────
+
+CREATE TABLE member_profiles (
+  user_id         UUID        PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  full_name       TEXT,
+  company         TEXT,
+  job_title       TEXT,
+  founder_status  TEXT CHECK (founder_status IS NULL OR founder_status IN ('founder', 'co_founder', 'aspiring_founder', 'not_founder')),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ─── OTP Tokens ─────────────────────────────────────────────────────────────
@@ -22,8 +32,6 @@ CREATE TABLE otp_tokens (
   email        TEXT        NOT NULL,
   token        TEXT        NOT NULL,
   mode         TEXT        NOT NULL CHECK (mode IN ('signin', 'signup')),
-  full_name    TEXT,
-  organization TEXT,
   expires_at   TIMESTAMPTZ NOT NULL,
   used         BOOLEAN     NOT NULL DEFAULT false,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -362,7 +370,7 @@ ON CONFLICT (event_id, channel) DO NOTHING;
 
 UPDATE event_channels
 SET status = 'published',
-    external_url = 'https://luma.com/m0eu7bw9',
+    external_url = 'https://luma.com/m0eu7bw9?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix_aug12',
     published_at = COALESCE(published_at, now())
 WHERE channel = 'luma'
   AND event_id = (

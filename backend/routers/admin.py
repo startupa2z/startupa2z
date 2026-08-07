@@ -11,6 +11,7 @@ from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator, model
 
 from auth_middleware import require_admin
 from database import get_pool
+from member_profile import fetch_member_profile
 
 router = APIRouter()
 
@@ -53,7 +54,7 @@ async def list_submissions(user: dict = Depends(require_admin)):
 async def list_members(user: dict = Depends(require_admin)):
     pool = await get_pool()
     rows = await pool.fetch(
-        """SELECT u.*,
+        """SELECT u.*, p.full_name, p.company, p.job_title, p.founder_status,
                   (SELECT COUNT(DISTINCT r.event_slug)
                      FROM event_rsvps r
                     WHERE r.user_id = u.id OR lower(r.email) = lower(u.email)) AS registered_sessions,
@@ -62,6 +63,7 @@ async def list_members(user: dict = Depends(require_admin)):
                     WHERE (r.user_id = u.id OR lower(r.email) = lower(u.email))
                       AND r.attended = true) AS attended_sessions
              FROM users u
+        LEFT JOIN member_profiles p ON p.user_id = u.id
              ORDER BY u.created_at DESC"""
     )
     return {"ok": True, "data": [dict(row) for row in rows]}
@@ -86,9 +88,11 @@ async def list_member_sessions(member_id: str, user: dict = Depends(require_admi
 class MemberUpdatePayload(BaseModel):
     email: EmailStr | None = None
     full_name: str | None = Field(default=None, max_length=120)
-    organization: str | None = Field(default=None, max_length=160)
+    company: str | None = Field(default=None, max_length=160)
+    job_title: str | None = Field(default=None, max_length=120)
+    founder_status: Literal["founder", "co_founder", "aspiring_founder", "not_founder"] | None = None
 
-    @field_validator("full_name", "organization")
+    @field_validator("full_name", "company", "job_title")
     @classmethod
     def trim_optional_member_text(cls, value: str | None) -> str | None:
         if value is None:
@@ -102,27 +106,39 @@ async def update_member(member_id: str, body: MemberUpdatePayload, user: dict = 
     if not updates:
         raise HTTPException(400, "No fields to update.")
 
-    sets: list[str] = []
-    values: list = []
-    for field in ("email", "full_name", "organization"):
-        if field not in updates:
-            continue
-        value = str(updates[field]).lower() if field == "email" and updates[field] is not None else updates[field]
-        values.append(value)
-        sets.append(f"{field} = ${len(values)}")
-    sets.append("updated_at = now()")
-    values.append(member_id)
-
     pool = await get_pool()
+    if not await pool.fetchval("SELECT 1 FROM users WHERE id = $1", member_id):
+        raise HTTPException(404, "Member not found.")
     try:
-        row = await pool.fetchrow(
-            f"UPDATE users SET {', '.join(sets)} WHERE id = ${len(values)} RETURNING *",
-            *values,
-        )
+        if "email" in updates:
+            if updates["email"] is None:
+                raise HTTPException(400, "Email cannot be empty.")
+            await pool.execute(
+                "UPDATE users SET email = $1, updated_at = now() WHERE id = $2",
+                str(updates.pop("email")).lower(), member_id,
+            )
     except UniqueViolationError:
         raise HTTPException(409, "A member with this email already exists.")
-    if not row:
-        raise HTTPException(404, "Member not found.")
+
+    profile_updates = {
+        field: updates[field]
+        for field in ("full_name", "company", "job_title", "founder_status")
+        if field in updates
+    }
+    if profile_updates:
+        await pool.execute(
+            "INSERT INTO member_profiles (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING",
+            member_id,
+        )
+        values = list(profile_updates.values())
+        sets = [f"{field} = ${index}" for index, field in enumerate(profile_updates, start=1)]
+        values.append(member_id)
+        await pool.execute(
+            f"UPDATE member_profiles SET {', '.join(sets)}, updated_at = now() WHERE user_id = ${len(values)}",
+            *values,
+        )
+
+    row = await fetch_member_profile(pool, member_id)
 
     registered_sessions = await pool.fetchval(
         "SELECT COUNT(DISTINCT event_slug) FROM event_rsvps WHERE user_id = $1 OR lower(email) = lower($2)",

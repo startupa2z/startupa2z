@@ -79,8 +79,6 @@ export type OtpMode = "signin" | "signup";
 export function sendOtp(payload: {
   email: string;
   mode: OtpMode;
-  fullName?: string;
-  organization?: string;
 }) {
   return apiRequest<{ ok: boolean; message: string }>("/api/auth/otp/send", {
     method: "POST",
@@ -96,11 +94,26 @@ export type AuthSessionPayload = {
   token_type: string;
 };
 
+export type FounderStatus = "founder" | "co_founder" | "aspiring_founder" | "not_founder";
+
+export type AuthenticatedMember = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  company: string | null;
+  job_title: string | null;
+  founder_status: FounderStatus | null;
+  linkedin_connected: boolean;
+  profile_complete: boolean;
+  created_at: string;
+  roles?: string[];
+};
+
 export function verifyOtp(payload: { email: string; token: string }) {
   return apiRequest<{
     ok: boolean;
     session: AuthSessionPayload;
-    user: unknown;
+    user: AuthenticatedMember;
   }>("/api/auth/otp/verify", {
     method: "POST",
     body: JSON.stringify(payload),
@@ -118,7 +131,7 @@ export function exchangeLinkedInCode(code: string) {
   return apiRequest<{
     ok: boolean;
     session: AuthSessionPayload;
-    user: unknown;
+    user: AuthenticatedMember;
   }>("/api/auth/oauth/linkedin/exchange", {
     method: "POST",
     body: JSON.stringify({ code }),
@@ -126,14 +139,7 @@ export function exchangeLinkedInCode(code: string) {
 }
 
 export type MemberProfile = {
-  user: {
-    id: string;
-    email: string;
-    full_name: string | null;
-    organization: string | null;
-    linkedin_connected: boolean;
-    created_at: string;
-  };
+  user: AuthenticatedMember;
   summary: {
     registered_sessions: number;
     attended_sessions: number;
@@ -150,6 +156,20 @@ export function fetchMemberProfile() {
   const token = getToken();
   return apiRequest<MemberProfile & { ok: boolean }>("/api/auth/me", {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+}
+
+export function updateMemberProfile(payload: {
+  full_name: string;
+  company: string;
+  job_title: string;
+  founder_status: FounderStatus;
+}) {
+  const token = getToken();
+  return apiRequest<{ ok: boolean; user: AuthenticatedMember }>("/api/auth/me", {
+    method: "PATCH",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: JSON.stringify(payload),
   });
 }
 
@@ -271,7 +291,9 @@ export type AdminMember = {
   id: string;
   email: string;
   full_name: string | null;
-  organization: string | null;
+  company: string | null;
+  job_title: string | null;
+  founder_status: FounderStatus | null;
   linkedin_id: string | null;
   registered_sessions: number;
   attended_sessions: number;
@@ -282,7 +304,9 @@ export type AdminMember = {
 export type AdminMemberUpdatePayload = {
   email?: string;
   full_name?: string | null;
-  organization?: string | null;
+  company?: string | null;
+  job_title?: string | null;
+  founder_status?: FounderStatus | null;
 };
 
 export type AdminMemberSession = {

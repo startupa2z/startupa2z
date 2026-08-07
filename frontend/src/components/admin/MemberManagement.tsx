@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -29,13 +30,17 @@ import {
   fetchAdminMemberSessions,
   fetchAdminMembers,
   updateAdminMember,
+  type FounderStatus,
 } from "@/lib/api";
+import { FOUNDER_STATUS_OPTIONS } from "@/lib/member-profile";
 import { CalendarCheck, Pencil, Search, Trash2, Users } from "lucide-react";
 
 const memberSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
   full_name: z.string().trim().max(120, "Name is too long"),
-  organization: z.string().trim().max(160, "Organization is too long"),
+  company: z.string().trim().max(160, "Company is too long"),
+  job_title: z.string().trim().max(120, "Job title is too long"),
+  founder_status: z.enum(["founder", "co_founder", "aspiring_founder", "not_founder"]).nullable(),
 });
 
 type MemberForm = z.infer<typeof memberSchema>;
@@ -45,7 +50,7 @@ const MemberManagement = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<AdminMember | null>(null);
-  const [form, setForm] = useState<MemberForm>({ email: "", full_name: "", organization: "" });
+  const [form, setForm] = useState<MemberForm>({ email: "", full_name: "", company: "", job_title: "", founder_status: null });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [historyMember, setHistoryMember] = useState<AdminMember | null>(null);
@@ -69,14 +74,14 @@ const MemberManagement = () => {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return members;
-    return members.filter((member) => [member.full_name, member.email, member.organization]
+    return members.filter((member) => [member.full_name, member.email, member.company, member.job_title, member.founder_status]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query)));
   }, [members, search]);
 
   const openEdit = (member: AdminMember) => {
     setEditing(member);
-    setForm({ email: member.email, full_name: member.full_name ?? "", organization: member.organization ?? "" });
+    setForm({ email: member.email, full_name: member.full_name ?? "", company: member.company ?? "", job_title: member.job_title ?? "", founder_status: member.founder_status });
     setError("");
   };
 
@@ -98,7 +103,9 @@ const MemberManagement = () => {
       const { data } = await updateAdminMember(editing.id, {
         email: result.data.email,
         full_name: result.data.full_name || null,
-        organization: result.data.organization || null,
+        company: result.data.company || null,
+        job_title: result.data.job_title || null,
+        founder_status: result.data.founder_status,
       });
       setMembers((current) => current.map((member) => member.id === data.id ? data : member));
       closeEdit();
@@ -153,7 +160,7 @@ const MemberManagement = () => {
             {filtered.length === 0 ? <TableRow><TableCell colSpan={6} className="py-16 text-center text-muted-foreground"><Users className="mx-auto mb-2 h-8 w-8 opacity-40" /><p>{loading ? "Loading…" : "No members found."}</p></TableCell></TableRow> : filtered.map((member) => (
               <TableRow key={member.id}>
                 <TableCell className="max-w-64 whitespace-normal"><p className="font-medium break-words">{member.full_name || "Name not provided"}</p><a href={`mailto:${member.email}`} className="text-xs text-primary hover:underline break-all">{member.email}</a></TableCell>
-                <TableCell className="max-w-64 whitespace-normal break-words">{member.organization || <span className="text-muted-foreground">—</span>}</TableCell>
+                <TableCell className="max-w-64 whitespace-normal break-words"><p>{member.company || <span className="text-muted-foreground">—</span>}</p>{member.job_title && <p className="text-xs text-muted-foreground">{member.job_title}</p>}{member.founder_status && <p className="text-xs text-muted-foreground">{member.founder_status.replaceAll("_", " ")}</p>}</TableCell>
                 <TableCell><Badge variant="secondary">{member.linkedin_id ? "LinkedIn" : "Email"}</Badge></TableCell>
                 <TableCell><p className="text-sm">{member.attended_sessions > 0 ? `${member.attended_sessions} attended` : "Has not attended any sessions"}</p><p className="text-xs text-muted-foreground">{member.registered_sessions} registered</p></TableCell>
                 <TableCell className="text-sm text-muted-foreground">{new Date(member.created_at).toLocaleDateString()}</TableCell>
@@ -165,7 +172,7 @@ const MemberManagement = () => {
       </div>
 
       <Dialog open={Boolean(editing)} onOpenChange={(open) => { if (!open) closeEdit(); }}>
-        <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Edit member</DialogTitle><DialogDescription>Update the details shown in the member account.</DialogDescription></DialogHeader><form onSubmit={saveMember} className="space-y-4"><div className="space-y-1.5"><Label htmlFor="member-name">Full name</Label><Input id="member-name" value={form.full_name} onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))} /></div><div className="space-y-1.5"><Label htmlFor="member-email">Email</Label><Input id="member-email" type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} /></div><div className="space-y-1.5"><Label htmlFor="member-organization">Organization</Label><Input id="member-organization" value={form.organization} onChange={(event) => setForm((current) => ({ ...current, organization: event.target.value }))} /></div>{error && <p className="text-sm text-destructive">{error}</p>}<DialogFooter><Button type="button" variant="outline" onClick={closeEdit}>Cancel</Button><Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button></DialogFooter></form></DialogContent>
+        <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Edit member</DialogTitle><DialogDescription>Update the details shown in the member account.</DialogDescription></DialogHeader><form onSubmit={saveMember} className="space-y-4"><div className="space-y-1.5"><Label htmlFor="member-name">Full name</Label><Input id="member-name" value={form.full_name} onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))} /></div><div className="space-y-1.5"><Label htmlFor="member-email">Email</Label><Input id="member-email" type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} /></div><div className="space-y-1.5"><Label htmlFor="member-company">Company / startup</Label><Input id="member-company" value={form.company} onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))} /></div><div className="space-y-1.5"><Label htmlFor="member-job-title">Job title / role</Label><Input id="member-job-title" value={form.job_title} onChange={(event) => setForm((current) => ({ ...current, job_title: event.target.value }))} /></div><div className="space-y-1.5"><Label htmlFor="member-founder-status">Founder status</Label><Select value={form.founder_status ?? "unset"} onValueChange={(value) => setForm((current) => ({ ...current, founder_status: value === "unset" ? null : value as FounderStatus }))}><SelectTrigger id="member-founder-status"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="unset">Not provided</SelectItem>{FOUNDER_STATUS_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>{error && <p className="text-sm text-destructive">{error}</p>}<DialogFooter><Button type="button" variant="outline" onClick={closeEdit}>Cancel</Button><Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button></DialogFooter></form></DialogContent>
       </Dialog>
 
       <Dialog open={Boolean(historyMember)} onOpenChange={(open) => { if (!open) setHistoryMember(null); }}>

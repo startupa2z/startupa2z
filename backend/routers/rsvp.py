@@ -3,6 +3,7 @@ from pydantic import BaseModel, EmailStr
 from asyncpg import UniqueViolationError
 from database import get_pool
 from auth_middleware import get_current_user
+from member_profile import fetch_member_profile, is_member_profile_complete
 
 router = APIRouter()
 
@@ -54,9 +55,11 @@ async def submit_member_rsvp(body: MemberRsvpRequest, current_user: dict = Depen
         raise HTTPException(401, "Member account required.")
 
     pool = await get_pool()
-    user = await pool.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
+    user = await fetch_member_profile(pool, user_id)
     if not user:
         raise HTTPException(404, "Member account not found.")
+    if not is_member_profile_complete(user):
+        raise HTTPException(428, "Complete your member profile before registering for an event.")
 
     full_name = (user["full_name"] or user["email"].split("@")[0]).strip()
     first_name, _, last_name = full_name.partition(" ")
@@ -67,7 +70,7 @@ async def submit_member_rsvp(body: MemberRsvpRequest, current_user: dict = Depen
                   email, company, role, pitch_interest, whatsapp_opt_in)
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'member', false, false)""",
             user["id"], body.event_id, body.event_slug, body.event_title,
-            first_name, last_name or "—", user["email"], user["organization"],
+            first_name, last_name or "—", user["email"], user["company"],
         )
     except UniqueViolationError:
         raise HTTPException(409, "You are already registered for this event.")

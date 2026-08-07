@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { setToken } from "@/lib/auth";
 import { ApiError, exchangeLinkedInCode, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
 import { assignTopLevel } from "@/lib/navigation";
+import { profileCompletionUrl } from "@/lib/member-profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,8 +43,6 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [step, setStep] = useState<AuthStep>("choice");
   const [loading, setLoading] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [organization, setOrganization] = useState("");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const handledLinkedInCallback = useRef(false);
@@ -59,7 +58,8 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
     params.delete("linkedin_code");
     params.delete("linkedin_error");
     const cleanQuery = params.toString();
-    window.history.replaceState({}, "", `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}${window.location.hash}`);
+    const cleanedPath = `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState({}, "", cleanedPath);
 
     if (linkedinError) {
       toast({ title: "LinkedIn authentication was not completed", description: "Please try again or continue with email.", variant: "destructive" });
@@ -67,11 +67,12 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
     }
 
     void exchangeLinkedInCode(linkedinCode as string)
-      .then(({ session }) => {
+      .then(({ session, user }) => {
         setToken(session.access_token);
         toast({ title: "Welcome to StartupA2Z.org!" });
         const resumeRsvp = new URLSearchParams(window.location.search).get("rsvp") === "1";
-        navigate(resumeRsvp ? `${window.location.pathname}?rsvp=1` : "/welcome", { replace: true });
+        const destination = resumeRsvp ? cleanedPath : "/welcome";
+        navigate(user.profile_complete ? destination : profileCompletionUrl(destination), { replace: true });
       })
       .catch((error) => toast({
         title: "LinkedIn authentication failed",
@@ -88,8 +89,6 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
     } else {
       setStep("choice");
       setLoading(false);
-      setFullName("");
-      setOrganization("");
       setEmail("");
       setOtp("");
     }
@@ -119,15 +118,11 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
   const handleEmail = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!email.trim()) return;
-    if (mode === "signup" && (!fullName.trim() || !organization.trim())) return;
-
     setLoading(true);
     try {
       await sendOtp({
         email: email.trim(),
         mode,
-        fullName: mode === "signup" ? fullName.trim() : undefined,
-        organization: mode === "signup" ? organization.trim() : undefined,
       });
       setStep("otp");
       toast({ title: "Check your email", description: `We sent a code to ${email.trim()}.` });
@@ -142,11 +137,11 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
     if (otp.length < 6) return;
     setLoading(true);
     try {
-      const { session } = await verifyOtp({ email: email.trim(), token: otp });
+      const { session, user } = await verifyOtp({ email: email.trim(), token: otp });
       setToken(session.access_token);
       toast({ title: mode === "signin" ? "Welcome back!" : "Welcome to StartupA2Z.org!" });
       setOpen(false);
-      navigate(redirectTo);
+      navigate(user.profile_complete ? redirectTo : profileCompletionUrl(redirectTo));
     } catch (error) {
       toast({ title: "Invalid code", description: error instanceof ApiError ? error.message : "Please try again.", variant: "destructive" });
     } finally {
@@ -192,12 +187,6 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
 
         {step === "email" && (
           <form onSubmit={handleEmail} className="space-y-4 pt-2">
-            {mode === "signup" && (
-              <>
-                <div className="space-y-1.5"><Label htmlFor="auth-name">Full name *</Label><Input id="auth-name" className={inputClass} required value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="Jane Doe" /></div>
-                <div className="space-y-1.5"><Label htmlFor="auth-organization">Company / organization *</Label><Input id="auth-organization" className={inputClass} required value={organization} onChange={(event) => setOrganization(event.target.value)} placeholder="Acme Inc." /></div>
-              </>
-            )}
             <div className="space-y-1.5"><Label htmlFor="auth-email">Email address *</Label><Input id="auth-email" type="email" className={inputClass} required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="jane@startup.com" autoComplete="email" /></div>
             <Button type="submit" className={ctaClass} disabled={loading}>{loading ? "Sending..." : "Send verification code"}</Button>
             <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("choice")}><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>

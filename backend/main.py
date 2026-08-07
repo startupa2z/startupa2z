@@ -8,13 +8,15 @@ from fastapi.staticfiles import StaticFiles
 
 from config import settings
 from database import close_pool, get_pool
+from member_profile import ensure_member_profile_schema
 from routers import auth, businesses, contact, events, rsvp, stripe_router
 from routers import admin
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await get_pool()
+    pool = await get_pool()
+    await ensure_member_profile_schema(pool)
     yield
     await close_pool()
 

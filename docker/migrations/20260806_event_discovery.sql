@@ -8,7 +8,7 @@ WHERE slug = 'startup-a-to-z-hacker-dojo-august-12';
 
 UPDATE event_channels
 SET status = 'published',
-    external_url = 'https://luma.com/m0eu7bw9',
+    external_url = 'https://luma.com/m0eu7bw9?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix_aug12',
     published_at = COALESCE(published_at, now()),
     last_error = NULL
 WHERE channel = 'luma'

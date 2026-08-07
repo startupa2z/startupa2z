@@ -9,6 +9,7 @@ import {
   Mail,
   TicketCheck,
   UserRound,
+  BriefcaseBusiness,
 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
@@ -111,11 +112,13 @@ const Welcome = () => {
 
           <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <Card>
-              <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
+              <CardHeader className="flex-row items-center justify-between"><CardTitle>Profile</CardTitle><Button asChild variant="outline" size="sm"><Link to="/complete-profile?returnTo=/welcome">Edit profile</Link></Button></CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-3"><UserRound className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium">{user.full_name || "Not provided"}</p></div></div>
                 <div className="flex gap-3"><Mail className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Email</p><p className="font-medium">{user.email}</p></div></div>
-                <div className="flex gap-3"><Building2 className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Company / organization</p><p className="font-medium">{user.organization || "Not provided"}</p></div></div>
+                <div className="flex gap-3"><Building2 className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Company / startup</p><p className="font-medium">{user.company || "Not provided"}</p></div></div>
+                <div className="flex gap-3"><BriefcaseBusiness className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Job title / role</p><p className="font-medium">{user.job_title || "Not provided"}</p></div></div>
+                <div className="flex gap-3"><UserRound className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Founder status</p><p className="font-medium">{user.founder_status ? user.founder_status.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase()) : "Not provided"}</p></div></div>
               </CardContent>
             </Card>
 

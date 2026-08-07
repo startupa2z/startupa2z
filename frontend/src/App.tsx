@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { lazy, Suspense } from "react";
+import MemberProfileGate from "@/components/MemberProfileGate";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
@@ -22,6 +23,7 @@ const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
 const AdminSubmissions = lazy(() => import("./pages/AdminSubmissions.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Welcome = lazy(() => import("./pages/Welcome.tsx"));
+const CompleteProfile = lazy(() => import("./pages/CompleteProfile.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <MemberProfileGate>
         <Suspense fallback={<main className="min-h-screen bg-background" aria-label="Loading page" />}>
           <Routes>
           <Route path="/" element={<Index />} />
@@ -48,11 +51,13 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/welcome" element={<Welcome />} />
+          <Route path="/complete-profile" element={<CompleteProfile />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/submissions" element={<AdminSubmissions />} />
           <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </MemberProfileGate>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

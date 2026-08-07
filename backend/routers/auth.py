@@ -2,17 +2,19 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
+from typing import Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from auth_utils import generate_otp, sign_jwt
 from auth_middleware import get_current_user
 from config import settings
 from database import get_pool
 from mailer import send_otp_email
+from member_profile import MEMBER_SELECT, fetch_member_profile, member_profile_payload
 
 router = APIRouter()
 
@@ -20,8 +22,6 @@ router = APIRouter()
 class SendOtpRequest(BaseModel):
     email: EmailStr
     mode: str
-    fullName: str | None = None
-    organization: str | None = None
 
 
 class VerifyOtpRequest(BaseModel):
@@ -37,6 +37,24 @@ class LinkedInExchangeRequest(BaseModel):
     code: str
 
 
+FounderStatus = Literal["founder", "co_founder", "aspiring_founder", "not_founder"]
+
+
+class MemberProfileUpdateRequest(BaseModel):
+    full_name: str = Field(min_length=2, max_length=120)
+    company: str = Field(min_length=2, max_length=160)
+    job_title: str = Field(min_length=2, max_length=120)
+    founder_status: FounderStatus
+
+    @field_validator("full_name", "company", "job_title")
+    @classmethod
+    def trim_required_text(cls, value: str) -> str:
+        cleaned = value.strip()
+        if len(cleaned) < 2:
+            raise ValueError("This field is required.")
+        return cleaned
+
+
 class AdminDevLoginRequest(BaseModel):
     username: str
     password: str
@@ -49,7 +67,7 @@ async def get_member_profile(current_user: dict = Depends(get_current_user)):
         raise HTTPException(401, "Member account required.")
 
     pool = await get_pool()
-    user = await pool.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
+    user = await fetch_member_profile(pool, user_id)
     if not user:
         raise HTTPException(404, "Member account not found.")
 
@@ -71,14 +89,7 @@ async def get_member_profile(current_user: dict = Depends(get_current_user)):
 
     return {
         "ok": True,
-        "user": {
-            "id": str(user["id"]),
-            "email": user["email"],
-            "full_name": user["full_name"],
-            "organization": user["organization"],
-            "linkedin_connected": bool(user["linkedin_id"]),
-            "created_at": user["created_at"].isoformat(),
-        },
+        "user": member_profile_payload(user),
         "summary": {
             "registered_sessions": summary["registered_sessions"] or 0,
             "attended_sessions": summary["attended_sessions"] or 0,
@@ -93,6 +104,38 @@ async def get_member_profile(current_user: dict = Depends(get_current_user)):
             for row in sessions
         ],
     }
+
+
+@router.patch("/me")
+async def update_member_profile(
+    body: MemberProfileUpdateRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    user_id = current_user.get("sub")
+    if not user_id or current_user.get("dev_admin") is True:
+        raise HTTPException(401, "Member account required.")
+
+    pool = await get_pool()
+    exists = await pool.fetchval("SELECT 1 FROM users WHERE id = $1", user_id)
+    if not exists:
+        raise HTTPException(404, "Member account not found.")
+    await pool.execute(
+        """INSERT INTO member_profiles (user_id, full_name, company, job_title, founder_status)
+             VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (user_id) DO UPDATE
+                SET full_name = EXCLUDED.full_name,
+                    company = EXCLUDED.company,
+                    job_title = EXCLUDED.job_title,
+                    founder_status = EXCLUDED.founder_status,
+                    updated_at = now()""",
+        user_id,
+        body.full_name,
+        body.company,
+        body.job_title,
+        body.founder_status,
+    )
+    user = await fetch_member_profile(pool, user_id)
+    return {"ok": True, "user": member_profile_payload(user)}
 
 
 def _token_hash(value: str) -> str:
@@ -141,9 +184,6 @@ async def admin_dev_login(body: AdminDevLoginRequest):
 async def send_otp(body: SendOtpRequest):
     if body.mode not in ("signin", "signup"):
         raise HTTPException(400, "mode must be 'signin' or 'signup'")
-    if body.mode == "signup" and (not body.fullName or not body.organization):
-        raise HTTPException(400, "Full name and organization are required for sign up.")
-
     email = body.email.lower()
     pool = await get_pool()
 
@@ -158,9 +198,8 @@ async def send_otp(body: SendOtpRequest):
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
 
     await pool.execute(
-        """INSERT INTO otp_tokens (email, token, mode, full_name, organization, expires_at)
-           VALUES ($1, $2, $3, $4, $5, $6)""",
-        email, otp, body.mode, body.fullName, body.organization, expires_at,
+        "INSERT INTO otp_tokens (email, token, mode, expires_at) VALUES ($1, $2, $3, $4)",
+        email, otp, body.mode, expires_at,
     )
 
     await send_otp_email(body.email, otp)
@@ -183,14 +222,12 @@ async def verify_otp(body: VerifyOtpRequest):
 
     await pool.execute("UPDATE otp_tokens SET used = true WHERE id = $1", record["id"])
 
-    user = await pool.fetchrow("SELECT * FROM users WHERE email = $1", email)
+    user = await pool.fetchrow(f"{MEMBER_SELECT} WHERE u.email = $1", email)
     if not user:
         if record["mode"] == "signin":
             raise HTTPException(400, "No account found with this email. Please sign up first.")
-        user = await pool.fetchrow(
-            "INSERT INTO users (email, full_name, organization) VALUES ($1, $2, $3) RETURNING *",
-            email, record["full_name"], record["organization"],
-        )
+        identity = await pool.fetchrow("INSERT INTO users (email) VALUES ($1) RETURNING id", email)
+        user = await fetch_member_profile(pool, identity["id"])
 
     roles = [r["role"] for r in await pool.fetch("SELECT role FROM user_roles WHERE user_id = $1", user["id"])]
     access_token = sign_jwt({"sub": str(user["id"]), "email": user["email"], "roles": roles})
@@ -198,13 +235,7 @@ async def verify_otp(body: VerifyOtpRequest):
     return {
         "ok": True,
         "session": {"access_token": access_token, "token_type": "bearer", "expires_in": 2592000},
-        "user": {
-            "id": str(user["id"]),
-            "email": user["email"],
-            "full_name": user["full_name"],
-            "organization": user["organization"],
-            "roles": roles,
-        },
+        "user": {**member_profile_payload(user), "roles": roles},
     }
 
 
@@ -290,16 +321,32 @@ async def linkedin_callback(
     email = li_user["email"].lower()
 
     user = await pool.fetchrow(
-        "SELECT * FROM users WHERE email = $1 OR linkedin_id = $2",
+        f"{MEMBER_SELECT} WHERE u.email = $1 OR u.linkedin_id = $2",
         email, li_user.get("sub"),
     )
     if not user:
-        user = await pool.fetchrow(
-            "INSERT INTO users (email, full_name, linkedin_id) VALUES ($1, $2, $3) RETURNING *",
-            email, li_user.get("name"), li_user.get("sub"),
+        identity = await pool.fetchrow(
+            "INSERT INTO users (email, linkedin_id) VALUES ($1, $2) RETURNING id",
+            email, li_user.get("sub"),
         )
-    elif not user["linkedin_id"] and li_user.get("sub"):
-        await pool.execute("UPDATE users SET linkedin_id = $1 WHERE id = $2", li_user["sub"], user["id"])
+        await pool.execute(
+            "INSERT INTO member_profiles (user_id, full_name) VALUES ($1, $2)",
+            identity["id"], li_user.get("name"),
+        )
+        user = await fetch_member_profile(pool, identity["id"])
+    else:
+        await pool.execute(
+            "UPDATE users SET linkedin_id = COALESCE(linkedin_id, $1), updated_at = now() WHERE id = $2",
+            li_user.get("sub"), user["id"],
+        )
+        await pool.execute(
+            """INSERT INTO member_profiles (user_id, full_name) VALUES ($1, $2)
+               ON CONFLICT (user_id) DO UPDATE
+                     SET full_name = COALESCE(NULLIF(member_profiles.full_name, ''), EXCLUDED.full_name),
+                         updated_at = now()""",
+            user["id"], li_user.get("name"),
+        )
+        user = await fetch_member_profile(pool, user["id"])
 
     exchange_code = secrets.token_urlsafe(32)
     await pool.execute("DELETE FROM auth_exchange_codes WHERE expires_at <= now()")
@@ -328,7 +375,7 @@ async def linkedin_exchange(body: LinkedInExchangeRequest):
     if not record:
         raise HTTPException(400, "Invalid or expired LinkedIn exchange code.")
 
-    user = await pool.fetchrow("SELECT * FROM users WHERE id = $1", record["user_id"])
+    user = await fetch_member_profile(pool, record["user_id"])
     if not user:
         raise HTTPException(400, "LinkedIn user no longer exists.")
 
@@ -337,11 +384,5 @@ async def linkedin_exchange(body: LinkedInExchangeRequest):
     return {
         "ok": True,
         "session": {"access_token": access_token, "token_type": "bearer", "expires_in": 2592000},
-        "user": {
-            "id": str(user["id"]),
-            "email": user["email"],
-            "full_name": user["full_name"],
-            "organization": user["organization"],
-            "roles": roles,
-        },
+        "user": {**member_profile_payload(user), "roles": roles},
     }

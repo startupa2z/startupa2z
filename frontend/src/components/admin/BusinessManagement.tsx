@@ -3,14 +3,6 @@ import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -40,7 +32,7 @@ import {
   uploadBusinessImage,
   updateAdminBusiness,
 } from "@/lib/api";
-import { Building2, ExternalLink, Eye, EyeOff, ImagePlus, Pencil, Search, Trash2, Video } from "lucide-react";
+import { ArrowLeft, Building2, Eye, EyeOff, ImagePlus, Pencil, Search, Trash2, Video } from "lucide-react";
 
 const stages = ["Pre-Seed", "Seed", "Series A", "Series B", "Growth", "Other"];
 const categories = ["SaaS", "Fintech", "Healthtech", "Greentech", "Deep Tech", "Cybersecurity", "AI", "Other"];
@@ -69,11 +61,13 @@ const editSchema = z.object({
 
 type EditForm = z.infer<typeof editSchema>;
 type EditErrors = Partial<Record<keyof EditForm, string>>;
+const businessesPerPage = 10;
 
 const BusinessManagement = () => {
   const [businesses, setBusinesses] = useState<AdminBusiness[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<AdminBusiness | null>(null);
   const [form, setForm] = useState<EditForm | null>(null);
   const [errors, setErrors] = useState<EditErrors>({});
@@ -113,6 +107,15 @@ const BusinessManagement = () => {
         .some((value) => String(value).toLowerCase().includes(query)),
     );
   }, [businesses, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / businessesPerPage));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * businessesPerPage;
+  const paginatedBusinesses = filtered.slice(pageStart, pageStart + businessesPerPage);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const openEdit = (business: AdminBusiness) => {
     setEditing(business);
@@ -364,19 +367,20 @@ const BusinessManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search businesses…" className="pl-9" />
+      <div className={editing ? "hidden" : "space-y-4"}>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Search businesses…" className="pl-9" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">{businesses.length} businesses</Badge>
+            <Button variant="outline" size="sm" onClick={loadBusinesses} disabled={loading}>{loading ? "Refreshing…" : "Refresh"}</Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">{businesses.length} businesses</Badge>
-          <Button variant="outline" size="sm" onClick={loadBusinesses} disabled={loading}>{loading ? "Refreshing…" : "Refresh"}</Button>
-        </div>
-      </div>
 
-      <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-        <Table>
+        <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+          <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
               <TableHead>Business</TableHead>
@@ -396,14 +400,12 @@ const BusinessManagement = () => {
                   <p className="text-muted-foreground">{loading ? "Loading…" : "No businesses found."}</p>
                 </TableCell>
               </TableRow>
-            ) : filtered.map((business) => (
+            ) : paginatedBusinesses.map((business) => (
               <TableRow key={business.id}>
-                <TableCell className="min-w-64 max-w-md whitespace-normal">
-                  <div className="font-medium flex items-center gap-1.5">
+                <TableCell className="whitespace-normal">
+                  <button type="button" className="font-medium text-left text-primary hover:underline" onClick={() => openEdit(business)}>
                     {business.name}
-                    {business.website_url && <a href={business.website_url} target="_blank" rel="noreferrer" aria-label={`Open ${business.name} website`} className="text-primary"><ExternalLink className="h-3.5 w-3.5" /></a>}
-                  </div>
-                  <p className="text-xs text-muted-foreground whitespace-normal break-words">{business.pitch}</p>
+                  </button>
                 </TableCell>
                 <TableCell><Badge variant="secondary">{business.stage}</Badge></TableCell>
                 <TableCell>{business.category}</TableCell>
@@ -422,18 +424,34 @@ const BusinessManagement = () => {
                 </TableCell>
               </TableRow>
             ))}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+          {filtered.length > 0 && (
+            <div className="flex flex-col gap-3 border-t px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-muted-foreground">
+                Showing {pageStart + 1}–{Math.min(pageStart + businessesPerPage, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={currentPage === 1}>Previous</Button>
+                <span className="min-w-24 text-center">Page {currentPage} of {totalPages}</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={currentPage === totalPages}>Next</Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      <Dialog open={Boolean(editing)} onOpenChange={(open) => { if (!open) closeEdit(); }}>
-        <DialogContent className="sm:max-w-[760px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit business</DialogTitle>
-            <DialogDescription>Changes update the public business directory immediately when published.</DialogDescription>
-          </DialogHeader>
-          {form && (
-            <form onSubmit={handleSave} className="space-y-4">
+      {editing && form && (
+        <div className="space-y-4">
+          <Button type="button" variant="ghost" className="-ml-3 gap-2" onClick={closeEdit}>
+            <ArrowLeft className="h-4 w-4" /> Back to businesses
+          </Button>
+          <div className="rounded-xl border bg-card shadow-sm">
+            <div className="border-b px-6 py-5">
+              <h2 className="text-xl font-semibold">Edit {editing.name}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Changes update the public business directory immediately when published.</p>
+            </div>
+            <form onSubmit={handleSave} className="space-y-6 p-6">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5"><Label htmlFor="admin-business-name">Business name *</Label><Input id="admin-business-name" value={form.name} onChange={(event) => updateField("name", event.target.value)} />{errors.name && <p className="text-xs text-destructive">{errors.name}</p>}</div>
                 <div className="space-y-1.5"><Label htmlFor="admin-business-website">Website</Label><Input id="admin-business-website" type="url" value={form.website_url} onChange={(event) => updateField("website_url", event.target.value)} placeholder="https://example.com" />{errors.website_url && <p className="text-xs text-destructive">{errors.website_url}</p>}</div>
@@ -501,11 +519,11 @@ const BusinessManagement = () => {
                 <div className="space-y-1.5"><Label htmlFor="admin-business-contact-email">Contact email</Label><Input id="admin-business-contact-email" type="email" value={form.contact_email} onChange={(event) => updateField("contact_email", event.target.value)} />{errors.contact_email && <p className="text-xs text-destructive">{errors.contact_email}</p>}</div>
               </div>
               <div className="flex items-center gap-3 rounded-lg border p-3"><Checkbox id="admin-business-published" checked={form.published} onCheckedChange={(checked) => updateField("published", checked === true)} /><div><Label htmlFor="admin-business-published" className="cursor-pointer">Approve and publish this profile</Label><p className="text-xs text-muted-foreground">Unchecked profiles remain hidden from the public directory.</p></div></div>
-              <DialogFooter><Button type="button" variant="outline" onClick={closeEdit}>Cancel</Button><Button type="submit" disabled={saving || uploadingImages}>{saving ? "Saving…" : "Save Changes"}</Button></DialogFooter>
+              <div className="flex flex-col-reverse gap-2 border-t pt-5 sm:flex-row sm:justify-end"><Button type="button" variant="outline" onClick={closeEdit}>Back to businesses</Button><Button type="submit" disabled={saving || uploadingImages}>{saving ? "Saving…" : "Save Changes"}</Button></div>
             </form>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

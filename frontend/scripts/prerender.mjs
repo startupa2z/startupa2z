@@ -98,7 +98,9 @@ async function prerender() {
       // Give React a moment to finish any synchronous rendering
       await new Promise((r) => setTimeout(r, 400))
 
-      const html = await page.content()
+      const html = (await page.content())
+        .replaceAll(`http://localhost:${PORT}/`, '/')
+        .replaceAll(`http://127.0.0.1:${PORT}/`, '/')
 
       // Write to dist/<route>/index.html (dist/index.html for /)
       const outDir = route === '/' ? dist : path.join(dist, route.replace(/^\//, ''))

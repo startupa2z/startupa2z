@@ -31,6 +31,9 @@ const rejectText = (html, text, label) => {
 };
 
 const eventHtml = readRoute(`/events/${eventSlug}`);
+const homeHtml = readRoute("/");
+rejectText(homeHtml, "http://localhost:", "homepage build output");
+rejectText(homeHtml, "http://127.0.0.1:", "homepage build output");
 requireText(eventHtml, "<title>Bay Area Founders Pitch &amp; Startup Networking — Aug 12 | StartupA2Z.org</title>", "event title");
 requireText(eventHtml, `href="${eventCanonical}"`, "event canonical");
 requireText(eventHtml, 'type="application/ld+json"', "event structured data");
