@@ -29,6 +29,19 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/startupa2z
       PORT: "8080"
+      JWT_SECRET: ${JWT_SECRET:-change_this_to_a_long_random_secret}
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@startupa2z.org}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8080,http://localhost:8081,https://startupa2z.org,https://www.startupa2z.org}
+      LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID:-}
+      LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET:-}
+      LINKEDIN_REDIRECT_URI: ${LINKEDIN_REDIRECT_URI:-https://startupa2z.org/api/auth/oauth/linkedin/callback}
+      FRONTEND_URL: ${FRONTEND_URL:-https://startupa2z.org}
       ADMIN_DEV_LOGIN_ENABLED: ${ADMIN_DEV_LOGIN_ENABLED:-false}
       ADMIN_DEV_USERNAME: ${ADMIN_DEV_USERNAME:-}
       ADMIN_DEV_PASSWORD: ${ADMIN_DEV_PASSWORD:-}

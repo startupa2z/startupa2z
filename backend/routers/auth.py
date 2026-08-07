@@ -202,7 +202,18 @@ async def send_otp(body: SendOtpRequest):
         email, otp, body.mode, expires_at,
     )
 
-    await send_otp_email(body.email, otp)
+    try:
+        await send_otp_email(body.email, otp)
+    except Exception:
+        # Do not leave a usable code behind when delivery failed. Returning a
+        # controlled 503 also gives the frontend a useful production error
+        # instead of leaking SMTP details through a generic server failure.
+        await pool.execute(
+            "DELETE FROM otp_tokens WHERE email = $1 AND token = $2 AND used = false",
+            email,
+            otp,
+        )
+        raise HTTPException(503, "Email authentication is temporarily unavailable.")
     return {"ok": True, "message": "OTP sent to your email."}
 
 
