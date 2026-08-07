@@ -4,6 +4,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthDialog from "./AuthDialog";
 import WhatsAppDialog from "./WhatsAppDialog";
+import WhatsAppIcon from "./WhatsAppIcon";
 import { isMemberAuthenticated } from "@/lib/auth";
 import type { AuthDialogMode } from "@/lib/auth-ui";
 
@@ -55,9 +56,6 @@ const navItems: NavItem[] = [
 const joinButtonClass =
   "inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold tracking-tight hover:opacity-85 hover:-translate-y-px active:scale-[0.97] transition-all";
 
-const whatsappButtonClass =
-  "inline-flex items-center px-5 py-2 rounded-full border border-[#25D366] text-[#128C4A] text-[0.85rem] font-semibold tracking-tight hover:bg-[#25D366]/10 active:scale-[0.97] transition-all";
-
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
@@ -106,9 +104,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-[clamp(1.5rem,4vw,3rem)] flex items-center gap-4 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
+      <nav className="fixed top-0 left-0 right-0 z-50 h-16 px-2 sm:px-[clamp(1.5rem,4vw,3rem)] flex items-center gap-1 sm:gap-4 bg-white/95 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
         <Link to="/" className="inline-flex shrink-0 items-center hover:-translate-y-px transition-transform">
-          <img src="/logo-transparent.webp" alt="StartupA2Z.org logo" width={864} height={159} className="h-8 md:h-9 w-auto select-none" />
+          <img src="/logo-transparent.webp" alt="StartupA2Z.org logo" width={864} height={159} className="h-6 sm:h-8 md:h-9 w-auto select-none" />
         </Link>
 
         <div className="hidden lg:flex flex-1 items-center justify-end gap-5 min-w-0">
@@ -140,9 +138,26 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 ml-auto lg:ml-0">
+        <div className="flex items-center gap-0.5 sm:gap-2 shrink-0 ml-auto lg:ml-0">
           <WhatsAppDialog>
-            <button type="button" className={`hidden lg:inline-flex ${whatsappButtonClass}`}>WhatsApp</button>
+            <button
+              type="button"
+              aria-label="Open WhatsApp community"
+              title="WhatsApp community"
+              className="hidden h-10 w-10 items-center justify-center rounded-full border border-[#25D366] bg-white text-[#128C4A] transition-all hover:-translate-y-px hover:bg-[#25D366]/10 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 lg:inline-flex"
+            >
+              <WhatsAppIcon className="h-[18px] w-[18px]" />
+            </button>
+          </WhatsAppDialog>
+          <WhatsAppDialog>
+            <button
+              type="button"
+              aria-label="Open WhatsApp community"
+              title="WhatsApp community"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#25D366] bg-white text-[#128C4A] transition-colors hover:bg-[#25D366]/10 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 lg:hidden"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+            </button>
           </WhatsAppDialog>
           {signedIn ? (
             <Link to="/welcome" className={`hidden lg:inline-flex ${joinButtonClass}`}>My Account</Link>
@@ -153,9 +168,9 @@ const Navbar = () => {
           )}
 
           {signedIn ? (
-            <Link to="/welcome" className={`lg:hidden px-4 py-2 text-sm ${joinButtonClass}`}>My Account</Link>
+            <Link to="/welcome" className={`lg:hidden px-3 py-2 text-sm ${joinButtonClass}`}>My Account</Link>
           ) : (
-            <button type="button" onClick={openAuth} className={`lg:hidden px-4 py-2 text-sm ${joinButtonClass}`}>Sign In</button>
+            <button type="button" onClick={openAuth} className={`lg:hidden px-3 py-2 text-sm ${joinButtonClass}`}>Sign In</button>
           )}
           <button type="button" className="lg:hidden p-2" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -184,7 +199,6 @@ const Navbar = () => {
                   )}
                 </div>
               ))}
-              <WhatsAppDialog><button type="button" className={`w-fit px-6 py-3 text-base ${whatsappButtonClass}`}>WhatsApp</button></WhatsAppDialog>
               {signedIn ? (
                 <Link to="/welcome" onClick={() => setOpen(false)} className={`w-fit px-6 py-3 text-base ${joinButtonClass}`}>My Account</Link>
               ) : (

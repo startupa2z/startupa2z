@@ -93,7 +93,7 @@ const EventsSection = () => {
           </motion.h2>
           <Link
             to="/events"
-            className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
+            className="hidden md:inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/30 bg-card px-5 py-2.5 text-sm font-semibold text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Browse events <ArrowRight className="w-4 h-4" />
           </Link>
@@ -169,9 +169,9 @@ const EventsSection = () => {
         <div className="md:hidden text-center mt-8">
           <Link
             to="/events"
-            className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card px-5 py-2.5 text-sm font-semibold text-primary shadow-sm transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
-            View all events <ArrowRight className="w-4 h-4" />
+            Browse events <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
