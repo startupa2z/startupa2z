@@ -47,7 +47,7 @@ const eventsHtml = readRoute("/events");
 requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup Events | StartupA2Z.org", "events title");
 requireText(eventsHtml, "Bay Area &amp; Silicon Valley Startup and Founder Events", "events primary heading");
 requireText(eventsHtml, 'href="https://startupa2z.org/events"', "events canonical");
-requireText(eventsHtml, "Bay Area Founders Pitch &amp; Startup Networking", "events listing");
+requireText(eventsHtml, '"name": "Bay Area Founders Pitch & Startup Networking"', "events structured listing");
 requireText(eventsHtml, "Founder Networking Events", "events search guide");
 requireText(eventsHtml, "Startup Pitch Events", "events search guide");
 requireText(eventsHtml, "Silicon Valley Meetups", "events search guide");

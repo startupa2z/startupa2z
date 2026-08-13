@@ -1,15 +1,34 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { fetchHomeStats, type HomeStats } from "@/lib/api";
 
-const stats = [
-  { value: "10+", label: "Community Members" },
-  { value: "1+", label: "Events Hosted" },
-  { value: "1", label: "Bay Area Chapters" },
-];
+const emptyStats: HomeStats = {
+  active_members: 0,
+  events_hosted: 0,
+  page_visits: 0,
+  industries: 0,
+};
 
-const StatsSection = () => (
+const StatsSection = () => {
+  const [data, setData] = useState<HomeStats>(emptyStats);
+
+  useEffect(() => {
+    void fetchHomeStats()
+      .then((response) => setData(response.data))
+      .catch(() => setData(emptyStats));
+  }, []);
+
+  const stats = [
+    { value: data.active_members.toLocaleString(), label: "Active Members" },
+    { value: data.events_hosted.toLocaleString(), label: "Events Hosted" },
+    { value: data.page_visits.toLocaleString(), label: "Page Visits" },
+    { value: `${data.industries.toLocaleString()}+`, label: "Industries" },
+  ];
+
+  return (
   <section className="section-padding-sm bg-surface-2">
     <div className="container-narrow px-[clamp(1.5rem,5vw,3rem)]">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -46,6 +65,7 @@ const StatsSection = () => (
       </motion.div>
     </div>
   </section>
-);
+  );
+};
 
 export default StatsSection;

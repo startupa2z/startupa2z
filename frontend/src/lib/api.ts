@@ -72,6 +72,30 @@ export async function apiRequest<T>(
   return data;
 }
 
+// ——— Public homepage statistics ———
+
+export type HomeStats = {
+  active_members: number;
+  events_hosted: number;
+  page_visits: number;
+  industries: number;
+};
+
+export function fetchHomeStats() {
+  return apiRequest<{ ok: boolean; data: HomeStats }>("/api/stats/home");
+}
+
+export function recordPageView(payload: {
+  visit_id: string;
+  visitor_id: string;
+  path: string;
+}) {
+  return apiRequest<{ ok: boolean }>("/api/stats/page-view", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 // ——— Auth ———
 
 export type OtpMode = "signin" | "signup";

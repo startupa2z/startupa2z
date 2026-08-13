@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { lazy, Suspense } from "react";
 import MemberProfileGate from "@/components/MemberProfileGate";
+import PageViewTracker from "@/components/PageViewTracker";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
@@ -33,6 +34,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PageViewTracker />
         <MemberProfileGate>
         <Suspense fallback={<main className="min-h-screen bg-background" aria-label="Loading page" />}>
           <Routes>

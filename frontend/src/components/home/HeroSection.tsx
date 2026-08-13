@@ -6,6 +6,7 @@ import { X as XIcon } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
 import { openAuthDialog } from "@/lib/auth-ui";
+import { fetchHomeStats, type HomeStats } from "@/lib/api";
 
 const socialLinks = [
   { href: "https://luma.com/startupa2z", icon: CalendarDays, label: "Luma" },
@@ -15,16 +16,17 @@ const socialLinks = [
   { href: "https://facebook.com/startupa2z", icon: Facebook, label: "Facebook" },
 ];
 
-const stats = [
-  { value: "10", suffix: "+", label: "Active Members" },
-  { value: "1", suffix: "", label: "Events This Year" },
-  { value: "20", suffix: "+", label: "Page Visits" },
-  { value: "1", suffix: "+", label: "Industry Partners" },
-];
+const emptyStats: HomeStats = {
+  active_members: 0,
+  events_hosted: 0,
+  page_visits: 0,
+  industries: 0,
+};
 
 const HeroSection = () => {
   const [nextEvent, setNextEvent] = useState<EventItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [homeStats, setHomeStats] = useState<HomeStats>(emptyStats);
 
   useEffect(() => {
     const fetchNextEvent = async () => {
@@ -36,7 +38,17 @@ const HeroSection = () => {
     };
 
     fetchNextEvent();
+    void fetchHomeStats()
+      .then((response) => setHomeStats(response.data))
+      .catch(() => setHomeStats(emptyStats));
   }, []);
+
+  const stats = [
+    { value: homeStats.active_members.toLocaleString(), suffix: "", label: "Active Members" },
+    { value: homeStats.events_hosted.toLocaleString(), suffix: "", label: "Events Hosted" },
+    { value: homeStats.page_visits.toLocaleString(), suffix: "", label: "Page Visits" },
+    { value: homeStats.industries.toLocaleString(), suffix: "+", label: "Industries" },
+  ];
 
   // Fallback event if no database event found
   const fallbackEvent: EventItem = {
