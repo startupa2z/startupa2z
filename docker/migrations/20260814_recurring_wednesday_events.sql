@@ -59,16 +59,26 @@ ON CONFLICT (event_id, channel) DO UPDATE SET
   external_url = EXCLUDED.external_url,
   published_at = COALESCE(event_channels.published_at, now());
 
+WITH luma_events(slug, external_url, external_event_id) AS (
+  VALUES
+    ('founders-pitch-mix-2026-08-19', 'https://luma.com/txup8dqa', 'evt-ZnDEgqWmIvhTp6A'),
+    ('founders-pitch-mix-2026-08-26', 'https://luma.com/mm8nnyc1', 'evt-BEY9tuiAMU0yQt4'),
+    ('founders-pitch-mix-2026-09-02', 'https://luma.com/25odwnxl', 'evt-erC1BEn1N9fA3dA'),
+    ('founders-pitch-mix-2026-09-09', 'https://luma.com/hmvkxmas', 'evt-Jbe7vvTVmwETmNT'),
+    ('founders-pitch-mix-2026-09-16', 'https://luma.com/c7ebjedo', 'evt-OuAFseC9EPMv3rm'),
+    ('founders-pitch-mix-2026-09-23', 'https://luma.com/lxlrmvle', 'evt-uNwxlk3dHeH5Bgb'),
+    ('founders-pitch-mix-2026-09-30', 'https://luma.com/fv14ki83', 'evt-QNKqI0gMAXykIWS')
+)
 INSERT INTO event_channels (event_id, channel, status, external_url, external_event_id, published_at)
 SELECT
-  id,
+  events.id,
   'luma',
-  CASE WHEN slug = 'founders-pitch-mix-2026-08-19' THEN 'published' ELSE 'draft' END,
-  CASE WHEN slug = 'founders-pitch-mix-2026-08-19' THEN 'https://luma.com/txup8dqa' END,
-  CASE WHEN slug = 'founders-pitch-mix-2026-08-19' THEN 'evt-ZnDEgqWmIvhTp6A' END,
-  CASE WHEN slug = 'founders-pitch-mix-2026-08-19' THEN now() END
+  'published',
+  luma_events.external_url,
+  luma_events.external_event_id,
+  now()
 FROM events
-WHERE slug ~ '^founders-pitch-mix-2026-(08-(19|26)|09-(02|09|16|23|30))$'
+JOIN luma_events USING (slug)
 ON CONFLICT (event_id, channel) DO UPDATE SET
   status = EXCLUDED.status,
   external_url = EXCLUDED.external_url,
