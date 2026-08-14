@@ -12,7 +12,17 @@ const EventsSection = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       const all = await fetchAllEvents();
-      setEvents(all.slice(0, 3));
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const upcoming = all
+        .filter((event) => {
+          const eventDate = new Date(event.date);
+          return !Number.isNaN(eventDate.getTime()) && eventDate >= today;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      // The nearest event is already promoted in the homepage hero.
+      setEvents(upcoming.slice(1, 4));
       setLoading(false);
     };
 
@@ -136,30 +146,21 @@ const EventsSection = () => {
                   {event.desc}
                 </p>
                 <div className="flex items-center justify-between mt-auto pt-5">
-                  {event.spots <= 0 ? (
-                    <span className="text-[0.75rem] font-semibold text-destructive uppercase tracking-wider">
-                      Sold out
-                    </span>
-                  ) : (
+                  {event.spots > 0 ? (
                     <span className="text-[0.75rem] font-semibold text-primary">
                       {event.spots} spots left
                     </span>
-                  )}
-                  {event.spots <= 0 ? (
-                    <Link
-                      to={`/events/${event.slug}`}
-                      className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Details <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
                   ) : (
-                    <Link
-                      to={`/events/${event.slug}`}
-                      className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
-                    >
-                      RSVP <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <span className="text-[0.75rem] font-semibold text-primary">
+                      Registration open
+                    </span>
                   )}
+                  <Link
+                    to={`/events/${event.slug}`}
+                    className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
+                  >
+                    RSVP <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </motion.div>
             ))}

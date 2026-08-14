@@ -165,9 +165,7 @@ const EventDetail = () => {
             url: event.registrationUrl || `https://startupa2z.org/events/${event.slug}`,
             price: event.price.toLowerCase() === "free" ? 0 : event.price,
             priceCurrency: "USD",
-            availability: event.spots > 0
-              ? "https://schema.org/InStock"
-              : "https://schema.org/SoldOut",
+            availability: "https://schema.org/InStock",
           },
         }}
       />
@@ -230,7 +228,7 @@ const EventDetail = () => {
                 viewport={{ once: true }}
                 src={event.imageUrl || eventsImg}
                 alt={event.title}
-                className="w-full h-72 md:h-96 object-cover rounded-2xl"
+                className="mx-auto h-auto w-full max-w-[520px] rounded-2xl object-contain shadow-[0_18px_50px_rgba(0,0,0,0.12)]"
                 loading="lazy"
               />
 
@@ -317,18 +315,15 @@ const EventDetail = () => {
                       <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                         Availability
                       </div>
-                      {event.spots <= 0 ? (
-                        <div className="font-semibold text-destructive">
-                          Sold out
-                        </div>
-                      ) : (
+                      {event.spots > 0 ? (
                         <div className="font-semibold text-primary">
                           {event.spots} spots left
                         </div>
+                      ) : (
+                        <div className="font-semibold text-primary">
+                          Open registration
+                        </div>
                       )}
-                      <div className="text-xs text-muted-foreground">
-                        of {event.capacity} total
-                      </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -358,14 +353,7 @@ const EventDetail = () => {
                   </div>
                 </div>
 
-                {event.spots <= 0 ? (
-                  <Button
-                    disabled
-                    className="w-full rounded-full mb-2 bg-muted text-muted-foreground hover:bg-muted"
-                  >
-                    Sold out
-                  </Button>
-                ) : event.registrationUrl ? (
+                {event.registrationUrl ? (
                   <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2">
                     <a href={event.registrationUrl} target="_blank" rel="noreferrer">
                       Register on Luma

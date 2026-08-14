@@ -1,5 +1,8 @@
 import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 
+const recurringPitchMixCover =
+  "/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png";
+
 export type EventItem = {
   id?: string;
   slug: string;
@@ -88,6 +91,7 @@ const mapRow = (r: {
   // Locally seeded public copy is the discovery source of truth. The database
   // still supplies operational values and all content for non-seeded events.
   const seedEvent = seedEvents.find((event) => event.slug === r.slug);
+  const isRecurringPitchMix = r.slug.startsWith("founders-pitch-mix-2026-");
   return {
     id: r.id,
     slug: r.slug,
@@ -105,7 +109,9 @@ const mapRow = (r: {
     capacity: r.capacity,
     price: r.price,
     featured: r.featured,
-    imageUrl: r.image_url || seedEvent?.imageUrl || null,
+    imageUrl: isRecurringPitchMix
+      ? recurringPitchMixCover
+      : r.image_url || seedEvent?.imageUrl || null,
     startDateIso: seedEvent?.startDateIso ?? null,
     endDateIso: seedEvent?.endDateIso ?? null,
     registrationUrl: r.registration_url || seedEvent?.registrationUrl || null,

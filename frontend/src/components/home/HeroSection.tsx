@@ -25,16 +25,20 @@ const emptyStats: HomeStats = {
 
 const HeroSection = () => {
   const [nextEvent, setNextEvent] = useState<EventItem | null>(null);
-  const [loading, setLoading] = useState(true);
   const [homeStats, setHomeStats] = useState<HomeStats>(emptyStats);
 
   useEffect(() => {
     const fetchNextEvent = async () => {
       const all = await fetchAllEvents();
-      if (all.length > 0) {
-        setNextEvent(all[0]);
-      }
-      setLoading(false);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const upcoming = all
+        .filter((event) => {
+          const eventDate = new Date(event.date);
+          return !Number.isNaN(eventDate.getTime()) && eventDate >= today;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      setNextEvent(upcoming[0] ?? null);
     };
 
     fetchNextEvent();
@@ -49,28 +53,6 @@ const HeroSection = () => {
     { value: homeStats.page_visits.toLocaleString(), suffix: "", label: "Page Visits" },
     { value: homeStats.industries.toLocaleString(), suffix: "+", label: "Industries" },
   ];
-
-  // Fallback event if no database event found
-  const fallbackEvent: EventItem = {
-    slug: "founder-friday-ai-edition",
-    title: "Founder Friday: AI Edition",
-    date: "April 18, 2026",
-    time: "6:00 PM - 9:00 PM",
-    venue: "SOMA, San Francisco",
-    address: "475 Brannan St, San Francisco, CA 94107",
-    type: "Networking",
-    desc: "A networking session for AI founders in the Bay Area. Real conversations, no fluff, no pitches — just builders meeting builders.",
-    longDesc: "",
-    agenda: [],
-    speakers: [],
-    spots: 47,
-    capacity: 120,
-    price: "Free",
-    featured: true,
-    imageUrl: null,
-  };
-
-  const displayEvent = nextEvent || fallbackEvent;
 
   return (
     <section
@@ -174,40 +156,40 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Floating event card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="hidden lg:block self-start mt-6"
-          >
+          {nextEvent && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="hidden lg:block self-start mt-6"
+            >
             <div className="bg-white/[0.96] backdrop-blur-[20px] backdrop-saturate-[1.8] p-[clamp(1.5rem,3vw,2rem)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.12)] border border-white/40">
               <div className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-primary mb-3">
                 Next Meetup
               </div>
               <h3 className="text-[1.1rem] font-bold tracking-[-0.02em] text-foreground leading-snug mb-2">
-                {displayEvent.title}
+                {nextEvent.title}
               </h3>
               <div className="text-[0.82rem] text-muted-foreground leading-relaxed mb-1">
-                {displayEvent.date} · {displayEvent.time.split(" - ")[0]}
+                {nextEvent.date} · {nextEvent.time.split(" - ")[0]}
               </div>
               <div className="text-[0.82rem] text-muted-foreground mb-6">
-                {displayEvent.venue}
+                {nextEvent.venue}
               </div>
-              <div
-                className={`text-[0.75rem] font-semibold mb-4 ${displayEvent.spots <= 0 ? "text-destructive uppercase tracking-wider" : "text-primary"}`}
-              >
-                {displayEvent.spots <= 0
-                  ? "Sold out"
-                  : `${displayEvent.spots} spots remaining`}
+              <div className="text-[0.75rem] font-semibold mb-4 text-primary">
+                {nextEvent.spots > 0
+                  ? `${nextEvent.spots} spots remaining`
+                  : "Registration open"}
               </div>
               <Link
-                to={`/events/${displayEvent.slug}`}
+                to={`/events/${nextEvent.slug}`}
                 className="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.85rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all"
               >
                 Reserve Your Spot
               </Link>
             </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
 
