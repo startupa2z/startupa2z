@@ -22,6 +22,29 @@ import { isMemberAuthenticated } from "@/lib/auth";
 import { openAuthDialog } from "@/lib/auth-ui";
 import { profileCompletionUrl } from "@/lib/member-profile";
 
+const aug19Faqs = [
+  {
+    question: "What founder networking events are happening in Mountain View in August 2026?",
+    answer:
+      "StartupA2Z is hosting a free Bay Area founder networking event and startup workshop at Hacker Dojo in Mountain View on August 19, 2026, from 5:00 PM to 8:00 PM.",
+  },
+  {
+    question: "Who should attend the StartupA2Z founder networking event?",
+    answer:
+      "The event is designed for startup founders, aspiring entrepreneurs, builders, operators, investors, mentors, and go-to-market leaders who want practical learning and meaningful Bay Area connections.",
+  },
+  {
+    question: "What will founders learn at the August 19 startup workshop?",
+    answer:
+      "The hands-on workshop covers ideal customer definition, buyer-readiness signals, differentiation, category and budget competition, positioning, and consistent value communication.",
+  },
+  {
+    question: "Is the Mountain View startup event free?",
+    answer:
+      "Yes. General admission is free, and advance registration is available through the official Luma event page while space remains available.",
+  },
+];
+
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
@@ -97,6 +120,22 @@ const EventDetail = () => {
   }
   if (!event) return <Navigate to="/events" replace />;
 
+  const isAug19Event = event.slug === "founders-pitch-mix-2026-08-19";
+  const eventCanonical = `https://startupa2z.org/events/${event.slug}`;
+  const absoluteImage = event.imageUrl
+    ? event.imageUrl.startsWith("http")
+      ? event.imageUrl
+      : `https://startupa2z.org${event.imageUrl}`
+    : "https://startupa2z.org/assets/og-event.jpg";
+  const postalAddress = {
+    "@type": "PostalAddress",
+    streetAddress: "855 Maude Ave",
+    addressLocality: "Mountain View",
+    addressRegion: "CA",
+    postalCode: "94043",
+    addressCountry: "US",
+  };
+
   const handleRsvp = () => {
     if (isMemberAuthenticated()) {
       void confirmMemberRsvp();
@@ -126,47 +165,72 @@ const EventDetail = () => {
     <PageLayout>
       <SEO
         title={
-          event.slug === "startup-a-to-z-hacker-dojo-august-12"
+          isAug19Event
+            ? "Bay Area Founder Networking Event in Mountain View | Aug 19"
+            : event.slug === "startup-a-to-z-hacker-dojo-august-12"
             ? `${event.title} — Aug 12 | StartupA2Z.org`
             : `${event.title} | StartupA2Z.org`
         }
         description={
-          event.desc ||
+          isAug19Event
+            ? "Join StartupA2Z on August 19, 2026, at Hacker Dojo in Mountain View for a free founder networking event and practical startup workshop."
+            : event.desc ||
           event.longDesc?.slice(0, 155) ||
           "Startup event in the Bay Area"
         }
-        canonical={`https://startupa2z.org/events/${event.slug}`}
-        ogImage={event.imageUrl || `https://startupa2z.org/assets/og-event.jpg`}
+        canonical={eventCanonical}
+        ogImage={absoluteImage}
+        ogType="event"
         jsonLd={{
           "@context": "https://schema.org",
-          "@type": "Event",
-          name: event.title,
-          startDate: event.startDateIso || event.date,
-          endDate: event.endDateIso || undefined,
-          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-          eventStatus: "https://schema.org/EventScheduled",
-          description: event.longDesc || event.desc,
-          location: {
-            "@type": "Place",
-            name: event.venue,
-            address: event.address || "",
-          },
-          image: [
-            event.imageUrl || `https://startupa2z.org/assets/event-hero.jpg`,
+          "@graph": [
+            {
+              "@type": "Event",
+              "@id": `${eventCanonical}#event`,
+              name: event.title,
+              startDate: event.startDateIso || event.date,
+              endDate: event.endDateIso || undefined,
+              eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+              eventStatus: "https://schema.org/EventScheduled",
+              description: event.longDesc || event.desc,
+              location: {
+                "@type": "Place",
+                name: event.venue,
+                address: event.address.includes("Mountain View") ? postalAddress : event.address,
+              },
+              image: [absoluteImage],
+              url: eventCanonical,
+              organizer: {
+                "@type": "Organization",
+                "@id": "https://startupa2z.org/#org",
+                name: "StartupA2Z.org",
+                url: "https://startupa2z.org/",
+              },
+              performer: event.speakers.map((speaker) => ({
+                "@type": "Person",
+                name: speaker.name,
+                description: speaker.role,
+              })),
+              offers: {
+                "@type": "Offer",
+                url: event.registrationUrl || eventCanonical,
+                price: event.price.toLowerCase() === "free" ? 0 : event.price,
+                priceCurrency: "USD",
+                availability: "https://schema.org/InStock",
+              },
+            },
+            ...(isAug19Event
+              ? [{
+                  "@type": "FAQPage",
+                  "@id": `${eventCanonical}#faq`,
+                  mainEntity: aug19Faqs.map((faq) => ({
+                    "@type": "Question",
+                    name: faq.question,
+                    acceptedAnswer: { "@type": "Answer", text: faq.answer },
+                  })),
+                }]
+              : []),
           ],
-          url: `https://startupa2z.org/events/${event.slug}`,
-          organizer: {
-            "@type": "Organization",
-            name: "StartupA2Z.org",
-            url: "https://startupa2z.org/",
-          },
-          offers: {
-            "@type": "Offer",
-            url: event.registrationUrl || `https://startupa2z.org/events/${event.slug}`,
-            price: event.price.toLowerCase() === "free" ? 0 : event.price,
-            priceCurrency: "USD",
-            availability: "https://schema.org/InStock",
-          },
         }}
       />
       {/* Hero */}
@@ -241,6 +305,31 @@ const EventDetail = () => {
                 </p>
               </div>
 
+              {isAug19Event && (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <article className="rounded-2xl border border-border bg-card p-6">
+                    <h2 className="font-heading text-xl font-bold text-primary">
+                      Who should attend
+                    </h2>
+                    <p className="mt-3 leading-7 text-muted-foreground">
+                      This Mountain View startup event is for founders, aspiring entrepreneurs,
+                      builders, operators, investors, mentors, and GTM leaders looking for
+                      practical learning and useful Silicon Valley connections.
+                    </p>
+                  </article>
+                  <article className="rounded-2xl border border-border bg-card p-6">
+                    <h2 className="font-heading text-xl font-bold text-primary">
+                      What founders will work on
+                    </h2>
+                    <p className="mt-3 leading-7 text-muted-foreground">
+                      Clarify your ideal customer, recognize buyer-readiness signals, sharpen
+                      differentiation, define your category and budget competition, and express
+                      the same value consistently across your go-to-market motion.
+                    </p>
+                  </article>
+                </div>
+              )}
+
               {event.agenda.length > 0 && (
                 <div>
                   <h2 className="font-heading text-2xl font-bold text-primary mb-4">
@@ -291,6 +380,22 @@ const EventDetail = () => {
                     ))}
                   </div>
                 </div>
+              )}
+
+              {isAug19Event && (
+                <section aria-label="Founder networking event frequently asked questions">
+                  <h2 className="font-heading text-2xl font-bold text-primary mb-4">
+                    Bay Area Founder Event FAQ
+                  </h2>
+                  <div className="space-y-4">
+                    {aug19Faqs.map((faq) => (
+                      <article key={faq.question} className="rounded-xl border border-border bg-card p-5">
+                        <h3 className="font-heading text-lg font-bold text-primary">{faq.question}</h3>
+                        <p className="mt-2 leading-7 text-muted-foreground">{faq.answer}</p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
               )}
             </div>
 

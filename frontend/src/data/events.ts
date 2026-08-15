@@ -29,6 +29,39 @@ export type EventItem = {
 // Public fallback event. A database record with the same slug overrides it.
 export const seedEvents: EventItem[] = [
   {
+    slug: "founders-pitch-mix-2026-08-19",
+    title: "Bay Area Founder Networking Event & Startup Workshop",
+    date: "August 19, 2026",
+    time: "5:00 PM - 8:00 PM",
+    venue: "Hacker Dojo, Mountain View",
+    address: "855 Maude Ave, Mountain View, CA 94043",
+    type: "Founder Networking",
+    desc:
+      "A free Bay Area founder networking event and practical startup workshop at Hacker Dojo in Mountain View on August 19, 2026.",
+    longDesc:
+      "Join StartupA2Z for a free Bay Area founder networking event at Hacker Dojo in Mountain View. Founders, entrepreneurs, builders, investors, operators, and startup ecosystem partners will work through practical go-to-market fundamentals, exchange direct feedback, and build useful Silicon Valley connections. Raj Badarinath—a four-time-exit CMO and Founder and CEO of Hivekind.ai—will facilitate Product's Done. Where's Revenue?, a hands-on workshop covering ideal customers, buyer-readiness signals, differentiation, category, budget, positioning, and consistent value communication.",
+    agenda: [
+      { time: "5:00 PM", item: "Arrival and founder networking" },
+      { time: "5:30 PM", item: "Welcome and introduction by Satish Govindappa" },
+      { time: "5:40 PM", item: "Product's Done. Where's Revenue? — hands-on GTM workshop" },
+      { time: "7:15 PM", item: "Closing remarks and key takeaways" },
+      { time: "7:25 PM", item: "Post-session networking" },
+    ],
+    speakers: [
+      { name: "Satish Govindappa", role: "Host, StartupA2Z" },
+      { name: "Raj Badarinath", role: "Workshop facilitator; Founder & CEO, Hivekind.ai" },
+    ],
+    spots: 0,
+    capacity: 0,
+    price: "Free",
+    featured: true,
+    imageUrl: recurringPitchMixCover,
+    startDateIso: "2026-08-19T17:00:00-07:00",
+    endDateIso: "2026-08-19T20:00:00-07:00",
+    registrationUrl:
+      "https://luma.com/txup8dqa?utm_source=startupa2z&utm_medium=website&utm_campaign=founder_networking_aug19",
+  },
+  {
     slug: "startup-a-to-z-hacker-dojo-august-12",
     title: "Bay Area Founders Pitch & Startup Networking",
     date: "August 12, 2026",

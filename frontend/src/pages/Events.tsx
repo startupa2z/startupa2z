@@ -21,9 +21,19 @@ import { fetchAllEvents, seedEvents, type EventItem } from "@/data/events";
 
 const eventFaqs = [
   {
+    question: "Where can I find founder networking events near me?",
+    answer:
+      "Founders in the San Francisco Bay Area can use StartupA2Z.org to find in-person founder networking events, startup workshops, and pitch sessions. Each listing shows the confirmed city, venue, date, agenda, and official registration link.",
+  },
+  {
     question: "Where can I find startup events in the Bay Area?",
     answer:
       "StartupA2Z.org lists upcoming Bay Area startup events for founders, builders, investors, mentors, and aspiring entrepreneurs. Each event page includes the date, venue, agenda, and registration link.",
+  },
+  {
+    question: "What startup events are happening in Silicon Valley?",
+    answer:
+      "StartupA2Z.org publishes upcoming Silicon Valley startup events including founder meetups, practical workshops, pitch sessions, and tech networking events in Mountain View and nearby Bay Area cities.",
   },
   {
     question: "Are StartupA2Z.org founder events free?",
@@ -87,8 +97,8 @@ const Events = () => {
   return (
     <PageLayout>
       <SEO
-        title={`Bay Area & Silicon Valley Startup Events | StartupA2Z.org`}
-        description={`Find Bay Area startup events, Silicon Valley founder meetups, pitch events, workshops, and networking opportunities in Mountain View and nearby cities.`}
+        title={`Startup & Founder Networking Events in the Bay Area | StartupA2Z`}
+        description={`Find Bay Area startup networking events, Silicon Valley founder meetups, entrepreneur workshops, pitch events, and Mountain View startup events.`}
         canonical={`https://startupa2z.org/events`}
         ogImage={`https://startupa2z.org/assets/og-events.jpg`}
         jsonLd={{
@@ -140,12 +150,12 @@ const Events = () => {
               Events
             </span>
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">
-              Bay Area &amp; Silicon Valley Startup and Founder Events
+              Bay Area Startup Networking and Founder Events
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Discover Silicon Valley founder meetups, startup pitch events,
-              workshops, and high-value networking for founders, investors,
-              builders, and aspiring entrepreneurs.
+              Discover Silicon Valley founder meetups, Mountain View startup
+              events, entrepreneur workshops, pitch sessions, and high-value
+              tech networking across the Bay Area.
             </p>
           </motion.div>
         </div>
@@ -337,11 +347,11 @@ const Events = () => {
           <SectionHeading
             tag="Bay Area Event Guide"
             title="Find the Right Founder and Startup Event"
-            description="StartupA2Z.org brings the Bay Area startup community together through practical learning, real founder pitches, direct feedback, and meaningful connections."
+            description="StartupA2Z.org brings founders and entrepreneurs together through practical learning, startup workshops, direct feedback, and meaningful networking across the Bay Area and Silicon Valley."
           />
           <div className="grid gap-6 md:grid-cols-3">
             <article className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="font-heading text-xl font-bold text-primary">Founder Networking Events</h2>
+              <h2 className="font-heading text-xl font-bold text-primary">Founder Networking Events in the Bay Area</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
                 Meet founders, operators, mentors, investors, and startup builders through intentional Bay Area networking events designed for useful conversations—not business-card collecting.
               </p>
@@ -353,9 +363,9 @@ const Events = () => {
               </p>
             </article>
             <article className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="font-heading text-xl font-bold text-primary">Silicon Valley Meetups</h2>
+              <h2 className="font-heading text-xl font-bold text-primary">Silicon Valley Founder Meetups</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                Explore startup meetups and workshops for people across Mountain View, San Jose, San Francisco, and the wider Silicon Valley and Bay Area ecosystem.
+                Explore startup meetups, entrepreneur events, and tech networking for people across Mountain View, San Jose, San Francisco, and the wider Silicon Valley ecosystem.
               </p>
             </article>
           </div>

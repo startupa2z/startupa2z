@@ -15,6 +15,7 @@ const staticRoutes = [
   "/contact",
   "/events",
   "/events/startup-a-to-z-hacker-dojo-august-12",
+  "/events/founders-pitch-mix-2026-08-19",
   "/founders",
   "/investors",
   "/resources",
@@ -29,11 +30,14 @@ const today = new Date().toISOString();
 
 const urls = staticRoutes
   .map((route) => {
-    return `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
+    const isEventRoute = route === "/events" || route.startsWith("/events/");
+    const changefreq = isEventRoute ? "daily" : "weekly";
+    const priority = isEventRoute ? "0.9" : "0.7";
+    return `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
   })
   .join("\n");
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
 
-fs.writeFileSync(path.join(publicDir, "sitemap.xml"), xml);
+fs.writeFileSync(path.join(publicDir, "sitemap.xml"), `${xml}\n`);
 console.log("sitemap.xml generated at public/sitemap.xml");
