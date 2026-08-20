@@ -56,9 +56,17 @@ const EventSummaries = () => (
               transition={{ delay: index * 0.08 }}
               className="overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_44px_rgba(27,75,57,0.10)]"
             >
-              <div className="aspect-[16/9] border-b border-border bg-[#f8f0e3]">
-                <img src={summary.coverImage} alt="StartupA2Z August 12 event" className="h-full w-full object-contain" />
-              </div>
+              <Link
+                to={`/events/${summary.eventSlug}#founder-journeys`}
+                aria-label={`Read the founder journeys from ${summary.title}`}
+                className="group block aspect-[16/9] overflow-hidden border-b border-border bg-[#f8f0e3] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary"
+              >
+                <img
+                  src={summary.coverImage}
+                  alt="StartupA2Z August 12 event"
+                  className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                />
+              </Link>
               <div className="p-6 md:p-8">
                 <div className="mb-5 flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground">

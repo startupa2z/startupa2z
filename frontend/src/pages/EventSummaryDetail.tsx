@@ -1,4 +1,5 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
@@ -22,7 +23,18 @@ type EventSummaryDetailProps = {
 
 const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const summary = getEventSummary(summarySlug || slug || "");
+
+  useEffect(() => {
+    if (!summary || !location.hash) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(location.hash.slice(1))?.scrollIntoView();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.hash, summary]);
 
   if (!summary) return <Navigate to="/resources/event-summaries" replace />;
 
@@ -70,9 +82,20 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
       <main className="section-padding bg-background">
         <div className="container-narrow grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-12">
-            <div className="overflow-hidden rounded-3xl border border-border bg-[#f8f0e3] shadow-sm">
-              <img src={summary.coverImage} alt={summary.eventTitle} className="aspect-[16/9] h-full w-full object-contain" />
-            </div>
+            <a
+              href="#founder-journeys"
+              aria-label="Jump to the founder journey"
+              className="group relative block overflow-hidden rounded-3xl border border-border bg-[#f8f0e3] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+            >
+              <img
+                src={summary.coverImage}
+                alt={summary.eventTitle}
+                className="aspect-[16/9] h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.015]"
+              />
+              <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg backdrop-blur-sm transition-colors group-hover:bg-secondary group-hover:text-secondary-foreground">
+                Founder journey <ArrowRight className="h-4 w-4" />
+              </span>
+            </a>
 
             <section id="event-overview" className="scroll-mt-24">
               <p className="label-overline mb-3">What happened</p>
@@ -90,7 +113,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
             <section id="founder-journeys" className="scroll-mt-24">
               <p className="label-overline mb-3">The StartupA2Z difference</p>
-              <h2 className="font-heading text-3xl font-bold text-primary">Founder journeys—not polished pitches</h2>
+              <h2 className="font-heading text-3xl font-bold text-primary">Founder journey</h2>
               <p className="mt-4 max-w-3xl leading-7 text-muted-foreground">
                 These stories are drawn from the founder presentations and the event posts published afterward. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another founder can apply.
               </p>
@@ -112,11 +135,13 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                         <p className="mt-2 font-semibold text-foreground">{story.founders}</p>
                       </div>
                       <figure className="border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0">
-                        <img
-                          src={story.image}
-                          alt={story.imageAlt}
-                          className="aspect-[4/3] w-full rounded-2xl border border-white/70 object-cover shadow-[0_10px_28px_rgba(27,75,57,0.14)]"
-                        />
+                        <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+                          <img
+                            src={story.image}
+                            alt={story.imageAlt}
+                            className={`h-full w-full object-cover ${story.anchor === "keyframe-ai" ? "scale-[1.35] object-[center_74%]" : ""}`}
+                          />
+                        </div>
                         <figcaption className="mt-3 text-xs leading-5 text-muted-foreground">
                           {story.imageAlt}
                         </figcaption>
@@ -219,7 +244,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                   <BookOpen className="h-4 w-4" /> Event overview
                 </a>
                 <a href="#founder-journeys" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
-                  <Users className="h-4 w-4" /> Founder journeys
+                  <Users className="h-4 w-4" /> Founder journey
                 </a>
                 <a href="#founder-lessons" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <Lightbulb className="h-4 w-4" /> Key lessons

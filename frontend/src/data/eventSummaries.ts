@@ -55,6 +55,36 @@ export const eventSummaries: EventSummary[] = [
     ],
     founderStories: [
       {
+        anchor: "keyframe-ai",
+        founders: "Digvijay Goswami and Sidharth Raja",
+        company: "Keyframe AI",
+        headline: "Moving AI video from impressive clips to repeatable production",
+        challenge:
+          "AI-generated video can be fast and visually striking, but characters, scenes, movement, and creative direction often become inconsistent across a complete story.",
+        approach:
+          "The Keyframe AI co-founders demonstrated a connected workflow for scripting, visual generation, editing, and iteration, including an unexpected rocket-launch result that made the experimentation challenge memorable.",
+        lesson:
+          "The durable value is not one impressive clip. It is whether a creative team can repeatedly turn an idea into a coherent, production-ready story while preserving control.",
+        image: "/event-media/august-12-2026/keyframe-ai-founders.jpg",
+        imageAlt: "Keyframe AI founders Sidharth Raja and Digvijay Goswami presenting at Hacker Dojo",
+        website: "https://www.keyframe.art/",
+        directoryPath: "/startups/keyframe",
+        founderProfiles: [
+          {
+            name: "Digvijay Goswami",
+            url: "/founders/digvijay-goswami",
+            internal: true,
+          },
+          {
+            name: "Sidharth Raja",
+            url: "/founders/sidharth-raja",
+            internal: true,
+          },
+        ],
+        sourcePost:
+          "https://www.linkedin.com/feed/update/urn:li:activity:7493757516128907265/",
+      },
+      {
         anchor: "one-dollar-computer",
         founders: "ClaudIO Olmedo",
         company: "One Dollar Computer",
@@ -122,36 +152,6 @@ export const eventSummaries: EventSummary[] = [
         ],
         sourcePost:
           "https://www.linkedin.com/feed/update/urn:li:activity:7493759228604510208/",
-      },
-      {
-        anchor: "keyframe-ai",
-        founders: "Digvijay Goswami and Sidharth Raja",
-        company: "Keyframe AI",
-        headline: "Moving AI video from impressive clips to repeatable production",
-        challenge:
-          "AI-generated video can be fast and visually striking, but characters, scenes, movement, and creative direction often become inconsistent across a complete story.",
-        approach:
-          "The Keyframe AI co-founders demonstrated a connected workflow for scripting, visual generation, editing, and iteration, including an unexpected rocket-launch result that made the experimentation challenge memorable.",
-        lesson:
-          "The durable value is not one impressive clip. It is whether a creative team can repeatedly turn an idea into a coherent, production-ready story while preserving control.",
-        image: "/event-media/august-12-2026/keyframe-ai-demo.jpg",
-        imageAlt: "Rocket-launch frame from the Keyframe AI demonstration",
-        website: "https://www.keyframe.art/",
-        directoryPath: "/startups/keyframe",
-        founderProfiles: [
-          {
-            name: "Digvijay Goswami",
-            url: "/founders/digvijay-goswami",
-            internal: true,
-          },
-          {
-            name: "Sidharth Raja",
-            url: "/founders/sidharth-raja",
-            internal: true,
-          },
-        ],
-        sourcePost:
-          "https://www.linkedin.com/feed/update/urn:li:activity:7493757516128907265/",
       },
     ],
     keyLessons: [

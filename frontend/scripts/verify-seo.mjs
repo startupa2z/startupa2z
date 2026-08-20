@@ -49,7 +49,7 @@ rejectText(homeHtml, "http://127.0.0.1:", "homepage build output");
 requireText(eventHtml, "<title>August 12 at Hacker Dojo: The First StartupA2Z Founder Gathering | StartupA2Z.org</title>", "event recap title");
 requireText(eventHtml, `href="${eventCanonical}"`, "event canonical");
 rejectText(eventHtml, 'content="noindex, nofollow"', "published recap robots metadata");
-requireText(eventHtml, "Founder journeys—not polished pitches", "event recap content");
+requireText(eventHtml, "Founder journey", "event recap content");
 requireText(eventHtml, "https://images.lumacdn.com/event-social/", "event social image");
 rejectText(eventHtml, 'rel="canonical" href="https://startupa2z.org/"', "event canonical");
 
