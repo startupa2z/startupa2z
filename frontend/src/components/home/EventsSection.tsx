@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock3, MapPin } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import { Loader2 } from "lucide-react";
 
@@ -21,73 +21,12 @@ const EventsSection = () => {
         })
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-      // The nearest event is already promoted in the homepage hero.
-      setEvents(upcoming.slice(1, 4));
+      setEvents(upcoming.slice(0, 3));
       setLoading(false);
     };
 
     fetchEvents();
   }, []);
-
-  // Fallback to seed events if loading or no database events
-  const fallbackEvents: EventItem[] = [
-    {
-      slug: "founder-friday-ai-edition",
-      title: "Founder Friday: AI Edition",
-      date: "April 18, 2026",
-      time: "6:00 PM - 9:00 PM",
-      venue: "SOMA, San Francisco",
-      address: "475 Brannan St, San Francisco, CA 94107",
-      type: "Networking",
-      desc: "A networking session for AI founders in the Bay Area. Real conversations, no fluff, no pitches — just builders meeting builders.",
-      longDesc: "",
-      agenda: [],
-      speakers: [],
-      spots: 47,
-      capacity: 120,
-      price: "Free",
-      featured: true,
-      imageUrl: null,
-    },
-    {
-      slug: "pitch-night-cleantech-startups",
-      title: "Pitch Night: CleanTech",
-      date: "April 25, 2026",
-      time: "7:00 PM - 9:30 PM",
-      venue: "Oakland Innovation Hub",
-      address: "1111 Broadway, Oakland, CA 94607",
-      type: "Pitch Event",
-      desc: "Five CleanTech startups pitch to a panel of investors and operators. Honest feedback, real connections, potential funding.",
-      longDesc: "",
-      agenda: [],
-      speakers: [],
-      spots: 62,
-      capacity: 150,
-      price: "$15",
-      featured: false,
-      imageUrl: null,
-    },
-    {
-      slug: "startup-coffee-chat",
-      title: "Startup Coffee Chat",
-      date: "May 2, 2026",
-      time: "9:00 AM - 11:00 AM",
-      venue: "Palo Alto",
-      address: "Coupa Café, 538 Ramona St, Palo Alto, CA 94301",
-      type: "Casual Meetup",
-      desc: "A casual morning meetup for founders at all stages. Share what you're working on and find collaborators over great coffee.",
-      longDesc: "",
-      agenda: [],
-      speakers: [],
-      spots: 55,
-      capacity: 80,
-      price: "Free",
-      featured: false,
-      imageUrl: null,
-    },
-  ];
-
-  const displayEvents = events.length > 0 ? events : fallbackEvents;
 
   return (
     <section className="section-padding bg-background">
@@ -114,55 +53,73 @@ const EventsSection = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid md:grid-cols-3 gap-5">
-            {displayEvents.map((event, i) => (
-              <motion.div
+          <div className="grid md:grid-cols-3 gap-6">
+            {events.map((event, i) => (
+              <motion.article
                 key={event.slug}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`rounded-2xl p-[clamp(1.5rem,3vw,2rem)] flex flex-col gap-1.5 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.09)] transition-all duration-300 ${
-                  event.featured
-                    ? "bg-card shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
-                    : "bg-surface-1"
-                }`}
+                className="group overflow-hidden rounded-2xl border-2 border-primary/15 bg-card shadow-[0_8px_28px_rgba(27,75,57,0.08)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_48px_rgba(27,75,57,0.14)]"
               >
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <span className="label-overline">{event.venue}</span>
-                  {event.featured && (
-                    <span className="text-[0.58rem] font-bold tracking-[0.08em] uppercase px-2.5 py-1 rounded-full bg-primary/8 text-primary">
-                      Featured
-                    </span>
-                  )}
-                </div>
-                <p className="text-[0.8rem] text-muted-foreground">
-                  {event.date} · {event.time.split(" - ")[0]}
-                </p>
-                <h3 className="text-[clamp(1.05rem,2vw,1.3rem)] font-bold tracking-[-0.02em] text-foreground leading-snug mt-1">
-                  {event.title}
-                </h3>
-                <p className="text-[0.875rem] text-muted-foreground leading-relaxed">
-                  {event.desc}
-                </p>
-                <div className="flex items-center justify-between mt-auto pt-5">
-                  {event.spots > 0 ? (
-                    <span className="text-[0.75rem] font-semibold text-primary">
-                      {event.spots} spots left
-                    </span>
+                <Link
+                  to={`/events/${event.slug}`}
+                  className="block aspect-[16/9] overflow-hidden border-b border-primary/10 bg-[#f8f0e3]"
+                  aria-label={`${event.title} details`}
+                >
+                  {event.imageUrl ? (
+                    <img
+                      src={event.imageUrl}
+                      alt={`${event.title} cover`}
+                      className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                      loading="lazy"
+                    />
                   ) : (
-                    <span className="text-[0.75rem] font-semibold text-primary">
-                      Registration open
-                    </span>
+                    <div className="flex h-full items-center justify-center text-primary/50">
+                      <CalendarDays className="h-10 w-10" />
+                    </div>
                   )}
-                  <Link
-                    to={`/events/${event.slug}`}
-                    className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
-                  >
-                    RSVP <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                </Link>
+
+                <div className="flex h-full flex-col p-[clamp(1.25rem,2.5vw,1.75rem)]">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[0.72rem] font-bold text-primary-foreground">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      {event.date}
+                    </span>
+                    <span className="text-[0.65rem] font-bold uppercase tracking-[0.1em] text-primary/70">
+                      {event.type}
+                    </span>
+                  </div>
+
+                  <h3 className="text-[clamp(1.1rem,2vw,1.35rem)] font-bold leading-snug tracking-[-0.02em] text-foreground">
+                    <Link to={`/events/${event.slug}`} className="hover:text-primary">
+                      {event.title}
+                    </Link>
+                  </h3>
+
+                  <div className="mt-4 space-y-2 border-t border-border pt-4 text-[0.84rem] text-muted-foreground">
+                    <p className="flex items-center gap-2">
+                      <Clock3 className="h-4 w-4 shrink-0 text-secondary" />
+                      {event.time}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 shrink-0 text-secondary" />
+                      {event.venue}
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-5">
+                    <Link
+                      to={`/events/${event.slug}`}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 text-[0.9rem] font-bold text-secondary-foreground shadow-sm transition-all hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    >
+                      View event & RSVP <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
           </div>
         )}
