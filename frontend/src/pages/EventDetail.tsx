@@ -22,28 +22,95 @@ import { isMemberAuthenticated } from "@/lib/auth";
 import { openAuthDialog } from "@/lib/auth-ui";
 import { profileCompletionUrl } from "@/lib/member-profile";
 
-const sep1Faqs = [
-  {
-    question: "What founder networking events are happening in Mountain View in September 2026?",
-    answer:
-      "StartupA2Z is hosting a free Bay Area founder networking event and startup workshop at Hacker Dojo in Mountain View on September 1, 2026, from 5:00 PM to 8:00 PM.",
+type EventSearchContent = {
+  title: string;
+  description: string;
+  audienceHeading: string;
+  audience: string;
+  valueHeading: string;
+  value: string;
+  faqs: { question: string; answer: string }[];
+  related: { slug: string; label: string; description: string };
+};
+
+const eventSearchContent: Record<string, EventSearchContent> = {
+  "founders-pitch-mix-2026-08-25": {
+    title: "Bay Area Founder Pitch & Networking | Aug 25",
+    description:
+      "Join StartupA2Z on August 25, 2026, at Hacker Dojo in Mountain View for a free Bay Area founder pitch, feedback, and startup networking event.",
+    audienceHeading: "Who should attend",
+    audience:
+      "This Mountain View startup event is for founders, aspiring entrepreneurs, builders, operators, investors, mentors, and ecosystem partners who want practical learning, direct feedback, and useful Silicon Valley connections.",
+    valueHeading: "What happens at Founders Pitch & Mix",
+    value:
+      "The evening combines founder networking, practical startup fundamentals, scheduled founder showcases, short audience pitches, and direct community feedback. It is designed for useful conversations and specific learning—not passive business-card collecting.",
+    faqs: [
+      {
+        question: "What Bay Area founder events are happening on August 25, 2026?",
+        answer:
+          "StartupA2Z is hosting Founders Pitch & Mix, a free Bay Area founder pitch and startup networking event at Hacker Dojo in Mountain View on August 25, 2026, from 5:00 PM to 8:00 PM.",
+      },
+      {
+        question: "Who should attend the August 25 StartupA2Z event?",
+        answer:
+          "The event is for founders, aspiring entrepreneurs, builders, operators, investors, mentors, and startup ecosystem partners interested in practical startup learning, feedback, and Bay Area connections.",
+      },
+      {
+        question: "Can founders pitch at Founders Pitch & Mix?",
+        answer:
+          "The program includes scheduled founder showcases and short audience-pitch segments with direct feedback. Pitch participation is limited by the agenda, so attendees should register in advance and follow the organizer's instructions.",
+      },
+      {
+        question: "Is the August 25 Mountain View startup event free?",
+        answer:
+          "Yes. The event is free and takes place at Hacker Dojo, 855 Maude Avenue in Mountain View. Advance registration is available through the official Luma event page while space remains available.",
+      },
+    ],
+    related: {
+      slug: "founder-networking-workshop-2026-09-01",
+      label: "September 1: Founder Networking & GTM Workshop",
+      description: "Continue with a hands-on go-to-market workshop for founders at Hacker Dojo.",
+    },
   },
-  {
-    question: "Who should attend the StartupA2Z founder networking event?",
-    answer:
-      "The event is designed for startup founders, aspiring entrepreneurs, builders, operators, investors, mentors, and go-to-market leaders who want practical learning and meaningful Bay Area connections.",
+  "founder-networking-workshop-2026-09-01": {
+    title: "Bay Area Founder Networking & GTM Workshop | Sep 1",
+    description:
+      "Join StartupA2Z on September 1, 2026, at Hacker Dojo in Mountain View for a free Bay Area founder networking event and hands-on GTM workshop.",
+    audienceHeading: "Who should attend",
+    audience:
+      "This Mountain View startup event is for founders, aspiring entrepreneurs, builders, operators, investors, mentors, and GTM leaders looking for practical learning and useful Silicon Valley connections.",
+    valueHeading: "What founders will work on",
+    value:
+      "Clarify your ideal customer, recognize buyer-readiness signals, sharpen differentiation, define your category and budget competition, and express the same value consistently across your go-to-market motion.",
+    faqs: [
+      {
+        question: "What founder networking events are happening in Mountain View in September 2026?",
+        answer:
+          "StartupA2Z is hosting a free Bay Area founder networking event and startup workshop at Hacker Dojo in Mountain View on September 1, 2026, from 5:00 PM to 8:00 PM.",
+      },
+      {
+        question: "Who should attend the StartupA2Z founder networking event?",
+        answer:
+          "The event is designed for startup founders, aspiring entrepreneurs, builders, operators, investors, mentors, and go-to-market leaders who want practical learning and meaningful Bay Area connections.",
+      },
+      {
+        question: "What will founders learn at the September 1 startup workshop?",
+        answer:
+          "The hands-on workshop covers ideal customer definition, buyer-readiness signals, differentiation, category and budget competition, positioning, and consistent value communication.",
+      },
+      {
+        question: "Is the Mountain View startup event free?",
+        answer:
+          "Yes. General admission is free, and advance registration is available through the official Luma event page while space remains available.",
+      },
+    ],
+    related: {
+      slug: "founders-pitch-mix-2026-08-25",
+      label: "August 25: Founders Pitch & Startup Networking",
+      description: "Meet Bay Area founders, watch startup pitches, and hear direct community feedback.",
+    },
   },
-  {
-    question: "What will founders learn at the September 1 startup workshop?",
-    answer:
-      "The hands-on workshop covers ideal customer definition, buyer-readiness signals, differentiation, category and budget competition, positioning, and consistent value communication.",
-  },
-  {
-    question: "Is the Mountain View startup event free?",
-    answer:
-      "Yes. General admission is free, and advance registration is available through the official Luma event page while space remains available.",
-  },
-];
+};
 
 const EventDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -120,7 +187,7 @@ const EventDetail = () => {
   }
   if (!event) return <Navigate to="/events" replace />;
 
-  const isSep1Event = event.slug === "founder-networking-workshop-2026-09-01";
+  const searchContent = eventSearchContent[event.slug];
   const eventCanonical = `https://startupa2z.org/events/${event.slug}`;
   const absoluteImage = event.imageUrl
     ? event.imageUrl.startsWith("http")
@@ -165,15 +232,15 @@ const EventDetail = () => {
     <PageLayout>
       <SEO
         title={
-          isSep1Event
-            ? "Bay Area Founder Networking & Startup Workshop | Sep 1"
+          searchContent
+            ? searchContent.title
             : event.slug === "startup-a-to-z-hacker-dojo-august-12"
             ? `${event.title} — Aug 12 | StartupA2Z.org`
-            : `${event.title} | StartupA2Z.org`
+            : `${event.title} | ${event.date.replace(", 2026", "")} | StartupA2Z.org`
         }
         description={
-          isSep1Event
-            ? "Join StartupA2Z on September 1, 2026, at Hacker Dojo in Mountain View for a free founder networking event and practical startup workshop."
+          searchContent
+            ? searchContent.description
             : event.desc ||
           event.longDesc?.slice(0, 155) ||
           "Startup event in the Bay Area"
@@ -193,6 +260,12 @@ const EventDetail = () => {
               eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
               eventStatus: "https://schema.org/EventScheduled",
               description: event.longDesc || event.desc,
+              mainEntityOfPage: eventCanonical,
+              isAccessibleForFree: event.price.toLowerCase() === "free",
+              audience: {
+                "@type": "Audience",
+                audienceType: "Startup founders, entrepreneurs, builders, operators, investors, and mentors",
+              },
               location: {
                 "@type": "Place",
                 name: event.venue,
@@ -219,15 +292,23 @@ const EventDetail = () => {
                 availability: "https://schema.org/InStock",
               },
             },
-            ...(isSep1Event
+            ...(searchContent
               ? [{
                   "@type": "FAQPage",
                   "@id": `${eventCanonical}#faq`,
-                  mainEntity: sep1Faqs.map((faq) => ({
+                  mainEntity: searchContent.faqs.map((faq) => ({
                     "@type": "Question",
                     name: faq.question,
                     acceptedAnswer: { "@type": "Answer", text: faq.answer },
                   })),
+                }, {
+                  "@type": "BreadcrumbList",
+                  "@id": `${eventCanonical}#breadcrumb`,
+                  itemListElement: [
+                    { "@type": "ListItem", position: 1, name: "Home", item: "https://startupa2z.org/" },
+                    { "@type": "ListItem", position: 2, name: "Bay Area Startup Events", item: "https://startupa2z.org/events" },
+                    { "@type": "ListItem", position: 3, name: event.title, item: eventCanonical },
+                  ],
                 }]
               : []),
           ],
@@ -305,26 +386,22 @@ const EventDetail = () => {
                 </p>
               </div>
 
-              {isSep1Event && (
+              {searchContent && (
                 <div className="grid gap-6 sm:grid-cols-2">
                   <article className="rounded-2xl border border-border bg-card p-6">
                     <h2 className="font-heading text-xl font-bold text-primary">
-                      Who should attend
+                      {searchContent.audienceHeading}
                     </h2>
                     <p className="mt-3 leading-7 text-muted-foreground">
-                      This Mountain View startup event is for founders, aspiring entrepreneurs,
-                      builders, operators, investors, mentors, and GTM leaders looking for
-                      practical learning and useful Silicon Valley connections.
+                      {searchContent.audience}
                     </p>
                   </article>
                   <article className="rounded-2xl border border-border bg-card p-6">
                     <h2 className="font-heading text-xl font-bold text-primary">
-                      What founders will work on
+                      {searchContent.valueHeading}
                     </h2>
                     <p className="mt-3 leading-7 text-muted-foreground">
-                      Clarify your ideal customer, recognize buyer-readiness signals, sharpen
-                      differentiation, define your category and budget competition, and express
-                      the same value consistently across your go-to-market motion.
+                      {searchContent.value}
                     </p>
                   </article>
                 </div>
@@ -382,19 +459,31 @@ const EventDetail = () => {
                 </div>
               )}
 
-              {isSep1Event && (
+              {searchContent && (
                 <section aria-label="Founder networking event frequently asked questions">
                   <h2 className="font-heading text-2xl font-bold text-primary mb-4">
                     Bay Area Founder Event FAQ
                   </h2>
                   <div className="space-y-4">
-                    {sep1Faqs.map((faq) => (
+                    {searchContent.faqs.map((faq) => (
                       <article key={faq.question} className="rounded-xl border border-border bg-card p-5">
                         <h3 className="font-heading text-lg font-bold text-primary">{faq.question}</h3>
                         <p className="mt-2 leading-7 text-muted-foreground">{faq.answer}</p>
                       </article>
                     ))}
                   </div>
+                </section>
+              )}
+
+              {searchContent && (
+                <section className="rounded-2xl border border-secondary/30 bg-secondary/5 p-6" aria-label="Related Bay Area founder event">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-secondary">Related Bay Area event</p>
+                  <h2 className="mt-2 font-heading text-xl font-bold text-primary">
+                    <Link className="hover:underline" to={`/events/${searchContent.related.slug}`}>
+                      {searchContent.related.label}
+                    </Link>
+                  </h2>
+                  <p className="mt-2 leading-7 text-muted-foreground">{searchContent.related.description}</p>
                 </section>
               )}
             </div>

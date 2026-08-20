@@ -26,8 +26,8 @@ export type EventItem = {
   registrationUrl?: string | null;
 };
 
-const pitchMixLongDescription =
-  "Join StartupA2Z for Founders Pitch & Mix, an evening designed to bring founders, builders, investors, and startup ecosystem partners together to connect, learn, and exchange ideas. The program combines networking, startup fundamentals, founder showcases, short audience pitches, feedback, visibility, and meaningful collaboration.";
+const pitchMixLongDescription = (date: string) =>
+  `Join StartupA2Z for Founders Pitch & Mix, a free Bay Area startup event at Hacker Dojo in Mountain View on ${date}. Founders, aspiring entrepreneurs, builders, operators, investors, mentors, and startup ecosystem partners can build useful connections, learn practical startup fundamentals, watch founder showcases, and hear short audience pitches with direct feedback. The program combines structured learning with founder-to-founder networking for people building and supporting early-stage companies across Silicon Valley.`;
 
 const pitchMixAgenda = [
   { time: "5:00 PM", item: "Networking" },
@@ -54,7 +54,7 @@ const pitchMixEvents: EventItem[] = [
   address: "855 Maude Ave, Mountain View, CA 94043",
   type: "Founder Meetup",
   desc: `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
-  longDesc: pitchMixLongDescription,
+  longDesc: pitchMixLongDescription(date),
   agenda: pitchMixAgenda,
   speakers: [{ name: "Satish Govindappa", role: "Host, StartupA2Z" }],
   spots: 0,
