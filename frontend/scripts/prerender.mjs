@@ -33,6 +33,7 @@ const ROUTES = [
   '/resources',
   '/resources/event-summaries',
   '/gallery',
+  '/gallery/startup-a-to-z-hacker-dojo-august-12',
   '/contact',
   '/sponsorship',
 ]

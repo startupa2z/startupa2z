@@ -91,6 +91,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://startupa2z.org/gallery</loc>
+    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/gallery/startup-a-to-z-hacker-dojo-august-12</loc>
+    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://startupa2z.org/sponsorship</loc>
     <lastmod>2026-08-20T00:14:24.465Z</lastmod>
     <changefreq>weekly</changefreq>

@@ -53,6 +53,7 @@ const App = () => (
           <Route path="/resources/event-summaries" element={<EventSummaries />} />
           <Route path="/sponsorship" element={<Sponsorship />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/gallery/:eventSlug" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/complete-profile" element={<CompleteProfile />} />
