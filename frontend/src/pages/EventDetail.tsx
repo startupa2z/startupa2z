@@ -22,11 +22,11 @@ import { isMemberAuthenticated } from "@/lib/auth";
 import { openAuthDialog } from "@/lib/auth-ui";
 import { profileCompletionUrl } from "@/lib/member-profile";
 
-const aug19Faqs = [
+const sep1Faqs = [
   {
-    question: "What founder networking events are happening in Mountain View in August 2026?",
+    question: "What founder networking events are happening in Mountain View in September 2026?",
     answer:
-      "StartupA2Z is hosting a free Bay Area founder networking event and startup workshop at Hacker Dojo in Mountain View on August 19, 2026, from 5:00 PM to 8:00 PM.",
+      "StartupA2Z is hosting a free Bay Area founder networking event and startup workshop at Hacker Dojo in Mountain View on September 1, 2026, from 5:00 PM to 8:00 PM.",
   },
   {
     question: "Who should attend the StartupA2Z founder networking event?",
@@ -34,7 +34,7 @@ const aug19Faqs = [
       "The event is designed for startup founders, aspiring entrepreneurs, builders, operators, investors, mentors, and go-to-market leaders who want practical learning and meaningful Bay Area connections.",
   },
   {
-    question: "What will founders learn at the August 19 startup workshop?",
+    question: "What will founders learn at the September 1 startup workshop?",
     answer:
       "The hands-on workshop covers ideal customer definition, buyer-readiness signals, differentiation, category and budget competition, positioning, and consistent value communication.",
   },
@@ -120,7 +120,7 @@ const EventDetail = () => {
   }
   if (!event) return <Navigate to="/events" replace />;
 
-  const isAug19Event = event.slug === "founders-pitch-mix-2026-08-19";
+  const isSep1Event = event.slug === "founder-networking-workshop-2026-09-01";
   const eventCanonical = `https://startupa2z.org/events/${event.slug}`;
   const absoluteImage = event.imageUrl
     ? event.imageUrl.startsWith("http")
@@ -165,15 +165,15 @@ const EventDetail = () => {
     <PageLayout>
       <SEO
         title={
-          isAug19Event
-            ? "Bay Area Founder Networking Event in Mountain View | Aug 19"
+          isSep1Event
+            ? "Bay Area Founder Networking & Startup Workshop | Sep 1"
             : event.slug === "startup-a-to-z-hacker-dojo-august-12"
             ? `${event.title} — Aug 12 | StartupA2Z.org`
             : `${event.title} | StartupA2Z.org`
         }
         description={
-          isAug19Event
-            ? "Join StartupA2Z on August 19, 2026, at Hacker Dojo in Mountain View for a free founder networking event and practical startup workshop."
+          isSep1Event
+            ? "Join StartupA2Z on September 1, 2026, at Hacker Dojo in Mountain View for a free founder networking event and practical startup workshop."
             : event.desc ||
           event.longDesc?.slice(0, 155) ||
           "Startup event in the Bay Area"
@@ -219,11 +219,11 @@ const EventDetail = () => {
                 availability: "https://schema.org/InStock",
               },
             },
-            ...(isAug19Event
+            ...(isSep1Event
               ? [{
                   "@type": "FAQPage",
                   "@id": `${eventCanonical}#faq`,
-                  mainEntity: aug19Faqs.map((faq) => ({
+                  mainEntity: sep1Faqs.map((faq) => ({
                     "@type": "Question",
                     name: faq.question,
                     acceptedAnswer: { "@type": "Answer", text: faq.answer },
@@ -305,7 +305,7 @@ const EventDetail = () => {
                 </p>
               </div>
 
-              {isAug19Event && (
+              {isSep1Event && (
                 <div className="grid gap-6 sm:grid-cols-2">
                   <article className="rounded-2xl border border-border bg-card p-6">
                     <h2 className="font-heading text-xl font-bold text-primary">
@@ -382,13 +382,13 @@ const EventDetail = () => {
                 </div>
               )}
 
-              {isAug19Event && (
+              {isSep1Event && (
                 <section aria-label="Founder networking event frequently asked questions">
                   <h2 className="font-heading text-2xl font-bold text-primary mb-4">
                     Bay Area Founder Event FAQ
                   </h2>
                   <div className="space-y-4">
-                    {aug19Faqs.map((faq) => (
+                    {sep1Faqs.map((faq) => (
                       <article key={faq.question} className="rounded-xl border border-border bg-card p-5">
                         <h3 className="font-heading text-lg font-bold text-primary">{faq.question}</h3>
                         <p className="mt-2 leading-7 text-muted-foreground">{faq.answer}</p>

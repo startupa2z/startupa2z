@@ -26,20 +26,62 @@ export type EventItem = {
   registrationUrl?: string | null;
 };
 
-// Public fallback event. A database record with the same slug overrides it.
+const pitchMixLongDescription =
+  "Join StartupA2Z for Founders Pitch & Mix, an evening designed to bring founders, builders, investors, and startup ecosystem partners together to connect, learn, and exchange ideas. The program combines networking, startup fundamentals, founder showcases, short audience pitches, feedback, visibility, and meaningful collaboration.";
+
+const pitchMixAgenda = [
+  { time: "5:00 PM", item: "Networking" },
+  { time: "5:30 PM", item: "Welcome and introduction by Satish" },
+  { time: "5:40 PM", item: "Part 1: Startup Fundamentals" },
+  { time: "6:00 PM", item: "Part 2: Founder Pitches" },
+  { time: "6:30 PM", item: "Part 3: Audience Pitches" },
+  { time: "7:00 PM", item: "Closing remarks by Satish" },
+  { time: "7:15 PM", item: "Post-session networking" },
+];
+
+const pitchMixEvents: EventItem[] = [
+  ["founders-pitch-mix-2026-08-25", "August 25, 2026", "2026-08-25", "mm8nnyc1"],
+  ["founders-pitch-mix-2026-09-08", "September 8, 2026", "2026-09-08", "25odwnxl"],
+  ["founders-pitch-mix-2026-09-15", "September 15, 2026", "2026-09-15", "hmvkxmas"],
+  ["founders-pitch-mix-2026-09-22", "September 22, 2026", "2026-09-22", "c7ebjedo"],
+  ["founders-pitch-mix-2026-09-29", "September 29, 2026", "2026-09-29", "lxlrmvle"],
+].map(([slug, date, isoDate, lumaSlug]) => ({
+  slug,
+  title: "Bay Area Founders Pitch & Startup Networking",
+  date,
+  time: "5:00 PM - 8:00 PM",
+  venue: "Hacker Dojo, Mountain View",
+  address: "855 Maude Ave, Mountain View, CA 94043",
+  type: "Founder Meetup",
+  desc: `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
+  longDesc: pitchMixLongDescription,
+  agenda: pitchMixAgenda,
+  speakers: [{ name: "Satish Govindappa", role: "Host, StartupA2Z" }],
+  spots: 0,
+  capacity: 0,
+  price: "Free",
+  featured: false,
+  imageUrl: recurringPitchMixCover,
+  startDateIso: `${isoDate}T17:00:00-07:00`,
+  endDateIso: `${isoDate}T20:00:00-07:00`,
+  registrationUrl: `https://luma.com/${lumaSlug}?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix`,
+}));
+
+// Public fallbacks mirror Luma. The database supplies the live event set.
 export const seedEvents: EventItem[] = [
+  ...pitchMixEvents,
   {
-    slug: "founders-pitch-mix-2026-08-19",
-    title: "Bay Area Founder Networking Event & Startup Workshop",
-    date: "August 19, 2026",
+    slug: "founder-networking-workshop-2026-09-01",
+    title: "Bay Area Founder Networking & Startup Workshop | Mountain View",
+    date: "September 1, 2026",
     time: "5:00 PM - 8:00 PM",
     venue: "Hacker Dojo, Mountain View",
     address: "855 Maude Ave, Mountain View, CA 94043",
-    type: "Founder Networking",
+    type: "Founder Workshop",
     desc:
-      "A free Bay Area founder networking event and practical startup workshop at Hacker Dojo in Mountain View on August 19, 2026.",
+      "A free Bay Area founder networking event and practical startup workshop at Hacker Dojo in Mountain View on September 1, 2026.",
     longDesc:
-      "Join StartupA2Z for a free Bay Area founder networking event at Hacker Dojo in Mountain View. Founders, entrepreneurs, builders, investors, operators, and startup ecosystem partners will work through practical go-to-market fundamentals, exchange direct feedback, and build useful Silicon Valley connections. Raj Badarinath—a four-time-exit CMO and Founder and CEO of Hivekind.ai—will facilitate Product's Done. Where's Revenue?, a hands-on workshop covering ideal customers, buyer-readiness signals, differentiation, category, budget, positioning, and consistent value communication.",
+      "Join StartupA2Z for a free Bay Area founder networking event at Hacker Dojo in Mountain View on September 1, 2026, from 5:00 PM to 8:00 PM. Designed for founders, aspiring entrepreneurs, builders, operators, investors, mentors, and GTM leaders, the event includes founder networking and Product's Done. Where's Revenue?, a hands-on go-to-market workshop led by Raj Badarinath, a four-time-exit CMO and Founder & CEO of Hivekind.ai.",
     agenda: [
       { time: "5:00 PM", item: "Arrival and founder networking" },
       { time: "5:30 PM", item: "Welcome and introduction by Satish Govindappa" },
@@ -54,12 +96,12 @@ export const seedEvents: EventItem[] = [
     spots: 0,
     capacity: 0,
     price: "Free",
-    featured: true,
+    featured: false,
     imageUrl: recurringPitchMixCover,
-    startDateIso: "2026-08-19T17:00:00-07:00",
-    endDateIso: "2026-08-19T20:00:00-07:00",
+    startDateIso: "2026-09-01T17:00:00-07:00",
+    endDateIso: "2026-09-01T20:00:00-07:00",
     registrationUrl:
-      "https://luma.com/txup8dqa?utm_source=startupa2z&utm_medium=website&utm_campaign=founder_networking_aug19",
+      "https://luma.com/txup8dqa?utm_source=startupa2z&utm_medium=website&utm_campaign=founder_networking_sep1",
   },
   {
     slug: "startup-a-to-z-hacker-dojo-august-12",
@@ -121,8 +163,8 @@ const mapRow = (r: {
   image_url?: string | null;
   registration_url?: string | null;
 }): EventItem => {
-  // Locally seeded public copy is the discovery source of truth. The database
-  // still supplies operational values and all content for non-seeded events.
+  // Seeded copy mirrors Luma for prerendering and API-outage fallback. The
+  // database supplies the live event set and operational values.
   const seedEvent = seedEvents.find((event) => event.slug === r.slug);
   const isRecurringPitchMix = r.slug.startsWith("founders-pitch-mix-2026-");
   return {
@@ -151,15 +193,11 @@ const mapRow = (r: {
   };
 };
 
-function mergeWithSeed(dbEvents: EventItem[]): EventItem[] {
-  const dbSlugs = new Set(dbEvents.map((e) => e.slug));
-  return [...dbEvents, ...seedEvents.filter((e) => !dbSlugs.has(e.slug))];
-}
-
 export const fetchAllEvents = async (): Promise<EventItem[]> => {
   try {
     const { data } = await fetchEventsFromApi();
-    return mergeWithSeed((data ?? []).map(mapRow));
+    const dbEvents = (data ?? []).map(mapRow);
+    return dbEvents.length > 0 ? dbEvents : seedEvents;
   } catch {
     return seedEvents;
   }

@@ -13,8 +13,16 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.resolve(scriptDir, "../dist");
 const eventSlug = "startup-a-to-z-hacker-dojo-august-12";
 const eventCanonical = `https://startupa2z.org/events/${eventSlug}`;
-const aug19Slug = "founders-pitch-mix-2026-08-19";
-const aug19Canonical = `https://startupa2z.org/events/${aug19Slug}`;
+const sep1Slug = "founder-networking-workshop-2026-09-01";
+const sep1Canonical = `https://startupa2z.org/events/${sep1Slug}`;
+const lumaEventRoutes = [
+  "founders-pitch-mix-2026-08-25",
+  sep1Slug,
+  "founders-pitch-mix-2026-09-08",
+  "founders-pitch-mix-2026-09-15",
+  "founders-pitch-mix-2026-09-22",
+  "founders-pitch-mix-2026-09-29",
+];
 
 const readRoute = (route) => {
   const file = route === "/"
@@ -45,24 +53,24 @@ requireText(eventHtml, "https://images.lumacdn.com/event-social/", "event social
 requireText(eventHtml, "https://luma.com/m0eu7bw9", "Luma registration destination");
 rejectText(eventHtml, 'rel="canonical" href="https://startupa2z.org/"', "event canonical");
 
-const aug19Html = readRoute(`/events/${aug19Slug}`);
-requireText(aug19Html, "<title>Bay Area Founder Networking Event in Mountain View | Aug 19</title>", "August 19 event title");
-requireText(aug19Html, `href="${aug19Canonical}"`, "August 19 event canonical");
-requireText(aug19Html, "Bay Area Founder Networking Event &amp; Startup Workshop", "August 19 primary heading");
-requireText(aug19Html, '"@type": "Event"', "August 19 Event schema type");
-requireText(aug19Html, '"startDate": "2026-08-19T17:00:00-07:00"', "August 19 Event start date");
-requireText(aug19Html, '"endDate": "2026-08-19T20:00:00-07:00"', "August 19 Event end date");
-requireText(aug19Html, '"@type": "PostalAddress"', "August 19 postal address");
-requireText(aug19Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png", "August 19 absolute event image");
-requireText(aug19Html, "https://luma.com/txup8dqa", "August 19 Luma registration destination");
-requireText(aug19Html, '"@type": "FAQPage"', "August 19 FAQ schema");
-rejectText(aug19Html, 'rel="canonical" href="https://startupa2z.org/"', "August 19 event canonical");
+const sep1Html = readRoute(`/events/${sep1Slug}`);
+requireText(sep1Html, "<title>Bay Area Founder Networking &amp; Startup Workshop | Sep 1</title>", "September 1 event title");
+requireText(sep1Html, `href="${sep1Canonical}"`, "September 1 event canonical");
+requireText(sep1Html, "Bay Area Founder Networking &amp; Startup Workshop | Mountain View", "September 1 primary heading");
+requireText(sep1Html, '"@type": "Event"', "September 1 Event schema type");
+requireText(sep1Html, '"startDate": "2026-09-01T17:00:00-07:00"', "September 1 Event start date");
+requireText(sep1Html, '"endDate": "2026-09-01T20:00:00-07:00"', "September 1 Event end date");
+requireText(sep1Html, '"@type": "PostalAddress"', "September 1 postal address");
+requireText(sep1Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png", "September 1 absolute event image");
+requireText(sep1Html, "https://luma.com/txup8dqa", "September 1 Luma registration destination");
+requireText(sep1Html, '"@type": "FAQPage"', "September 1 FAQ schema");
+rejectText(sep1Html, 'rel="canonical" href="https://startupa2z.org/"', "September 1 event canonical");
 
 const eventsHtml = readRoute("/events");
 requireText(eventsHtml, "Startup &amp; Founder Networking Events in the Bay Area | StartupA2Z", "events title");
 requireText(eventsHtml, "Bay Area Startup Networking and Founder Events", "events primary heading");
 requireText(eventsHtml, 'href="https://startupa2z.org/events"', "events canonical");
-requireText(eventsHtml, '"name": "Bay Area Founder Networking Event & Startup Workshop"', "events structured listing");
+requireText(eventsHtml, '"name": "Bay Area Founder Networking & Startup Workshop | Mountain View"', "events structured listing");
 requireText(eventsHtml, "Founder Networking Events", "events search guide");
 requireText(eventsHtml, "Startup Pitch Events", "events search guide");
 requireText(eventsHtml, "Silicon Valley Founder Meetups", "events search guide");
@@ -74,6 +82,8 @@ requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");
 requireText(robots, "Sitemap: https://startupa2z.org/sitemap.xml", "robots.txt");
 
 const sitemap = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
-requireText(sitemap, aug19Canonical, "August 19 sitemap entry");
+for (const slug of lumaEventRoutes) {
+  requireText(sitemap, `https://startupa2z.org/events/${slug}`, `${slug} sitemap entry`);
+}
 
 console.log("SEO verification passed: event HTML, schema, canonical, registration link, and crawler access are present.");
