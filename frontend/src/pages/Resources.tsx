@@ -4,7 +4,10 @@ import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
+  ArrowRight,
+  BookOpen,
   FileText,
   DollarSign,
   Briefcase,
@@ -116,6 +119,43 @@ const Resources = () => (
             Curated guides, templates, and playbooks to help you build,
             fundraise, and scale your startup.
           </p>
+        </motion.div>
+      </div>
+    </section>
+
+    <section className="bg-background pt-[clamp(3rem,6vw,5rem)]">
+      <div className="container-narrow">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="grid overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_16px_50px_rgba(27,75,57,0.11)] lg:grid-cols-[1.1fr_0.9fr]"
+        >
+          <div className="p-7 md:p-10">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary/8 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-primary">
+              <BookOpen className="h-4 w-4" /> New resource
+            </span>
+            <h2 className="mt-5 font-heading text-3xl font-bold leading-tight text-primary md:text-4xl">
+              Past Events Summary: the founder journeys behind the pitch
+            </h2>
+            <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
+              Revisit how founders started, the struggles that tested them,
+              what helped them move forward, and the lessons shared in the room.
+            </p>
+            <Link
+              to="/resources/event-summaries"
+              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-secondary px-5 py-3 font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              Explore past event summaries <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="flex min-h-64 items-center justify-center border-t border-primary/10 bg-[#f8f0e3] p-5 lg:border-l lg:border-t-0">
+            <img
+              src="https://images.lumacdn.com/event-social/uj/b1008796-76dc-4efd-96b4-b3e35890b79f.png"
+              alt="StartupA2Z August 12 founder event"
+              className="max-h-80 w-full object-contain"
+            />
+          </div>
         </motion.div>
       </div>
     </section>

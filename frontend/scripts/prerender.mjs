@@ -31,6 +31,7 @@ const ROUTES = [
   '/events/founders-pitch-mix-2026-09-22',
   '/events/founders-pitch-mix-2026-09-29',
   '/resources',
+  '/resources/event-summaries',
   '/gallery',
   '/contact',
   '/sponsorship',

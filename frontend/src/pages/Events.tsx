@@ -322,13 +322,19 @@ const Events = () => {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      onClick={(ev) => openRSVP(ev, e)}
-                      size="sm"
-                      className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit"
-                    >
-                      RSVP
-                    </Button>
+                    {schedule === "past" ? (
+                      <span className="mt-4 inline-flex w-fit items-center rounded-full bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground md:mt-0">
+                        View summary
+                      </span>
+                    ) : (
+                      <Button
+                        onClick={(ev) => openRSVP(ev, e)}
+                        size="sm"
+                        className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mt-4 md:mt-0 w-fit"
+                      >
+                        RSVP
+                      </Button>
+                    )}
                   </div>
                 </AnimatedCard>
               </Link>

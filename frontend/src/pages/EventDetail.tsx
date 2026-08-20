@@ -21,6 +21,8 @@ import { ApiError, submitMemberRsvp } from "@/lib/api";
 import { isMemberAuthenticated } from "@/lib/auth";
 import { openAuthDialog } from "@/lib/auth-ui";
 import { profileCompletionUrl } from "@/lib/member-profile";
+import EventSummaryDetail from "@/pages/EventSummaryDetail";
+import { getEventSummaryByEventSlug } from "@/data/eventSummaries";
 
 type EventSearchContent = {
   title: string;
@@ -186,6 +188,9 @@ const EventDetail = () => {
     );
   }
   if (!event) return <Navigate to="/events" replace />;
+
+  const eventSummary = getEventSummaryByEventSlug(event.slug);
+  if (eventSummary) return <EventSummaryDetail summarySlug={eventSummary.slug} />;
 
   const searchContent = eventSearchContent[event.slug];
   const eventCanonical = `https://startupa2z.org/events/${event.slug}`;

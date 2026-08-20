@@ -46,14 +46,18 @@ const eventHtml = readRoute(`/events/${eventSlug}`);
 const homeHtml = readRoute("/");
 rejectText(homeHtml, "http://localhost:", "homepage build output");
 rejectText(homeHtml, "http://127.0.0.1:", "homepage build output");
-requireText(eventHtml, "<title>Bay Area Founders Pitch &amp; Startup Networking — Aug 12 | StartupA2Z.org</title>", "event title");
+requireText(eventHtml, "<title>August 12 at Hacker Dojo: The First StartupA2Z Founder Gathering | StartupA2Z.org</title>", "event recap title");
 requireText(eventHtml, `href="${eventCanonical}"`, "event canonical");
-requireText(eventHtml, 'type="application/ld+json"', "event structured data");
-requireText(eventHtml, '"@type": "Event"', "Event schema type");
-requireText(eventHtml, '"startDate": "2026-08-12T17:00:00-07:00"', "Event start date");
+rejectText(eventHtml, 'content="noindex, nofollow"', "published recap robots metadata");
+requireText(eventHtml, "Founder journeys—not polished pitches", "event recap content");
 requireText(eventHtml, "https://images.lumacdn.com/event-social/", "event social image");
-requireText(eventHtml, "https://luma.com/m0eu7bw9", "Luma registration destination");
 rejectText(eventHtml, 'rel="canonical" href="https://startupa2z.org/"', "event canonical");
+
+const eventSummariesHtml = readRoute("/resources/event-summaries");
+requireText(eventSummariesHtml, "<title>Past Events Summary | StartupA2Z.org</title>", "event summary archive title");
+requireText(eventSummariesHtml, 'href="https://startupa2z.org/resources/event-summaries"', "event summary archive canonical");
+requireText(eventSummariesHtml, "Founder stories from the room", "event summary archive content");
+rejectText(eventSummariesHtml, 'content="noindex, nofollow"', "published event summary archive robots metadata");
 
 const sep1Html = readRoute(`/events/${sep1Slug}`);
 requireText(sep1Html, "<title>Bay Area Founder Networking &amp; GTM Workshop | Sep 1</title>", "September 1 event title");
@@ -101,6 +105,7 @@ requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");
 requireText(robots, "Sitemap: https://startupa2z.org/sitemap.xml", "robots.txt");
 
 const sitemap = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
+requireText(sitemap, "https://startupa2z.org/resources/event-summaries", "event summary archive sitemap entry");
 for (const slug of lumaEventRoutes) {
   requireText(sitemap, `https://startupa2z.org/events/${slug}`, `${slug} sitemap entry`);
 }
