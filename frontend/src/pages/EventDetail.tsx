@@ -371,7 +371,7 @@ const EventDetail = () => {
         <div className="container-narrow">
           <div className="grid lg:grid-cols-3 gap-10">
             {/* Main */}
-            <div className="lg:col-span-2 space-y-10">
+            <div className="order-2 space-y-10 lg:order-1 lg:col-span-2">
               <motion.img
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -494,9 +494,9 @@ const EventDetail = () => {
             </div>
 
             {/* Sidebar */}
-            <aside className="lg:col-span-1">
-              <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
-                <div className="space-y-4 mb-6">
+            <aside className="order-1 lg:order-2 lg:col-span-1">
+              <div className="sticky top-24 flex flex-col rounded-2xl border border-border bg-card p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                <div className="order-2 mt-6 space-y-4 lg:order-1 lg:mb-6 lg:mt-0">
                   <div className="flex items-start gap-3">
                     <Ticket className="w-5 h-5 text-secondary mt-0.5" />
                     <div>
@@ -552,25 +552,27 @@ const EventDetail = () => {
                   </div>
                 </div>
 
-                {event.registrationUrl ? (
-                  <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2">
-                    <a href={event.registrationUrl} target="_blank" rel="noreferrer">
-                      Register on Luma
-                    </a>
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleRsvp}
-                    disabled={rsvpSubmitting || rsvpConfirmed}
-                    className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full mb-2"
-                  >
-                    {rsvpConfirmed ? "RSVP Confirmed" : rsvpSubmitting ? "Confirming…" : "RSVP Now"}
-                  </Button>
-                )}
+                <div className="order-1 lg:order-2">
+                  {event.registrationUrl ? (
+                    <Button asChild className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                      <a href={event.registrationUrl} target="_blank" rel="noreferrer">
+                        Register on Luma
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleRsvp}
+                      disabled={rsvpSubmitting || rsvpConfirmed}
+                      className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                    >
+                      {rsvpConfirmed ? "RSVP Confirmed" : rsvpSubmitting ? "Confirming…" : "RSVP Now"}
+                    </Button>
+                  )}
+                </div>
                 <Button
                   onClick={handleShare}
                   variant="outline"
-                  className="w-full rounded-full"
+                  className="order-3 mt-2 w-full rounded-full"
                 >
                   <Share2 className="w-4 h-4 mr-2" /> Share event
                 </Button>
