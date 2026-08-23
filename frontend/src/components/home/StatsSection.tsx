@@ -22,7 +22,7 @@ const StatsSection = () => {
     { value: data.active_members.toLocaleString(), label: "Active Members" },
     { value: data.events_hosted.toLocaleString(), label: "Events Hosted" },
     { value: data.page_visits.toLocaleString(), label: "Page Visits" },
-    { value: `${data.industries.toLocaleString()}+`, label: "Industries" },
+    { value: "3+", label: "Partners" },
   ];
 
   return (

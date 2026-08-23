@@ -57,7 +57,7 @@ const HeroSection = () => {
     { value: homeStats.active_members.toLocaleString(), suffix: "", label: "Active Members" },
     { value: homeStats.events_hosted.toLocaleString(), suffix: "", label: "Events Hosted" },
     { value: homeStats.page_visits.toLocaleString(), suffix: "", label: "Page Visits" },
-    { value: homeStats.industries.toLocaleString(), suffix: "+", label: "Industries" },
+    { value: "3", suffix: "+", label: "Partners" },
   ];
 
   return (
@@ -92,24 +92,26 @@ const HeroSection = () => {
               className="mb-6 max-w-[650px] font-black leading-[0.98] tracking-[-0.04em] text-white text-[clamp(3rem,5.2vw,4.25rem)]"
               style={{ textShadow: "0 2px 20px rgba(0,0,0,0.25)" }}
             >
-              Silicon Valley
-              <br />
-              Starts Here.
+              Startup Community
             </h1>
 
             {/* Tagline */}
             <div className="mb-6">
               <p className="font-heading italic text-2xl md:text-3xl font-semibold bg-gradient-to-r from-secondary to-[hsl(30,100%,58%)] text-transparent bg-clip-text">
-                From Seed to Success
+                Bringing Seed to Success Closer
               </p>
             </div>
 
             {/* Body */}
             <p className="text-[clamp(0.95rem,1.4vw,1.08rem)] text-white/[0.82] max-w-[560px] mb-10 leading-[1.75]">
-              Building a startup is hard. Founders should not have to learn
-              every lesson alone. Startupa2z brings people together so useful
-              experience, advice, and connections reach founders when they
-              need them.
+              <strong className="font-semibold text-white">
+                Building a startup is hard, and roughly 90% don&apos;t make it.
+                But the odds get better in the room with people who&apos;ve already
+                cracked it.
+              </strong>{" "}
+              StartupA2Z connects you with the fundamentals, the mistakes, and
+              the playbooks that actually worked, so your journey to success
+              is shorter.
             </p>
 
             {/* Actions */}
@@ -161,6 +163,48 @@ const HeroSection = () => {
             transition={{ duration: 0.65, delay: 0.25 }}
             className="mx-auto flex h-full w-full max-w-[500px] flex-col lg:mx-0"
           >
+            {nextEvent && (
+              <div
+                className="group mb-4 grid grid-cols-[1fr_auto] items-center gap-4 rounded-2xl border-2 border-secondary bg-white p-4 shadow-[0_20px_55px_rgba(232,137,26,0.34)] ring-4 ring-secondary/15 backdrop-blur-[20px] transition-transform hover:-translate-y-1 sm:p-5"
+              >
+                <div className="min-w-0">
+                  <div className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-primary">
+                    Next Meetup
+                  </div>
+                  <h3 className="mt-1 line-clamp-2 text-[0.96rem] font-bold leading-snug tracking-[-0.01em] text-foreground">
+                    {nextEvent.title}
+                  </h3>
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[0.72rem] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 text-secondary" />
+                      {nextEvent.date} · {nextEvent.time.split(" - ")[0]}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-secondary" />
+                      {nextEvent.venue}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-col gap-2">
+                  <a
+                    href={nextEvent.registrationUrl || `/events/${nextEvent.slug}`}
+                    target={nextEvent.registrationUrl ? "_blank" : undefined}
+                    rel={nextEvent.registrationUrl ? "noopener noreferrer" : undefined}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-full bg-secondary px-4 py-2.5 text-xs font-bold uppercase tracking-[0.08em] text-white shadow-md transition-colors hover:bg-primary"
+                  >
+                    RSVP
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                  <Link
+                    to="/events"
+                    className="inline-flex items-center justify-center rounded-full border border-primary/25 bg-primary/5 px-3 py-2 text-[0.66rem] font-bold uppercase tracking-[0.06em] text-primary transition-colors hover:bg-primary hover:text-white"
+                  >
+                    Explore Meetups
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <Link
               to={featuredGallery.href}
               className="group relative block aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-white/20 bg-black/20 shadow-[0_24px_70px_rgba(0,0,0,0.32)] lg:min-h-[390px] lg:flex-1 lg:aspect-auto"
@@ -186,34 +230,6 @@ const HeroSection = () => {
               </span>
             </Link>
 
-            {nextEvent && (
-              <Link
-                to={`/events/${nextEvent.slug}`}
-                className="group mt-4 grid grid-cols-[1fr_auto] items-center gap-4 rounded-2xl border border-white/40 bg-white/[0.96] p-4 shadow-[0_16px_45px_rgba(0,0,0,0.24)] backdrop-blur-[20px] transition-transform hover:-translate-y-0.5 sm:p-5"
-              >
-                <div className="min-w-0">
-                  <div className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-primary">
-                    Next Meetup
-                  </div>
-                  <h3 className="mt-1 line-clamp-2 text-[0.96rem] font-bold leading-snug tracking-[-0.01em] text-foreground">
-                    {nextEvent.title}
-                  </h3>
-                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[0.72rem] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1.5">
-                      <CalendarDays className="h-3.5 w-3.5 text-secondary" />
-                      {nextEvent.date} · {nextEvent.time.split(" - ")[0]}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-secondary" />
-                      {nextEvent.venue}
-                    </span>
-                  </div>
-                </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors group-hover:bg-secondary">
-                  <ArrowRight className="h-4 w-4" />
-                </span>
-              </Link>
-            )}
           </motion.div>
         </div>
       </div>
