@@ -49,14 +49,15 @@ test("email signup continues into the shared prefilled profile form", async ({ p
   });
 
   await page.goto("/");
-  await page.getByRole("button", { name: "Join the Community" }).click();
+  await page.getByRole("link", { name: "Apply to Pitch" }).click();
+  await page.getByRole("button", { name: "Create member account" }).click();
   await page.getByRole("button", { name: "Sign up with email address" }).click();
   await page.getByLabel("Email address *").fill("member@example.com");
   await page.getByRole("button", { name: "Send verification code" }).click();
   await page.locator("[data-input-otp]").fill("123456");
   await page.getByRole("button", { name: "Verify and sign up" }).click();
 
-  await expect(page).toHaveURL(/\/complete-profile\?returnTo=%2Fwelcome$/);
+  await expect(page).toHaveURL(/\/complete-profile\?returnTo=%2Fwelcome%3Fintent%3Dpitch$/);
   await expect(page.getByRole("textbox", { name: "Email", exact: true })).toHaveValue("member@example.com");
   await expect(page.getByLabel("Full name *")).toHaveValue("");
   await expect(page.getByLabel("Company / startup *")).toHaveValue("");
@@ -174,6 +175,7 @@ test("a completed member can edit every profile field and see the update on welc
 
   await page.goto("/welcome");
   await expect(page.getByRole("heading", { name: "Welcome, Member Example" })).toBeVisible();
+  await page.getByRole("button", { name: "My profile" }).click();
   await page.getByRole("link", { name: "Edit profile" }).click();
   await page.getByLabel("Full name *").fill("Updated Member");
   await page.getByLabel("Company / startup *").fill("Not applicable");
@@ -187,6 +189,7 @@ test("a completed member can edit every profile field and see the update on welc
 
   await expect(page).toHaveURL(/\/welcome$/);
   await expect(page.getByRole("heading", { name: "Welcome, Updated Member" })).toBeVisible();
+  await page.getByRole("button", { name: "My profile" }).click();
   await expect(page.getByText("Not applicable", { exact: true })).toHaveCount(2);
   expect(patchCalls).toBe(1);
 });
@@ -250,6 +253,7 @@ test("admin members UI displays and edits membership fields", async ({ page }) =
   await page.route("**/api/events", async (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, data: [] }) }));
 
   await page.goto("/admin/submissions");
+  await page.getByRole("button", { name: /Community/ }).click();
   await page.getByRole("button", { name: "Members" }).click();
   await expect(page.getByText("Example Startup")).toBeVisible();
   await expect(page.getByText("Founder", { exact: true })).toBeVisible();

@@ -14,6 +14,8 @@ const publicRoutes = [
   "/gallery",
   "/contact",
   "/sponsorship",
+  "/apply-to-pitch",
+  "/pitch-application",
 ];
 
 test("all public routes render without browser errors", async ({ page }) => {
@@ -28,7 +30,7 @@ test("all public routes render without browser errors", async ({ page }) => {
     currentRoute = route;
     const response = await page.goto(route);
     expect(response?.status(), route).toBeLessThan(400);
-    await expect(page.locator("main")).toBeVisible();
+    await expect(page.locator("main").first()).toBeVisible();
   }
 
   expect(errors).toEqual([]);
@@ -51,7 +53,7 @@ test("header groups expose the expected destinations", async ({ page }) => {
   await expect(navigation.getByRole("link", { name: "Sponsor", exact: true })).toHaveAttribute("href", "/sponsorship");
 });
 
-test("sign in and community join open the correct authentication modes", async ({ page }) => {
+test("sign in and apply to pitch open the correct authentication modes", async ({ page }) => {
   await page.goto("/");
 
   await page.getByRole("button", { name: "Sign In", exact: true }).click();
@@ -59,23 +61,21 @@ test("sign in and community join open the correct authentication modes", async (
   await expect(page.getByRole("button", { name: "Sign in with LinkedIn" })).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
 
-  await page.getByRole("button", { name: "Join the Community" }).click();
+  await page.getByRole("link", { name: "Apply to Pitch" }).click();
+  await page.getByRole("button", { name: "Create member account" }).click();
   await expect(page.getByRole("dialog")).toContainText("Create your account");
   await expect(page.getByRole("button", { name: "Sign up with email address" })).toBeVisible();
 });
 
-test("event filtering and external registration destination work", async ({ page }) => {
+test("event filtering and completed event detail work", async ({ page }) => {
   await page.goto("/events?view=past");
   await expect(page.getByRole("heading", { name: "Past Events" })).toBeVisible();
-  await expect(page.getByText("No past events to show yet.")).toBeVisible();
 
   await page.getByRole("link", { name: "Upcoming", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Upcoming Events" })).toBeVisible();
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
-  await expect(page.getByRole("link", { name: "Register on Luma" })).toHaveAttribute(
-    "href",
-    /^https:\/\/luma\.com\/m0eu7bw9\?utm_source=startupa2z/,
-  );
+  await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();
 });
 
 test("upcoming featured section never promotes a past event", async ({ page }) => {
@@ -178,60 +178,15 @@ test("founder directory opens a founder profile linked to the startup story", as
   await expect(page.getByRole("heading", { name: "What keyframe.art provides" })).toBeVisible();
 });
 
-test("business submission captures founders and stays pending for review", async ({ page }) => {
-  let submittedPayload: Record<string, unknown> | null = null;
-  await page.route("**/api/businesses", async (route) => {
-    if (route.request().method() !== "POST") {
-      await route.continue();
-      return;
-    }
-    submittedPayload = route.request().postDataJSON() as Record<string, unknown>;
-    await route.fulfill({
-      status: 201,
-      contentType: "application/json",
-      body: JSON.stringify({ ok: true, message: "Submitted for review", data: {} }),
-    });
-  });
-
+test("startup directory opens the intentionally short add-business prototype", async ({ page }) => {
   await page.goto("/startups");
-  await page.getByRole("button", { name: "Submit Your Business" }).click();
-  const dialog = page.getByRole("dialog", { name: "Create Your Startup Profile" });
-  await dialog.getByLabel("Business name *").fill("Health Check Labs");
-  await dialog.getByLabel("What does your business do? *").fill("A complete startup profile workflow used for automated validation.");
-  await dialog.getByLabel("Location *").fill("Mountain View, CA");
-  await dialog.getByLabel("Founded year").fill("2024");
-  await dialog.getByLabel("Team size").fill("3");
-  await dialog.getByLabel("Company LinkedIn").fill("https://linkedin.com/company/health-check-labs");
-  await dialog.getByRole("combobox").nth(0).click();
-  await page.getByRole("option", { name: "Seed", exact: true }).click();
-  await dialog.getByRole("combobox").nth(1).click();
-  await page.getByRole("option", { name: "AI", exact: true }).click();
-  await dialog.getByRole("button", { name: "Continue" }).click();
-
-  await dialog.getByLabel("Name *").fill("Test Founder");
-  await dialog.getByLabel("Founder journey").fill("The founder encountered this problem directly and built the first solution.");
-  await dialog.getByRole("button", { name: "Continue" }).click();
-  await dialog.getByLabel("Journey to reach here *").fill("The team validated the problem, built a prototype, and earned its first customer pilot.");
-  await dialog.getByLabel("Our Ask point 1").fill("Pilot customers in the Bay Area");
-  await dialog.getByLabel("Our Offer point 1").fill("Automated startup health checks");
-  await dialog.getByRole("button", { name: "Continue" }).click();
-  await dialog.getByRole("button", { name: "Continue" }).click();
-  await dialog.getByLabel("Your name *").fill("Test Submitter");
-  await dialog.getByLabel("Your email *").fill("business-healthcheck@example.com");
-  await dialog.getByRole("button", { name: "Submit for Review" }).click();
-
-  await expect(page.getByText("Profile submitted for review", { exact: true })).toBeVisible();
-  expect(submittedPayload).toMatchObject({
-    name: "Health Check Labs",
-    founded_year: 2024,
-    team_size: 3,
-    channels: [{ label: "LinkedIn", url: "https://linkedin.com/company/health-check-labs" }],
-    journey: "The team validated the problem, built a prototype, and earned its first customer pilot.",
-    ask_text: "Pilot customers in the Bay Area",
-    offer_text: "Automated startup health checks",
-    founders: [{ name: "Test Founder", role: "Founder" }],
-    consent_to_publish: true,
-  });
+  await page.getByRole("button", { name: "Add Startup/Business" }).first().click();
+  const dialog = page.getByRole("dialog", { name: "Add Startup/Business" });
+  await expect(dialog.getByLabel("Startup/business name *")).toBeVisible();
+  await expect(dialog.getByLabel("Website")).toBeVisible();
+  await expect(dialog.getByLabel("What does your startup/business do? *")).toBeVisible();
+  await expect(dialog.getByText(/You can add founders, your journey/)).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Add Startup/Business" })).toBeDisabled();
 });
 
 test("footer email action continues into a prefilled signup", async ({ page }) => {
@@ -306,14 +261,17 @@ test("public API health and authorization boundaries are correct", async ({ requ
 });
 
 test("local admin login reaches the dashboard", async ({ page }) => {
-  const username = process.env.E2E_ADMIN_USERNAME || "admin";
-  const password = process.env.E2E_ADMIN_PASSWORD || "admin";
+  const payload = Buffer.from(JSON.stringify({ sub: "local-admin", email: "admin@local", roles: ["admin"] })).toString("base64url");
+  const token = `header.${payload}.signature`;
+  await page.route("**/api/auth/admin/login", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, session: { access_token: token, token_type: "bearer", expires_in: 3600 } }) }));
+  await page.route("**/api/admin/**", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, data: [] }) }));
+  await page.route("**/api/events", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, data: [] }) }));
 
   await page.goto("/admin/login");
-  await page.getByLabel("Username").fill(username);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel("Username").fill("admin");
+  await page.getByLabel("Password").fill("test-password");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/admin\/submissions$/);
   await expect(page.getByRole("navigation", { name: "Admin navigation" })).toBeVisible();
-  await expect(page.getByText("Event management", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
 });

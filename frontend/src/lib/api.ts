@@ -48,7 +48,7 @@ export async function apiRequest<T>(
     res = await fetch(`${API_BASE}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
         ...options.headers,
       },
     });
@@ -126,6 +126,7 @@ export type AuthenticatedMember = {
   full_name: string | null;
   company: string | null;
   job_title: string | null;
+  linkedin_url: string | null;
   founder_status: FounderStatus | null;
   linkedin_connected: boolean;
   profile_complete: boolean;
@@ -193,6 +194,99 @@ export function updateMemberProfile(payload: {
   return apiRequest<{ ok: boolean; user: AuthenticatedMember }>("/api/auth/me", {
     method: "PATCH",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: JSON.stringify(payload),
+  });
+}
+
+// ——— Member pitch applications ———
+
+export type PitchApplicationStatus = "draft" | "submitted" | "under_review" | "approved" | "declined" | "withdrawn";
+
+export type PitchApplication = {
+  id: string;
+  user_id: string;
+  event_id: string | null;
+  event_slug: string | null;
+  event_title: string | null;
+  startup_name: string | null;
+  startup_website: string | null;
+  startup_summary: string | null;
+  talk_title: string | null;
+  problem: string | null;
+  solution: string | null;
+  monetization_challenge: string | null;
+  breakthrough: string | null;
+  lessons: string[];
+  ask_text: string | null;
+  offer_text: string | null;
+  milestone: string | null;
+  consent_to_review: boolean;
+  status: PitchApplicationStatus;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PitchApplicationDraftPayload = {
+  id?: string | null;
+  event_id?: string | null;
+  startup_name?: string | null;
+  startup_website?: string | null;
+  startup_summary?: string | null;
+  talk_title?: string | null;
+  problem?: string | null;
+  solution?: string | null;
+  monetization_challenge?: string | null;
+  breakthrough?: string | null;
+  lessons?: string[];
+  ask_text?: string | null;
+  offer_text?: string | null;
+  milestone?: string | null;
+};
+
+export type PitchApplicationSubmissionPayload = PitchApplicationDraftPayload & {
+  event_id: string;
+  startup_name: string;
+  startup_summary: string;
+  problem: string;
+  solution: string;
+  monetization_challenge: string;
+  breakthrough: string;
+  lessons: [string, string, string];
+  ask_text: string;
+  offer_text: string;
+  consent_to_review: true;
+};
+
+function memberRequest<T>(path: string, options: RequestInit = {}) {
+  const token = getToken();
+  return apiRequest<T>(path, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
+
+export function fetchPitchApplications() {
+  return memberRequest<{ ok: boolean; data: PitchApplication[] }>("/api/pitch-applications");
+}
+
+export function fetchCurrentPitchApplication() {
+  return memberRequest<{ ok: boolean; data: PitchApplication | null }>("/api/pitch-applications/current");
+}
+
+export function savePitchApplicationDraft(payload: PitchApplicationDraftPayload) {
+  return memberRequest<{ ok: boolean; message: string; data: PitchApplication }>("/api/pitch-applications/draft", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function submitPitchApplication(payload: PitchApplicationSubmissionPayload) {
+  return memberRequest<{ ok: boolean; message: string; data: PitchApplication }>("/api/pitch-applications/submit", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 }
@@ -309,6 +403,9 @@ export type AdminBusiness = BusinessListing & {
   published: boolean;
   status: "pending" | "published" | "hidden";
   updated_at: string;
+  enrichment_status: "pending" | "completed";
+  enrichment_sources: string[];
+  enriched_at: string | null;
 };
 
 export type AdminMember = {
@@ -525,17 +622,60 @@ export function createCheckoutSession(payload: {
   packageId: string;
   customerEmail?: string;
 }) {
-  const origin = window.location.origin;
   return apiRequest<{ ok: boolean; url: string }>(
     "/api/stripe/create-checkout-session",
     {
       method: "POST",
-      body: JSON.stringify({
-        ...payload,
-        successUrl: `${origin}/sponsorship?payment=success`,
-        cancelUrl: `${origin}/sponsorship?payment=cancelled`,
-      }),
+      body: JSON.stringify(payload),
     },
+  );
+}
+
+export type CheckoutSessionStatus = {
+  sessionId: string;
+  paymentStatus: string;
+  amountTotal: number;
+  currency: string;
+  packageName: string;
+};
+
+export function fetchCheckoutSession(sessionId: string) {
+  return apiRequest<{ ok: boolean; data: CheckoutSessionStatus }>(
+    `/api/stripe/checkout-session/${encodeURIComponent(sessionId)}`,
+  );
+}
+
+export type SponsorPayment = {
+  id: string;
+  stripe_session_id: string;
+  stripe_payment_intent_id: string | null;
+  payment_status: string;
+  fulfillment_status: "pending" | "contacted" | "fulfilled";
+  amount_total: number;
+  amount_refunded: number;
+  currency: string;
+  customer_email: string | null;
+  customer_name: string | null;
+  package_id: string | null;
+  package_name: string | null;
+  livemode: boolean;
+  paid_at: string | null;
+  fulfilled_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export function fetchAdminSponsorPayments() {
+  return adminRequest<{ ok: boolean; data: SponsorPayment[] }>("/api/admin/sponsor-payments");
+}
+
+export function updateSponsorFulfillment(
+  paymentId: string,
+  status: SponsorPayment["fulfillment_status"],
+) {
+  return adminRequest<{ ok: boolean; data: SponsorPayment }>(
+    `/api/admin/sponsor-payments/${encodeURIComponent(paymentId)}/fulfillment`,
+    { method: "PATCH", body: JSON.stringify({ status }) },
   );
 }
 
@@ -602,6 +742,62 @@ export type AdminRSVP = {
   created_at: string;
 };
 
+export type AdminAllUser = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  company: string | null;
+  job_title: string | null;
+  is_member: boolean;
+  is_website_registrant: boolean;
+  is_luma_attendee: boolean;
+  is_lead: boolean;
+  marketing_consent: boolean;
+  first_source: string;
+  last_source: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AllUsersImportResult = {
+  filename: string;
+  source: "luma_csv" | "lead_csv" | "other_csv";
+  total_rows: number;
+  valid_unique_rows: number;
+  created_rows: number;
+  updated_rows: number;
+  invalid_rows: number;
+  duplicate_rows: number;
+  total_all_users: number;
+  invalid_examples: { row: number; email: string; reason: string }[];
+  dedupe_verified: boolean;
+  duplicate_emails_remaining: number;
+  enrichment_status: "completed";
+  enriched_rows: number;
+  enrichment_matches: number;
+  fields_enriched: number;
+};
+
+export function fetchAdminAllUsers() {
+  return adminRequest<{ ok: boolean; data: AdminAllUser[] }>("/api/admin/all-users");
+}
+
+export function importAdminAllUsersCsv(
+  file: File,
+  source: AllUsersImportResult["source"],
+) {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("source", source);
+  return adminRequest<{ ok: boolean; data: AllUsersImportResult }>("/api/admin/all-users/import", {
+    method: "POST",
+    body,
+  });
+}
+
 export type AdminEvent = {
   id: string;
   slug: string;
@@ -644,6 +840,36 @@ export function fetchAdminSubmissions() {
 
 export function fetchAdminRsvps() {
   return adminRequest<{ ok: boolean; data: AdminRSVP[] }>("/api/admin/rsvps");
+}
+
+export type InvitationAudiencePreview = {
+  event_slug: string;
+  counts: {
+    raw_rows: number;
+    unique_contacts: number;
+    member_contacts: number;
+    rsvp_contacts: number;
+    duplicates_removed: number;
+    already_registered: number;
+    invalid_email: number;
+    internal_or_test: number;
+    eligible_before_suppression: number;
+  };
+  suppression: {
+    available: boolean;
+    count: number | null;
+    reason: string;
+  };
+  ready_to_send: boolean;
+  send_capability: boolean;
+  notice: string;
+};
+
+export function fetchInvitationAudiencePreview(eventSlug: string) {
+  const params = new URLSearchParams({ event_slug: eventSlug });
+  return adminRequest<{ ok: boolean; data: InvitationAudiencePreview }>(
+    `/api/admin/audience-preview?${params.toString()}`,
+  );
 }
 
 export function deleteAdminRsvp(id: string) {

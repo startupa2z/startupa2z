@@ -27,10 +27,7 @@ async def home_stats():
     pool = await get_pool()
     row = await pool.fetchrow(
         """SELECT
-               (SELECT COUNT(*)
-                  FROM users u
-                  JOIN member_profiles p ON p.user_id = u.id
-                 WHERE NULLIF(trim(p.full_name), '') IS NOT NULL) AS active_members,
+               (SELECT COUNT(*) FROM all_users) AS active_members,
                (SELECT COUNT(*) FROM events) AS events_hosted,
                (SELECT s.page_visit_baseline + COUNT(v.id)
                   FROM home_stats_settings s

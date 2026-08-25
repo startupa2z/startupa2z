@@ -12,6 +12,7 @@ from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator, model
 from auth_middleware import require_admin
 from database import get_pool
 from member_profile import fetch_member_profile
+from all_users import upsert_all_user
 
 router = APIRouter()
 
@@ -46,6 +47,51 @@ async def list_submissions(user: dict = Depends(require_admin)):
     pool = await get_pool()
     rows = await pool.fetch("SELECT * FROM contact_submissions ORDER BY created_at DESC")
     return {"ok": True, "data": [dict(r) for r in rows]}
+
+
+# ——— Sponsorship payments ——————————————————————————————————————————————————
+
+class SponsorFulfillmentPayload(BaseModel):
+    status: Literal["pending", "contacted", "fulfilled"]
+
+
+@router.get("/sponsor-payments")
+async def list_sponsor_payments(user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    rows = await pool.fetch(
+        """SELECT id, stripe_session_id, stripe_payment_intent_id,
+                  payment_status, fulfillment_status, amount_total, amount_refunded,
+                  currency, customer_email, customer_name, package_id, package_name,
+                  livemode, paid_at, fulfilled_at, created_at, updated_at
+             FROM sponsor_payments
+            ORDER BY created_at DESC"""
+    )
+    return {"ok": True, "data": [dict(row) for row in rows]}
+
+
+@router.patch("/sponsor-payments/{payment_id}/fulfillment")
+async def update_sponsor_fulfillment(
+    payment_id: str,
+    body: SponsorFulfillmentPayload,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    row = await pool.fetchrow(
+        """UPDATE sponsor_payments
+              SET fulfillment_status = $1,
+                  fulfilled_at = CASE WHEN $1 = 'fulfilled' THEN now() ELSE NULL END,
+                  updated_at = now()
+            WHERE id = $2
+        RETURNING id, stripe_session_id, stripe_payment_intent_id,
+                  payment_status, fulfillment_status, amount_total, amount_refunded,
+                  currency, customer_email, customer_name, package_id, package_name,
+                  livemode, paid_at, fulfilled_at, created_at, updated_at""",
+        body.status,
+        payment_id,
+    )
+    if not row:
+        raise HTTPException(404, "Sponsorship payment not found.")
+    return {"ok": True, "data": dict(row)}
 
 
 # ——— Members ————————————————————————————————————————————————————————————————
@@ -107,7 +153,8 @@ async def update_member(member_id: str, body: MemberUpdatePayload, user: dict = 
         raise HTTPException(400, "No fields to update.")
 
     pool = await get_pool()
-    if not await pool.fetchval("SELECT 1 FROM users WHERE id = $1", member_id):
+    original_email = await pool.fetchval("SELECT email FROM users WHERE id = $1", member_id)
+    if not original_email:
         raise HTTPException(404, "Member not found.")
     try:
         if "email" in updates:
@@ -139,6 +186,22 @@ async def update_member(member_id: str, body: MemberUpdatePayload, user: dict = 
         )
 
     row = await fetch_member_profile(pool, member_id)
+    if original_email.strip().lower() != row["email"].strip().lower():
+        await pool.execute(
+            """UPDATE all_users
+                  SET member_user_id = NULL, is_member = false, updated_at = now()
+                WHERE normalized_email = $1""",
+            original_email.strip().lower(),
+        )
+    await upsert_all_user(
+        pool,
+        email=row["email"],
+        source="member",
+        full_name=row["full_name"],
+        company=row["company"],
+        job_title=row["job_title"],
+        member_user_id=row["id"],
+    )
 
     registered_sessions = await pool.fetchval(
         "SELECT COUNT(DISTINCT event_slug) FROM event_rsvps WHERE user_id = $1 OR lower(email) = lower($2)",
@@ -157,9 +220,17 @@ async def delete_member(member_id: str, user: dict = Depends(require_admin)):
     if str(user.get("sub")) == member_id:
         raise HTTPException(400, "You cannot delete your own admin account.")
     pool = await get_pool()
+    member_email = await pool.fetchval("SELECT email FROM users WHERE id = $1", member_id)
     result = await pool.execute("DELETE FROM users WHERE id = $1", member_id)
     if result == "DELETE 0":
         raise HTTPException(404, "Member not found.")
+    if member_email:
+        await pool.execute(
+            """UPDATE all_users
+                  SET is_member = false, member_user_id = NULL, updated_at = now()
+                WHERE normalized_email = $1""",
+            member_email.strip().lower(),
+        )
     return {"ok": True}
 
 

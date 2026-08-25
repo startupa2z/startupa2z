@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Camera, Linkedin, Instagram, Facebook, MapPin } from "lucide-react";
+import { ArrowRight, CalendarDays, Camera, Linkedin, Instagram, Facebook, MapPin, Mic2 } from "lucide-react";
 import { X as XIcon } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
-import { openAuthDialog } from "@/lib/auth-ui";
 import { fetchHomeStats, type HomeStats } from "@/lib/api";
 
 const socialLinks = [
@@ -54,7 +53,7 @@ const HeroSection = () => {
   }, []);
 
   const stats = [
-    { value: homeStats.active_members.toLocaleString(), suffix: "", label: "Active Members" },
+    { value: homeStats.active_members.toLocaleString(), suffix: "", label: "People in Network" },
     { value: homeStats.events_hosted.toLocaleString(), suffix: "", label: "Events Hosted" },
     { value: homeStats.page_visits.toLocaleString(), suffix: "", label: "Page Visits" },
     { value: "3", suffix: "+", label: "Partners" },
@@ -122,13 +121,12 @@ const HeroSection = () => {
               >
                 Explore Meetups <ArrowRight className="w-4 h-4" />
               </Link>
-              <button
-                type="button"
-                onClick={() => openAuthDialog("signup")}
-                className="text-[0.9rem] font-semibold text-white hover:text-secondary/90 transition-colors"
+              <Link
+                to="/apply-to-pitch"
+                className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-3 text-[0.9rem] font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-white/15"
               >
-                Join the Community
-              </button>
+                <Mic2 className="h-4 w-4 text-secondary" /> Apply to Pitch
+              </Link>
             </div>
 
             {/* Stats bar */}
@@ -221,9 +219,6 @@ const HeroSection = () => {
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-md">
                   <Camera className="h-3.5 w-3.5 text-secondary" /> From our gallery
                 </span>
-                <p className="mt-3 max-w-[260px] font-heading text-xl font-bold leading-tight text-white sm:text-2xl">
-                  Founders in the room.
-                </p>
               </div>
               <span className="absolute bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white shadow-lg transition-transform group-hover:translate-x-1 sm:bottom-6 sm:right-6">
                 <ArrowRight className="h-4 w-4" />

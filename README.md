@@ -13,7 +13,7 @@ Monorepo for the StartupA2Z.org community website.
 
 ```bash
 cp .env.example .env
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
 ```
 
 Open `http://localhost:8081`.

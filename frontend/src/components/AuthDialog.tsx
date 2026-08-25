@@ -71,7 +71,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
         setToken(session.access_token);
         toast({ title: "Welcome to StartupA2Z.org!" });
         const resumeRsvp = new URLSearchParams(window.location.search).get("rsvp") === "1";
-        const destination = resumeRsvp ? cleanedPath : "/welcome";
+        const destination = resumeRsvp ? cleanedPath : redirectTo;
         navigate(user.profile_complete ? destination : profileCompletionUrl(destination), { replace: true });
       })
       .catch((error) => toast({
@@ -79,7 +79,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
         description: error instanceof ApiError ? error.message : "Please try again.",
         variant: "destructive",
       }));
-  }, [navigate]);
+  }, [navigate, redirectTo]);
 
   useEffect(() => {
     if (open) {

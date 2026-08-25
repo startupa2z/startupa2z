@@ -1,16 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import type { AdminEvent, AdminRSVP } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +27,7 @@ import {
   FileEdit,
   Globe2,
   Megaphone,
+  Eye,
   MoreHorizontal,
   Copy,
   Plus,
@@ -42,8 +38,9 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import EventForm from "./EventForm";
 import AdminCalendar from "./AdminCalendar";
+import EventPortfolio from "./EventPortfolio";
+import { stageInfo, type DemoEvent, type JourneyStep } from "./campaign-demo";
 
 const prototypeAction = (title: string) => toast({
   title: `${title} — prototype`,
@@ -53,22 +50,40 @@ const prototypeAction = (title: string) => toast({
 const EventManagement = ({
   events,
   registrations,
-  onCreated,
   onEdit,
   onDelete,
   onViewAttendees,
+  onOpenCampaign,
+  demoEvents,
+  setDemoEvents,
+  journeyStep,
+  onJourneyStepChange,
 }: {
   events: AdminEvent[];
   registrations: AdminRSVP[];
-  onCreated: () => void;
   onEdit: (id: string) => void;
   onDelete: (id: string, title: string) => void;
   onViewAttendees: (event: { slug: string; title: string }) => void;
+  onOpenCampaign: (eventId: string) => void;
+  demoEvents: DemoEvent[];
+  setDemoEvents: Dispatch<SetStateAction<DemoEvent[]>>;
+  journeyStep: JourneyStep;
+  onJourneyStepChange: (step: JourneyStep) => void;
 }) => {
   const [selectedId, setSelectedId] = useState<string | null>(events[0]?.id ?? null);
-  const [createOpen, setCreateOpen] = useState(false);
   const [view, setView] = useState<"manage" | "calendar">("manage");
   const [eventSearch, setEventSearch] = useState("");
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [editingDemoId, setEditingDemoId] = useState<string | null>(null);
+  const [draft, setDraft] = useState({
+    title: "",
+    date: "",
+    time: "",
+    venue: "",
+    type: "Networking",
+    capacity: "50",
+    description: "",
+  });
 
   useEffect(() => {
     if (!selectedId && events[0]) setSelectedId(events[0].id);
@@ -108,19 +123,178 @@ const EventManagement = ({
     { name: "Email", status: "Not sent", style: "" },
   ];
 
+  const updateDraft = (field: keyof typeof draft, value: string) => setDraft((current) => ({ ...current, [field]: value }));
+
+  const saveDraftAndContinue = () => {
+    if (!draft.title.trim() || !draft.date || !draft.time || !draft.venue.trim() || !draft.description.trim()) {
+      setDraftError("Add the event title, date, time, venue, and description before continuing.");
+      return;
+    }
+    if (editingDemoId) {
+      setDemoEvents((current) => current.map((event) => event.id === editingDemoId ? {
+        ...event,
+        title: draft.title.trim(),
+        date: draft.date,
+        time: draft.time,
+        venue: draft.venue.trim(),
+        note: draft.description.trim(),
+      } : event));
+      setEditingDemoId(null);
+      setDraftError(null);
+      toast({ title: "Event updated locally", description: "The browser-session event now reflects your changes." });
+      onJourneyStepChange(1);
+      return;
+    }
+    const id = `local-created-${Date.now()}`;
+    const slug = draft.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || id;
+    setDemoEvents((current) => [{
+      id,
+      slug,
+      title: draft.title.trim(),
+      date: draft.date,
+      time: draft.time,
+      venue: draft.venue.trim(),
+      stage: "draft_event",
+      note: "All required event details are saved. Ready to publish in this local demo.",
+    }, ...current]);
+    setDraftError(null);
+    toast({ title: "Event draft saved locally", description: "Nothing was published. Continue to Step 3 when ready." });
+    onJourneyStepChange(3);
+  };
+
+  const publishLocalDemo = (event: DemoEvent) => {
+    setDemoEvents((current) => current.map((item) => item.id === event.id ? { ...item, stage: "published", note: "The event is public in this local demo. Its campaign has not been started." } : item));
+    toast({ title: "Event marked published in local demo", description: "No website or external channel was changed." });
+  };
+
+  const openInlineCreate = (date?: string) => {
+    setEditingDemoId(null);
+    setDraft({ title: "", date: date ?? "", time: "", venue: "", type: "Networking", capacity: "50", description: "" });
+    setDraftError(null);
+    onJourneyStepChange(2);
+  };
+
+  const openDemoEdit = (event: DemoEvent) => {
+    const realEvent = events.find((item) => item.id === event.id || item.slug === event.slug);
+    if (realEvent) {
+      onEdit(realEvent.id);
+      return;
+    }
+    const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(event.date)
+      ? event.date
+      : (() => {
+          const value = new Date(`${event.date} 12:00:00`);
+          if (Number.isNaN(value.getTime())) return "";
+          return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+        })();
+    const timeMatch = event.time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+    let inputTime = "";
+    if (timeMatch) {
+      let hours = Number(timeMatch[1]);
+      const meridiem = timeMatch[3]?.toUpperCase();
+      if (meridiem === "PM" && hours < 12) hours += 12;
+      if (meridiem === "AM" && hours === 12) hours = 0;
+      inputTime = `${String(hours).padStart(2, "0")}:${timeMatch[2]}`;
+    }
+    setEditingDemoId(event.id);
+    setDraft({ title: event.title, date: parsedDate, time: inputTime, venue: event.venue, type: "Networking", capacity: "50", description: event.note });
+    setDraftError(null);
+    onJourneyStepChange(2);
+  };
+
+  const stepLabel = journeyStep === 1 ? "All events" : journeyStep === 2 ? editingDemoId ? "Edit event" : "Create event" : "Publish event";
+  const stepTitle = journeyStep === 1 ? "All events" : journeyStep === 2 ? editingDemoId ? "Edit event" : "Create event" : "Publish the event, then continue directly into its campaign.";
+  const stepDescription = journeyStep === 1 ? "Use the calendar or list to manage every event." : journeyStep === 2 ? editingDemoId ? "Update this event's details and save your changes." : "Complete the necessary event details below. Saving creates only a browser-session draft." : "Choose a draft event below and move it to Published in this local demo.";
+
   return (
     <div className="space-y-5">
       <section className="flex flex-col gap-4 rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <Badge>Event control center</Badge>
-            <Badge variant="outline">Prototype</Badge>
+            <Badge>Step {journeyStep} · {stepLabel}</Badge>
+            <Badge variant="outline">Local demo · browser session only</Badge>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">Create once. Publish early. Update everywhere.</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">One master event record controls the website, registration and every announcement.</p>
+          <h2 className="text-2xl font-bold tracking-tight">{stepTitle}</h2>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{stepDescription}</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="shrink-0"><Plus className="h-4 w-4" /> Create event</Button>
+        {journeyStep === 1 ? <Button onClick={() => openInlineCreate()} className="shrink-0"><Plus className="h-4 w-4" />Create event</Button> : journeyStep === 2 ? <Button variant="outline" onClick={() => { setEditingDemoId(null); onJourneyStepChange(1); }} className="shrink-0">All events</Button> : <Button variant="outline" onClick={() => openInlineCreate()} className="shrink-0"><Plus className="h-4 w-4" />Create another event</Button>}
       </section>
+
+      <section aria-label="Complete event and campaign lifecycle" className="rounded-xl border bg-card px-4 py-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">The complete journey</p>
+        <ol className="mt-3 grid gap-2 md:grid-cols-5">
+          {[
+            ["1", "All events", "View every event"],
+            ["2", "Create event", "Add date, venue and details"],
+            ["3", "Publish event", "Make the event public"],
+            ["4", "Campaign & messages", "Create and review three drafts"],
+            ["5", "Review & approve", "Approve the local schedule"],
+          ].map(([step, label, note], index) => (
+            <li key={step} className="relative flex gap-3 rounded-lg bg-muted/40 p-3">
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${index + 1 === journeyStep ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground ring-1 ring-border"}`}>{step}</span>
+              <div><p className="text-sm font-semibold">{label}</p><p className="mt-0.5 text-xs text-muted-foreground">{note}</p></div>
+              {index < 4 && <ArrowRight className="absolute -right-3 top-1/2 z-10 hidden h-4 w-4 -translate-y-1/2 text-muted-foreground md:block" />}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {journeyStep === 2 ? (
+      <section className="rounded-xl border bg-card shadow-sm" aria-label="Create event inline workspace">
+        <div className="border-b px-5 py-4"><h3 className="text-lg font-semibold">{editingDemoId ? "Edit event details" : "Event details"}</h3><p className="mt-1 text-sm text-muted-foreground">Required fields are marked. This form does not call the backend.</p></div>
+        <div className="grid gap-5 p-5 md:grid-cols-2">
+          <div className="space-y-2 md:col-span-2"><Label htmlFor="inline-event-title">Event title *</Label><Input id="inline-event-title" value={draft.title} onChange={(event) => updateDraft("title", event.target.value)} placeholder="Example: Bay Area Founder Night" /></div>
+          <div className="space-y-2"><Label htmlFor="inline-event-date">Date *</Label><Input id="inline-event-date" type="date" value={draft.date} onChange={(event) => updateDraft("date", event.target.value)} /></div>
+          <div className="space-y-2"><Label htmlFor="inline-event-time">Start time *</Label><Input id="inline-event-time" type="time" value={draft.time} onChange={(event) => updateDraft("time", event.target.value)} /></div>
+          <div className="space-y-2"><Label htmlFor="inline-event-venue">Venue *</Label><Input id="inline-event-venue" value={draft.venue} onChange={(event) => updateDraft("venue", event.target.value)} placeholder="Venue name or Online" /></div>
+          <div className="space-y-2"><Label htmlFor="inline-event-type">Event type</Label><Input id="inline-event-type" value={draft.type} onChange={(event) => updateDraft("type", event.target.value)} /></div>
+          <div className="space-y-2"><Label htmlFor="inline-event-capacity">Capacity</Label><Input id="inline-event-capacity" type="number" min="1" value={draft.capacity} onChange={(event) => updateDraft("capacity", event.target.value)} /></div>
+          <div className="space-y-2 md:col-span-2"><Label htmlFor="inline-event-description">Description *</Label><Textarea id="inline-event-description" rows={5} value={draft.description} onChange={(event) => updateDraft("description", event.target.value)} placeholder="What should attendees know about this event?" /></div>
+        </div>
+        <div className="flex flex-col gap-3 border-t bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>{draftError && <p className="text-sm font-medium text-destructive">{draftError}</p>}<p className="text-xs text-muted-foreground">{editingDemoId ? "Save the changes to return to All events." : "Save this event when its required details are complete."}</p></div>
+          <Button onClick={saveDraftAndContinue}>{editingDemoId ? "Save changes" : "Save draft and continue"} <ArrowRight className="h-4 w-4" /></Button>
+        </div>
+      </section>
+      ) : journeyStep === 1 ? (
+      <EventPortfolio events={demoEvents} onOpenCampaign={onOpenCampaign} onJourneyStepChange={onJourneyStepChange} onCreateEvent={openInlineCreate} onEditEvent={openDemoEdit} />
+      ) : (
+      <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+        <div className="border-b px-4 py-3">
+          <h3 className="font-semibold">Events and their next action</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">Eight local examples show where every event is in the same lifecycle.</p>
+        </div>
+        <div className="divide-y">
+          {demoEvents.map((event) => {
+            const info = stageInfo[event.stage];
+            const readyToPublish = event.stage === "draft_event" && event.id.startsWith("local-created-");
+            const ActionIcon = event.stage === "draft_event" ? (readyToPublish ? Globe2 : FileEdit) : event.stage === "published" ? Megaphone : Eye;
+            return (
+              <div key={event.id} className="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_190px_210px] lg:items-center">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2"><p className="font-semibold">{event.title}</p><Badge variant="outline" className="text-[10px]">Local demo</Badge></div>
+                  <p className="mt-1 text-sm text-muted-foreground">{event.date} · {event.venue}</p>
+                </div>
+                <div><Badge variant="outline" className={info.tone}>{info.label}</Badge><p className="mt-1 text-xs text-muted-foreground">{event.note}</p></div>
+                <Button
+                  variant={event.stage === "draft_event" ? "outline" : "default"}
+                  onClick={() => readyToPublish ? publishLocalDemo(event) : event.stage === "draft_event" ? prototypeAction("Complete event details") : onOpenCampaign(event.id)}
+                >
+                  <ActionIcon className="h-4 w-4" />{readyToPublish ? "Publish event" : info.next}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      )}
+
+      <details className="group rounded-xl border bg-card shadow-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 font-medium">
+          <span>Advanced event tools and calendar</span>
+          <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+        </summary>
+        <div className="space-y-5 border-t p-4">
 
       <div className="inline-flex rounded-lg border bg-card p-1 shadow-sm">
         <button type="button" onClick={() => setView("manage")} className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${view === "manage" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
@@ -132,7 +306,7 @@ const EventManagement = ({
       </div>
 
       {view === "calendar" ? (
-        <AdminCalendar events={events} registrations={registrations.length} onCreated={onCreated} />
+        <AdminCalendar events={events} registrations={registrations.length} onCreateInline={openInlineCreate} onEdit={onEdit} />
       ) : (
       <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
         <Card className="h-fit shadow-sm xl:sticky xl:top-24">
@@ -148,7 +322,7 @@ const EventManagement = ({
               <Input value={eventSearch} onChange={(event) => setEventSearch(event.target.value)} placeholder="Find an event…" className="h-9 pl-9 text-sm" />
             </div>
             {events.length === 0 ? (
-              <button type="button" onClick={() => setCreateOpen(true)} className="w-full rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground">
+              <button type="button" onClick={() => onJourneyStepChange(2)} className="w-full rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground">
                 <Plus className="mx-auto mb-2 h-5 w-5" /> Create your first event
               </button>
             ) : filteredEvents.length === 0 ? (
@@ -281,13 +455,9 @@ const EventManagement = ({
         </div>
       </div>
       )}
+        </div>
+      </details>
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-          <DialogHeader><DialogTitle>Create event</DialogTitle><DialogDescription>Start with the confirmed basics. Speaker and topic can be added later.</DialogDescription></DialogHeader>
-          <EventForm onCreated={() => { setCreateOpen(false); onCreated(); }} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

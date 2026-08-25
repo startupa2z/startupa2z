@@ -49,8 +49,12 @@ import { adminSectionLabel } from "@/lib/admin-navigation";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminSectionTemplate from "@/components/admin/AdminSectionTemplate";
 import EventManagement from "@/components/admin/EventManagement";
+import PublishingWorkspace from "@/components/admin/PublishingWorkspace";
+import { makeDemoEvents, type DemoEvent, type JourneyStep } from "@/components/admin/campaign-demo";
 import BusinessManagement from "@/components/admin/BusinessManagement";
 import MemberManagement from "@/components/admin/MemberManagement";
+import AllUsersManagement from "@/components/admin/AllUsersManagement";
+import SponsorPaymentManagement from "@/components/admin/SponsorPaymentManagement";
 import SEO from "@/components/SEO";
 import {
   Dialog,
@@ -103,6 +107,9 @@ const AdminSubmissions = () => {
   const [attendeesOpen, setAttendeesOpen] = useState(false);
   const [attendeesEvent, setAttendeesEvent] = useState<{ slug: string; title: string } | null>(null);
   const [activeSection, setActiveSection] = useState<AdminSection>("overview");
+  const [journeyStep, setJourneyStep] = useState<JourneyStep>(1);
+  const [campaignEventId, setCampaignEventId] = useState<string | null>(null);
+  const [campaignDemoEvents, setCampaignDemoEvents] = useState<DemoEvent[]>(() => makeDemoEvents());
 
   const handleEditEvent = async (id: string) => {
     setEditOpen(true);
@@ -412,6 +419,8 @@ const AdminSubmissions = () => {
             active={activeSection}
             onChange={setActiveSection}
             counts={{ submissions: rows.length, events: adminEvents.length, rsvps: rsvps.length }}
+            journeyStep={journeyStep}
+            onJourneyStepChange={setJourneyStep}
           />
 
           <main className="min-w-0 flex-1 px-4 md:px-6 xl:px-8 py-6 space-y-6">
@@ -420,17 +429,17 @@ const AdminSubmissions = () => {
                 <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">StartupA2Z.org admin</p>
                 <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight">{adminSectionLabel(activeSection)}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Create once, publish early and keep every channel current." : "Manage this part of the StartupA2Z.org community."}
+                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Manage each event and continue directly into its campaign." : activeSection === "announcements" ? "Review the selected event's three message drafts and approve its local schedule." : "Manage this part of the StartupA2Z.org community."}
                 </p>
               </div>
-              {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "rsvps" && activeSection !== "overview" && (
+              {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "all-users" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "rsvps" && activeSection !== "payments" && activeSection !== "overview" && (
                 <Badge variant="outline" className="w-fit">Visual template only</Badge>
               )}
             </section>
 
             <Tabs value={activeSection} className="space-y-6">
               <TabsContent value="overview" className="mt-0">
-                <AdminOverview submissions={rows.length} events={adminEvents} rsvps={rsvps.length} onNavigate={setActiveSection} />
+                <AdminOverview submissions={rows.length} events={adminEvents} rsvps={rsvps.length} onNavigate={(section) => { if (section === "event-management") setJourneyStep(1); if (section === "announcements") setJourneyStep(4); setActiveSection(section); }} />
               </TabsContent>
 
             <TabsContent value="submissions" className="space-y-4 mt-0">
@@ -500,7 +509,7 @@ const AdminSubmissions = () => {
             </TabsContent>
 
             <TabsContent value="event-management" className="mt-0">
-              <EventManagement events={adminEvents} registrations={rsvps} onCreated={() => { fetchEvents(); fetchRSVPs(); }} onEdit={handleEditEvent} onDelete={handleDeleteEvent} onViewAttendees={(event) => { setAttendeesEvent(event); setAttendeesOpen(true); }} />
+              <EventManagement events={adminEvents} registrations={rsvps} demoEvents={campaignDemoEvents} setDemoEvents={setCampaignDemoEvents} journeyStep={journeyStep} onJourneyStepChange={setJourneyStep} onEdit={handleEditEvent} onDelete={handleDeleteEvent} onViewAttendees={(event) => { setAttendeesEvent(event); setAttendeesOpen(true); }} onOpenCampaign={(eventId) => { const event = campaignDemoEvents.find((item) => item.id === eventId); setCampaignEventId(eventId); setJourneyStep(event?.stage === "scheduled" ? 5 : event?.stage === "campaign_draft" ? 4 : 3); setActiveSection("announcements"); }} />
             </TabsContent>
 
             <TabsContent value="startups" className="mt-0">
@@ -509,6 +518,14 @@ const AdminSubmissions = () => {
 
             <TabsContent value="members" className="mt-0">
               <MemberManagement />
+            </TabsContent>
+
+            <TabsContent value="all-users" className="mt-0">
+              <AllUsersManagement />
+            </TabsContent>
+
+            <TabsContent value="payments" className="mt-0">
+              <SponsorPaymentManagement />
             </TabsContent>
 
             <TabsContent value="rsvps" className="space-y-4">
@@ -593,7 +610,11 @@ const AdminSubmissions = () => {
               </div>
             </TabsContent>
 
-            {(["founders", "announcements", "posts", "social", "connectors", "analytics", "settings"] as AdminSection[]).map((section) => (
+            <TabsContent value="announcements" className="mt-0">
+              <PublishingWorkspace events={adminEvents} registrations={rsvps} demoEvents={campaignDemoEvents} setDemoEvents={setCampaignDemoEvents} requestedEventId={campaignEventId} onJourneyStepChange={setJourneyStep} onBackToEventManagement={() => { setCampaignEventId(null); setJourneyStep(1); setActiveSection("event-management"); }} onOpenEventPortfolio={() => { setCampaignEventId(null); setJourneyStep(1); setActiveSection("event-management"); }} />
+            </TabsContent>
+
+            {(["founders", "posts", "social", "connectors", "analytics", "settings"] as AdminSection[]).map((section) => (
               <TabsContent key={section} value={section} className="mt-0">
                 <AdminSectionTemplate section={section} />
               </TabsContent>

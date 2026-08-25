@@ -26,6 +26,8 @@ const AdminSubmissions = lazy(() => import("./pages/AdminSubmissions.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Welcome = lazy(() => import("./pages/Welcome.tsx"));
 const CompleteProfile = lazy(() => import("./pages/CompleteProfile.tsx"));
+const ApplyToPitch = lazy(() => import("./pages/ApplyToPitch.tsx"));
+const PitchApplication = lazy(() => import("./pages/PitchApplication.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/complete-profile" element={<CompleteProfile />} />
+          <Route path="/apply-to-pitch" element={<ApplyToPitch />} />
+          <Route path="/pitch-application" element={<PitchApplication />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/submissions" element={<AdminSubmissions />} />
           <Route path="*" element={<NotFound />} />

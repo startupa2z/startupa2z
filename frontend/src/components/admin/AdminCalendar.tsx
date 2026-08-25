@@ -3,15 +3,7 @@ import type { AdminEvent } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { CalendarDays, ChevronLeft, ChevronRight, Plus, Users } from "lucide-react";
-import EventForm from "./EventForm";
 
 const dayKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
@@ -20,21 +12,19 @@ const parseEventDate = (value: string) => {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
-const humanDate = (date: Date) => date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-
 const AdminCalendar = ({
   events,
   registrations,
-  onCreated,
+  onCreateInline,
+  onEdit,
 }: {
   events: AdminEvent[];
   registrations: number;
-  onCreated: () => void;
+  onCreateInline: (date?: string) => void;
+  onEdit: (id: string) => void;
 }) => {
   const today = new Date();
   const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
 
   const eventMap = useMemo(() => {
     const map = new Map<string, AdminEvent[]>();
@@ -64,8 +54,7 @@ const AdminCalendar = ({
   }, [month]);
 
   const openCreate = (date: Date) => {
-    setSelectedDate(date);
-    setCreateOpen(true);
+    onCreateInline(dayKey(date));
   };
 
   return (
@@ -101,20 +90,21 @@ const AdminCalendar = ({
             const isToday = key === dayKey(today);
             const dateEvents = eventMap.get(key) ?? [];
             return (
-              <button
+              <div
                 key={key}
-                type="button"
-                onClick={() => openCreate(date)}
-                className={`min-h-24 sm:min-h-28 border-b border-r p-1.5 sm:p-2 text-left align-top hover:bg-primary/5 transition-colors ${inMonth ? "bg-card" : "bg-muted/20 text-muted-foreground"}`}
+                className={`group relative min-h-24 border-b border-r p-1.5 text-left align-top transition-colors hover:bg-primary/5 sm:min-h-28 sm:p-2 ${inMonth ? "bg-card" : "bg-muted/20 text-muted-foreground"}`}
               >
-                <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${isToday ? "bg-primary text-primary-foreground" : ""}`}>{date.getDate()}</span>
-                <div className="mt-1 space-y-1">
+                <button type="button" onClick={() => openCreate(date)} className="absolute inset-0 z-0" aria-label={`Add event on ${date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`} />
+                <div className="pointer-events-none relative z-10">
+                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${isToday ? "bg-primary text-primary-foreground" : ""}`}>{date.getDate()}</span>
+                  <div className="mt-1 space-y-1">
                   {dateEvents.slice(0, 2).map((event) => (
-                    <div key={event.id} className="rounded bg-primary/10 px-1.5 py-1 text-[10px] sm:text-[11px] font-medium text-primary truncate" title={event.title}>{event.title}</div>
+                    <button key={event.id} type="button" onClick={(clickEvent) => { clickEvent.stopPropagation(); onEdit(event.id); }} className="pointer-events-auto block w-full truncate rounded bg-primary/10 px-1.5 py-1 text-left text-[10px] font-medium text-primary hover:bg-primary/20 sm:text-[11px]" title={`Edit ${event.title}`}>{event.title}</button>
                   ))}
                   {dateEvents.length > 2 && <span className="text-[10px] text-muted-foreground">+{dateEvents.length - 2} more</span>}
+                  </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -125,24 +115,6 @@ const AdminCalendar = ({
         <span className="inline-flex items-center gap-1"><Users className="h-3 w-3" /> Monthly registration total uses current admin data</span>
       </div>
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add event on {selectedDate ? humanDate(selectedDate) : "selected date"}</DialogTitle>
-            <DialogDescription>The selected date is prefilled. Complete the remaining event details.</DialogDescription>
-          </DialogHeader>
-          {selectedDate && (
-            <EventForm
-              key={dayKey(selectedDate)}
-              initialDate={humanDate(selectedDate)}
-              onCreated={() => {
-                setCreateOpen(false);
-                onCreated();
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

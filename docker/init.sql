@@ -25,6 +25,54 @@ CREATE TABLE member_profiles (
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- One deduplicated contact index across members, website registrations, Luma imports, and leads.
+-- Authentication and event-registration records remain in their own tables.
+CREATE TABLE all_users (
+  id                    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  email                 TEXT        NOT NULL,
+  normalized_email      TEXT        NOT NULL UNIQUE,
+  full_name             TEXT,
+  first_name            TEXT,
+  last_name             TEXT,
+  phone                 TEXT,
+  company               TEXT,
+  job_title             TEXT,
+  linkedin_url          TEXT,
+  member_user_id        UUID        UNIQUE REFERENCES users(id) ON DELETE SET NULL,
+  is_member             BOOLEAN     NOT NULL DEFAULT false,
+  is_website_registrant BOOLEAN     NOT NULL DEFAULT false,
+  is_luma_attendee      BOOLEAN     NOT NULL DEFAULT false,
+  is_lead               BOOLEAN     NOT NULL DEFAULT false,
+  marketing_consent     BOOLEAN     NOT NULL DEFAULT false,
+  first_source          TEXT        NOT NULL,
+  last_source           TEXT        NOT NULL,
+  enrichment_status     TEXT        NOT NULL DEFAULT 'pending',
+  enrichment_sources    TEXT[]      NOT NULL DEFAULT '{}',
+  enriched_at           TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (normalized_email = lower(trim(email)))
+);
+CREATE INDEX idx_all_users_updated_at ON all_users(updated_at DESC);
+
+CREATE TABLE all_user_imports (
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  filename       TEXT        NOT NULL,
+  source         TEXT        NOT NULL,
+  total_rows     INTEGER     NOT NULL,
+  created_rows   INTEGER     NOT NULL,
+  updated_rows   INTEGER     NOT NULL,
+  invalid_rows   INTEGER     NOT NULL,
+  duplicate_rows INTEGER     NOT NULL,
+  enriched_rows  INTEGER     NOT NULL DEFAULT 0,
+  enrichment_matches INTEGER NOT NULL DEFAULT 0,
+  fields_enriched INTEGER    NOT NULL DEFAULT 0,
+  dedupe_verified BOOLEAN    NOT NULL DEFAULT false,
+  completed_at    TIMESTAMPTZ,
+  created_by     UUID        REFERENCES users(id) ON DELETE SET NULL,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ─── OTP Tokens ─────────────────────────────────────────────────────────────
 
 CREATE TABLE otp_tokens (
@@ -38,6 +86,27 @@ CREATE TABLE otp_tokens (
 );
 
 CREATE INDEX idx_otp_tokens_email ON otp_tokens(email);
+
+-- ─── First-party page visits ────────────────────────────────────────────────
+
+CREATE TABLE page_views (
+  id          UUID        PRIMARY KEY,
+  visitor_id  UUID        NOT NULL,
+  path        TEXT        NOT NULL CHECK (char_length(path) BETWEEN 1 AND 500),
+  visited_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_page_views_visited_at ON page_views(visited_at DESC);
+CREATE INDEX idx_page_views_path ON page_views(path);
+
+CREATE TABLE home_stats_settings (
+  singleton                       BOOLEAN     PRIMARY KEY DEFAULT true CHECK (singleton),
+  page_visit_baseline             BIGINT      NOT NULL CHECK (page_visit_baseline >= 0),
+  page_visit_tracking_started_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+INSERT INTO home_stats_settings (singleton, page_visit_baseline)
+VALUES (true, 1025);
 
 -- ─── OAuth state and one-time login exchanges ────────────────────────────────────
 
@@ -261,6 +330,40 @@ CREATE TRIGGER update_events_updated_at
 BEFORE UPDATE ON events
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- ─── Member pitch applications ─────────────────────────────────────────────
+
+CREATE TABLE pitch_applications (
+  id                      UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                 UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  event_id                UUID        REFERENCES events(id) ON DELETE SET NULL,
+  event_slug              TEXT,
+  event_title             TEXT,
+  startup_name            TEXT,
+  startup_website         TEXT,
+  startup_summary         TEXT,
+  talk_title              TEXT,
+  problem                 TEXT,
+  solution                TEXT,
+  monetization_challenge  TEXT,
+  breakthrough            TEXT,
+  lessons                 JSONB       NOT NULL DEFAULT '[]'::jsonb,
+  ask_text                TEXT,
+  offer_text              TEXT,
+  milestone               TEXT,
+  consent_to_review       BOOLEAN     NOT NULL DEFAULT false,
+  status                  TEXT        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'under_review', 'approved', 'declined', 'withdrawn')),
+  submitted_at            TIMESTAMPTZ,
+  created_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at              TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_pitch_applications_user_updated ON pitch_applications(user_id, updated_at DESC);
+CREATE INDEX idx_pitch_applications_status ON pitch_applications(status, submitted_at DESC);
+
+CREATE TRIGGER update_pitch_applications_updated_at
+BEFORE UPDATE ON pitch_applications
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ─── Event publishing workflow ─────────────────────────────────────────────
 
 CREATE TABLE event_channels (
@@ -416,12 +519,33 @@ FOR EACH ROW EXECUTE FUNCTION increment_event_spots();
 CREATE TABLE sponsor_payments (
   id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   stripe_session_id TEXT        NOT NULL UNIQUE,
-  payment_status    TEXT,
-  amount_total      INTEGER,
-  currency          TEXT,
+  stripe_payment_intent_id TEXT,
+  stripe_customer_id TEXT,
+  payment_status    TEXT        NOT NULL DEFAULT 'unpaid',
+  fulfillment_status TEXT       NOT NULL DEFAULT 'pending'
+                                   CHECK (fulfillment_status IN ('pending', 'contacted', 'fulfilled')),
+  amount_total      INTEGER     NOT NULL DEFAULT 0 CHECK (amount_total >= 0),
+  amount_refunded   INTEGER     NOT NULL DEFAULT 0 CHECK (amount_refunded >= 0),
+  currency          TEXT        NOT NULL DEFAULT 'usd',
   customer_email    TEXT,
   customer_name     TEXT,
   package_id        TEXT,
   package_name      TEXT,
-  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+  livemode          BOOLEAN     NOT NULL DEFAULT false,
+  paid_at           TIMESTAMPTZ,
+  fulfilled_at      TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX sponsor_payments_created_at_idx ON sponsor_payments (created_at DESC);
+CREATE UNIQUE INDEX sponsor_payments_payment_intent_unique_idx
+  ON sponsor_payments (stripe_payment_intent_id)
+  WHERE stripe_payment_intent_id IS NOT NULL;
+
+CREATE TABLE stripe_webhook_events (
+  stripe_event_id TEXT        PRIMARY KEY,
+  event_type      TEXT        NOT NULL,
+  livemode        BOOLEAN     NOT NULL DEFAULT false,
+  processed_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -8,7 +8,7 @@ import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
 import { motion, AnimatePresence } from "framer-motion";
 import { DollarSign, Handshake, Users, Check, Sparkles, ArrowRight, Loader2, CheckCircle2, XCircle } from "lucide-react";
-import { createCheckoutSession } from "@/lib/api";
+import { createCheckoutSession, fetchCheckoutSession } from "@/lib/api";
 
 const benefits = [
   {
@@ -62,8 +62,23 @@ const packages = [
   },
 ];
 
-function PaymentBanner({ status }: { status: "success" | "cancelled" }) {
-  if (status === "success") {
+type PaymentBannerStatus = "verifying" | "paid" | "failed" | "cancelled";
+
+function PaymentBanner({ status }: { status: PaymentBannerStatus }) {
+  if (status === "verifying") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-sm font-medium"
+      >
+        <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-blue-600" />
+        Verifying your payment with Stripe…
+      </motion.div>
+    );
+  }
+  if (status === "paid") {
     return (
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -72,7 +87,20 @@ function PaymentBanner({ status }: { status: "success" | "cancelled" }) {
         className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm font-medium"
       >
         <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-600" />
-        Payment confirmed! We'll be in touch shortly to get your sponsorship set up.
+        Payment confirmed. We’ll contact you shortly to begin sponsorship setup.
+      </motion.div>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-medium"
+      >
+        <XCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+        We could not confirm this payment. Please contact us before trying again.
       </motion.div>
     );
   }
@@ -90,20 +118,43 @@ function PaymentBanner({ status }: { status: "success" | "cancelled" }) {
 }
 
 const Sponsorship = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [loadingPackageId, setLoadingPackageId] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [paymentBannerStatus, setPaymentBannerStatus] = useState<PaymentBannerStatus | null>(null);
 
-  const paymentStatus = searchParams.get("payment") as "success" | "cancelled" | null;
+  const paymentResult = searchParams.get("payment") as "success" | "cancelled" | null;
+  const checkoutSessionId = searchParams.get("session_id");
 
   useEffect(() => {
-    if (paymentStatus) {
-      const t = setTimeout(() => {
-        setSearchParams({}, { replace: true });
-      }, 8000);
-      return () => clearTimeout(t);
+    let cancelled = false;
+
+    if (paymentResult === "cancelled") {
+      setPaymentBannerStatus("cancelled");
+      return;
     }
-  }, [paymentStatus, setSearchParams]);
+    if (paymentResult !== "success") {
+      setPaymentBannerStatus(null);
+      return;
+    }
+    if (!checkoutSessionId) {
+      setPaymentBannerStatus("failed");
+      return;
+    }
+
+    setPaymentBannerStatus("verifying");
+    fetchCheckoutSession(checkoutSessionId)
+      .then(({ data }) => {
+        if (!cancelled) setPaymentBannerStatus(data.paymentStatus === "paid" ? "paid" : "failed");
+      })
+      .catch(() => {
+        if (!cancelled) setPaymentBannerStatus("failed");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [paymentResult, checkoutSessionId]);
 
   async function handlePurchase(packageId: string) {
     setLoadingPackageId(packageId);
@@ -185,9 +236,9 @@ const Sponsorship = () => {
             />
 
             <AnimatePresence>
-              {paymentStatus && (
+              {paymentBannerStatus && (
                 <div className="mt-6 max-w-3xl mx-auto">
-                  <PaymentBanner status={paymentStatus} />
+                  <PaymentBanner status={paymentBannerStatus} />
                 </div>
               )}
             </AnimatePresence>

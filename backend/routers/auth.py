@@ -15,6 +15,7 @@ from config import settings
 from database import get_pool
 from mailer import send_otp_email
 from member_profile import MEMBER_SELECT, fetch_member_profile, member_profile_payload
+from all_users import upsert_all_user
 
 router = APIRouter()
 
@@ -135,6 +136,15 @@ async def update_member_profile(
         body.founder_status,
     )
     user = await fetch_member_profile(pool, user_id)
+    await upsert_all_user(
+        pool,
+        email=user["email"],
+        source="member",
+        full_name=user["full_name"],
+        company=user["company"],
+        job_title=user["job_title"],
+        member_user_id=user["id"],
+    )
     return {"ok": True, "user": member_profile_payload(user)}
 
 
@@ -239,6 +249,16 @@ async def verify_otp(body: VerifyOtpRequest):
             raise HTTPException(400, "No account found with this email. Please sign up first.")
         identity = await pool.fetchrow("INSERT INTO users (email) VALUES ($1) RETURNING id", email)
         user = await fetch_member_profile(pool, identity["id"])
+
+    await upsert_all_user(
+        pool,
+        email=user["email"],
+        source="member",
+        full_name=user["full_name"],
+        company=user["company"],
+        job_title=user["job_title"],
+        member_user_id=user["id"],
+    )
 
     roles = [r["role"] for r in await pool.fetch("SELECT role FROM user_roles WHERE user_id = $1", user["id"])]
     access_token = sign_jwt({"sub": str(user["id"]), "email": user["email"], "roles": roles})
@@ -358,6 +378,16 @@ async def linkedin_callback(
             user["id"], li_user.get("name"),
         )
         user = await fetch_member_profile(pool, user["id"])
+
+    await upsert_all_user(
+        pool,
+        email=user["email"],
+        source="member",
+        full_name=user["full_name"],
+        company=user["company"],
+        job_title=user["job_title"],
+        member_user_id=user["id"],
+    )
 
     exchange_code = secrets.token_urlsafe(32)
     await pool.execute("DELETE FROM auth_exchange_codes WHERE expires_at <= now()")

@@ -56,7 +56,7 @@ const AdminOverview = ({
           <CardHeader className="pb-3"><CardTitle className="text-lg">Quick actions</CardTitle></CardHeader>
           <CardContent className="grid sm:grid-cols-2 gap-3">
             {[
-              { label: "Create an event", note: "Create once, publish everywhere", icon: CalendarDays, section: "event-management" as const },
+              { label: "All events", note: "Open the calendar portfolio overview", icon: CalendarDays, section: "event-management" as const },
               { label: "New announcement", note: "Email, LinkedIn or WhatsApp", icon: Megaphone, section: "announcements" as const },
               { label: "Draft a post", note: "LinkedIn, X or Instagram", icon: FileText, section: "posts" as const },
               { label: "Add a connector", note: "Connect publishing channels", icon: Cable, section: "connectors" as const },
@@ -79,7 +79,7 @@ const AdminOverview = ({
               <div className="space-y-3">
                 <Badge variant="secondary">Upcoming</Badge>
                 <div><p className="font-semibold leading-snug">{upcoming.title}</p><p className="text-sm text-muted-foreground mt-1">{upcoming.date} · {upcoming.venue}</p></div>
-                <Button variant="outline" size="sm" onClick={() => onNavigate("event-management")}>Manage event <ArrowRight className="h-4 w-4" /></Button>
+                <Button variant="outline" size="sm" onClick={() => onNavigate("event-management")}>View all events <ArrowRight className="h-4 w-4" /></Button>
               </div>
             ) : <p className="text-sm text-muted-foreground">No upcoming event yet.</p>}
           </CardContent>

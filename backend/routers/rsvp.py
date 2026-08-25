@@ -4,6 +4,7 @@ from asyncpg import UniqueViolationError
 from database import get_pool
 from auth_middleware import get_current_user
 from member_profile import fetch_member_profile, is_member_profile_complete
+from all_users import upsert_all_user
 
 router = APIRouter()
 
@@ -45,6 +46,16 @@ async def submit_rsvp(body: RsvpRequest):
         )
     except UniqueViolationError:
         raise HTTPException(409, "You've already RSVP'd to this event with this email address.")
+    await upsert_all_user(
+        pool,
+        email=str(body.email),
+        source="website_rsvp",
+        first_name=body.first_name,
+        last_name=body.last_name,
+        phone=body.phone,
+        company=body.company,
+        job_title=body.role,
+    )
     return {"ok": True, "message": "RSVP confirmed."}
 
 
@@ -74,5 +85,17 @@ async def submit_member_rsvp(body: MemberRsvpRequest, current_user: dict = Depen
         )
     except UniqueViolationError:
         raise HTTPException(409, "You are already registered for this event.")
+
+    await upsert_all_user(
+        pool,
+        email=user["email"],
+        source="website_rsvp",
+        full_name=full_name,
+        first_name=first_name,
+        last_name=last_name or None,
+        company=user["company"],
+        job_title=user["job_title"],
+        member_user_id=user["id"],
+    )
 
     return {"ok": True, "message": "RSVP confirmed."}

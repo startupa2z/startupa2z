@@ -19,7 +19,7 @@ const StatsSection = () => {
   }, []);
 
   const stats = [
-    { value: data.active_members.toLocaleString(), label: "Active Members" },
+    { value: data.active_members.toLocaleString(), label: "People in Network" },
     { value: data.events_hosted.toLocaleString(), label: "Events Hosted" },
     { value: data.page_visits.toLocaleString(), label: "Page Visits" },
     { value: "3+", label: "Partners" },

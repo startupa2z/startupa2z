@@ -218,7 +218,7 @@ const Startups = () => {
               tomorrow.
             </p>
             <Button onClick={() => setSubmissionOpen(true)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-8 h-12 text-base font-semibold">
-              Submit Your Business <Plus className="ml-2 w-4 h-4" />
+              Add Startup/Business <Plus className="ml-2 w-4 h-4" />
             </Button>
           </motion.div>
         </div>
@@ -405,7 +405,7 @@ const Startups = () => {
                       className="rounded-full text-sm font-semibold"
                       onClick={() => setSubmissionOpen(true)}
                     >
-                      Apply to List
+                      Add Startup/Business
                     </Button>
                   </div>
                 </div>
@@ -417,7 +417,6 @@ const Startups = () => {
       <BusinessSubmissionDialog
         open={submissionOpen}
         onOpenChange={setSubmissionOpen}
-        onSubmitted={() => undefined}
       />
     </PageLayout>
   );
