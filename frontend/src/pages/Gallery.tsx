@@ -69,7 +69,7 @@ const AUGUST_25_PHOTO_ALTS = [
 
 const AUGUST_25_PHOTOS: GalleryPhoto[] = AUGUST_25_PHOTO_ALTS.map((alt, index) => ({
   id: index + 1,
-  src: `/event-gallery/2026-08-25/event-02-${String(index + 1).padStart(2, "0")}.jpg`,
+  src: `/event-gallery/2026-08-25/event-02-${String(index + 1).padStart(2, "0")}${index >= 1 && index <= 8 ? "-v2" : ""}.jpg`,
   alt,
 }));
 
