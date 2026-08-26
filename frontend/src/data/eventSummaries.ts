@@ -155,7 +155,7 @@ export const eventSummaries: EventSummary[] = [
       "Reduce adoption friction by strengthening the tools customers already use.",
       "Founder communities become useful when builders share the decisions behind the product, including when they stop or change course.",
     ],
-    status: "draft",
+    status: "published",
   },
   {
     slug: "hacker-dojo-august-12-2026",

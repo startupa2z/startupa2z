@@ -99,7 +99,7 @@ test("event filtering and completed event detail work", async ({ page }) => {
 
 test("August 25 event opens the local evidence-backed founder recap", async ({ page }) => {
   await page.goto("/events/founders-pitch-mix-2026-08-25");
-  await expect(page.getByText("Local draft", { exact: true })).toBeVisible();
+  await expect(page.getByText("Local draft", { exact: true })).not.toBeVisible();
   await expect(page.getByRole("heading", { name: /Freight AI, Vachi, and Quantum Security/ })).toBeVisible();
   await expect(page.getByAltText("Collage of the StartupA2Z founder presentations and audience pitches at Hacker Dojo on August 25, 2026")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow" })).toBeVisible();

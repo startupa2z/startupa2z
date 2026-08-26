@@ -90,6 +90,7 @@ requireText(aug25Html, "Neil Fernandes", "August 25 EnrouteAI founder story");
 requireText(aug25Html, "Achal Pandey", "August 25 Vachi founder story");
 requireText(aug25Html, "Ridham Bhagat", "August 25 Quip Network technical demo");
 requireText(aug25Html, "Quip Network", "August 25 quantum-security company");
+rejectText(aug25Html, 'content="noindex, nofollow"', "published August 25 recap robots metadata");
 rejectText(aug25Html, 'rel="canonical" href="https://startupa2z.org/"', "August 25 event canonical");
 
 const eventsHtml = readRoute("/events");
