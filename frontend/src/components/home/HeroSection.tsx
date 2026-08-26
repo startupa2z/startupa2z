@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Camera, Linkedin, Instagram, Facebook, MapPin, Mic2 } from "lucide-react";
+import { ArrowRight, CalendarDays, Camera, ChevronLeft, ChevronRight, Linkedin, Instagram, Facebook, MapPin, Mic2 } from "lucide-react";
 import { X as XIcon } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -22,15 +22,28 @@ const emptyStats: HomeStats = {
   industries: 0,
 };
 
-const featuredGallery = {
-  image: "/event-gallery/2026-08-12/event-01-20.jpg",
-  href: "/gallery/startup-a-to-z-hacker-dojo-august-12",
-  alt: "StartupA2Z founders and community members together at Hacker Dojo",
-};
+const galleryEvents = [
+  {
+    date: "August 25, 2026",
+    image: "/event-gallery/2026-08-25/event-02-01.jpg",
+    href: "/gallery/founders-pitch-mix-2026-08-25",
+    alt: "StartupA2Z founders and community members together at Hacker Dojo after the August 25 event",
+    photoCount: 12,
+  },
+  {
+    date: "August 12, 2026",
+    image: "/event-gallery/2026-08-12/event-01-20.jpg",
+    href: "/gallery/startup-a-to-z-hacker-dojo-august-12",
+    alt: "StartupA2Z founders and community members together at Hacker Dojo after the August 12 event",
+    photoCount: 20,
+  },
+];
 
 const HeroSection = () => {
   const [nextEvent, setNextEvent] = useState<EventItem | null>(null);
   const [homeStats, setHomeStats] = useState<HomeStats>(emptyStats);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const galleryEvent = galleryEvents[galleryIndex];
 
   useEffect(() => {
     const fetchNextEvent = async () => {
@@ -203,27 +216,61 @@ const HeroSection = () => {
               </div>
             )}
 
-            <Link
-              to={featuredGallery.href}
-              className="group relative block aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-white/20 bg-black/20 shadow-[0_24px_70px_rgba(0,0,0,0.32)] lg:min-h-[390px] lg:flex-1 lg:aspect-auto"
-            >
-              <img
-                src={featuredGallery.image}
-                alt={featuredGallery.alt}
-                className="h-full w-full object-cover object-[center_64%] transition-transform duration-700 group-hover:scale-[1.025]"
-                width={1800}
-                height={1380}
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/10 to-black/5" />
-              <div className="absolute inset-x-0 top-0 p-5 sm:p-6">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-md">
-                  <Camera className="h-3.5 w-3.5 text-secondary" /> From our gallery
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-white/20 bg-black/20 shadow-[0_24px_70px_rgba(0,0,0,0.32)] lg:min-h-[390px] lg:flex-1 lg:aspect-auto">
+              <Link
+                key={galleryEvent.href}
+                to={galleryEvent.href}
+                aria-label={`Open gallery for ${galleryEvent.date}`}
+                className="group absolute inset-0 block focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary"
+              >
+                <motion.img
+                  key={galleryEvent.image}
+                  src={galleryEvent.image}
+                  alt={galleryEvent.alt}
+                  initial={{ opacity: 0.45, scale: 1.015 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.28 }}
+                  className="h-full w-full object-cover object-[center_55%] transition-transform duration-700 group-hover:scale-[1.025]"
+                  width={1800}
+                  height={1380}
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/5 to-black/70" />
+                <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-5 pr-28 sm:p-6 sm:pr-32">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-md">
+                    <Camera className="h-3.5 w-3.5 text-secondary" /> From our gallery
+                  </span>
+                </div>
+                <div className="absolute bottom-5 left-5 text-white sm:bottom-6 sm:left-6">
+                  <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-secondary">Event gallery</p>
+                  <p className="mt-1 font-heading text-xl font-bold sm:text-2xl">{galleryEvent.date}</p>
+                  <p className="mt-1 text-xs text-white/70">{galleryEvent.photoCount} photos · Open gallery</p>
+                </div>
+                <span className="absolute bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white shadow-lg transition-transform group-hover:translate-x-1 sm:bottom-6 sm:right-6">
+                  <ArrowRight className="h-4 w-4" />
                 </span>
+              </Link>
+
+              <div className="absolute right-5 top-5 z-10 flex items-center gap-2 sm:right-6 sm:top-6">
+                <button
+                  type="button"
+                  onClick={() => setGalleryIndex((index) => Math.min(index + 1, galleryEvents.length - 1))}
+                  disabled={galleryIndex === galleryEvents.length - 1}
+                  aria-label={galleryIndex === galleryEvents.length - 1 ? "No older gallery" : `Previous gallery: ${galleryEvents[galleryIndex + 1].date}`}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur-md transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGalleryIndex((index) => Math.max(index - 1, 0))}
+                  disabled={galleryIndex === 0}
+                  aria-label={galleryIndex === 0 ? "No newer gallery" : `Next gallery: ${galleryEvents[galleryIndex - 1].date}`}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur-md transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
               </div>
-              <span className="absolute bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white shadow-lg transition-transform group-hover:translate-x-1 sm:bottom-6 sm:right-6">
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
+            </div>
 
           </motion.div>
         </div>

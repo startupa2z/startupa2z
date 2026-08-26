@@ -49,7 +49,7 @@ rejectText(homeHtml, "http://127.0.0.1:", "homepage build output");
 requireText(eventHtml, "<title>August 12 at Hacker Dojo: The First StartupA2Z Founder Gathering | StartupA2Z.org</title>", "event recap title");
 requireText(eventHtml, `href="${eventCanonical}"`, "event canonical");
 rejectText(eventHtml, 'content="noindex, nofollow"', "published recap robots metadata");
-requireText(eventHtml, "Founder journey", "event recap content");
+requireText(eventHtml, "Founder stories and product demos", "event recap content");
 requireText(eventHtml, "https://images.lumacdn.com/event-social/", "event social image");
 rejectText(eventHtml, 'rel="canonical" href="https://startupa2z.org/"', "event canonical");
 
@@ -76,17 +76,20 @@ requireText(sep1Html, "August 25: Founders Pitch &amp; Startup Networking", "Sep
 rejectText(sep1Html, 'rel="canonical" href="https://startupa2z.org/"', "September 1 event canonical");
 
 const aug25Html = readRoute(`/events/${aug25Slug}`);
-requireText(aug25Html, "<title>Bay Area Founder Pitch &amp; Networking | Aug 25</title>", "August 25 event title");
+requireText(aug25Html, "<title>August 25 at Hacker Dojo: Freight AI, Vachi, and Quantum Security | StartupA2Z.org</title>", "August 25 recap title");
 requireText(aug25Html, `href="${aug25Canonical}"`, "August 25 event canonical");
-requireText(aug25Html, "Bay Area Founders Pitch &amp; Startup Networking", "August 25 primary heading");
+requireText(aug25Html, "August 25 at Hacker Dojo: Freight AI, Vachi, and Quantum Security", "August 25 primary heading");
 requireText(aug25Html, '"@type": "Event"', "August 25 Event schema type");
 requireText(aug25Html, '"startDate": "2026-08-25T17:00:00-07:00"', "August 25 Event start date");
 requireText(aug25Html, '"endDate": "2026-08-25T20:00:00-07:00"', "August 25 Event end date");
-requireText(aug25Html, "https://luma.com/mm8nnyc1", "August 25 Luma registration destination");
-requireText(aug25Html, '"@type": "FAQPage"', "August 25 FAQ schema");
+requireText(aug25Html, '"eventStatus": "https://schema.org/EventCompleted"', "August 25 completed event status");
+requireText(aug25Html, '"@type": "Article"', "August 25 recap article schema");
 requireText(aug25Html, '"@type": "BreadcrumbList"', "August 25 breadcrumb schema");
 requireText(aug25Html, '"isAccessibleForFree": true', "August 25 free event schema");
-requireText(aug25Html, "September 1: Founder Networking &amp; GTM Workshop", "August 25 related event link");
+requireText(aug25Html, "Neil Fernandes", "August 25 EnrouteAI founder story");
+requireText(aug25Html, "Achal Pandey", "August 25 Vachi founder story");
+requireText(aug25Html, "Ridham Bhagat", "August 25 Quip Network technical demo");
+requireText(aug25Html, "Quip Network", "August 25 quantum-security company");
 rejectText(aug25Html, 'rel="canonical" href="https://startupa2z.org/"', "August 25 event canonical");
 
 const eventsHtml = readRoute("/events");

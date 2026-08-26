@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ExternalLink,
+  Images,
   Lightbulb,
   Linkedin,
   MapPin,
@@ -38,13 +39,72 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
   if (!summary) return <Navigate to="/resources/event-summaries" replace />;
 
+  const canonical = `https://startupa2z.org/events/${summary.eventSlug}`;
+  const absoluteCoverImage = new URL(summary.coverImage, "https://startupa2z.org").toString();
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Event",
+        name: summary.eventTitle,
+        description: summary.summary,
+        startDate: summary.startDateIso,
+        endDate: summary.endDateIso,
+        eventStatus: "https://schema.org/EventCompleted",
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        isAccessibleForFree: true,
+        image: [absoluteCoverImage],
+        location: {
+          "@type": "Place",
+          name: summary.venue,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "855 Maude Ave",
+            addressLocality: "Mountain View",
+            addressRegion: "CA",
+            postalCode: "94043",
+            addressCountry: "US",
+          },
+        },
+        organizer: {
+          "@type": "Organization",
+          name: "StartupA2Z.org",
+          url: "https://startupa2z.org/",
+        },
+      },
+      {
+        "@type": "Article",
+        headline: summary.title,
+        description: summary.summary,
+        image: absoluteCoverImage,
+        datePublished: summary.startDateIso.slice(0, 10),
+        mainEntityOfPage: canonical,
+        publisher: {
+          "@type": "Organization",
+          name: "StartupA2Z.org",
+          url: "https://startupa2z.org/",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://startupa2z.org/" },
+          { "@type": "ListItem", position: 2, name: "Events", item: "https://startupa2z.org/events" },
+          { "@type": "ListItem", position: 3, name: summary.title, item: canonical },
+        ],
+      },
+    ],
+  };
+
   return (
     <PageLayout>
       <SEO
         title={`${summary.title} | StartupA2Z.org`}
         description={summary.summary}
-        canonical={`https://startupa2z.org/events/${summary.eventSlug}`}
+        canonical={canonical}
         ogImage={summary.coverImage}
+        ogType="article"
+        jsonLd={structuredData}
         noindex={summary.status === "draft"}
       />
 
@@ -84,16 +144,16 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
           <div className="space-y-12">
             <a
               href="#founder-journeys"
-              aria-label="Jump to the founder journey"
+              aria-label="Jump to the founder stories and product demonstrations"
               className="group relative block overflow-hidden rounded-3xl border border-border bg-[#f8f0e3] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
             >
               <img
                 src={summary.coverImage}
-                alt={summary.eventTitle}
+                alt={summary.coverImageAlt}
                 className="aspect-[16/9] h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.015]"
               />
               <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg backdrop-blur-sm transition-colors group-hover:bg-secondary group-hover:text-secondary-foreground">
-                Founder journey <ArrowRight className="h-4 w-4" />
+                Stories & demos <ArrowRight className="h-4 w-4" />
               </span>
             </a>
 
@@ -113,9 +173,9 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
             <section id="founder-journeys" className="scroll-mt-24">
               <p className="label-overline mb-3">The StartupA2Z difference</p>
-              <h2 className="font-heading text-3xl font-bold text-primary">Founder journey</h2>
+              <h2 className="font-heading text-3xl font-bold text-primary">Founder stories and product demos</h2>
               <p className="mt-4 max-w-3xl leading-7 text-muted-foreground">
-                These stories are drawn from the founder presentations and the event posts published afterward. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another founder can apply.
+                These stories are drawn from the presentations, session photos, and supporting public sources. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another builder can apply.
               </p>
               <div className="mt-8 space-y-8">
                 {summary.founderStories.map((story, index) => (
@@ -127,7 +187,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                     <div className="grid border-b border-primary/10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-stretch">
                       <div className="flex flex-col justify-center p-6 sm:p-7 md:p-8">
                         <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary">
-                          Founder story {String(index + 1).padStart(2, "0")} · {story.company}
+                          {story.storyLabel ?? "Founder story"} {String(index + 1).padStart(2, "0")} · {story.company}
                         </p>
                         <h3 className="mt-3 font-heading text-2xl font-bold leading-tight text-primary">
                           {story.headline}
@@ -154,11 +214,11 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                             <dd className="mt-1 text-muted-foreground">{story.challenge}</dd>
                           </div>
                           <div className="rounded-2xl bg-surface-1 px-4 py-3.5">
-                            <dt className="font-bold text-foreground">What they demonstrated</dt>
+                            <dt className="font-bold text-foreground">{story.approachLabel ?? "What they demonstrated"}</dt>
                             <dd className="mt-1 text-muted-foreground">{story.approach}</dd>
                           </div>
                           <div className="rounded-2xl border border-secondary/20 bg-secondary/5 px-4 py-3.5 md:col-span-2">
-                            <dt className="font-bold text-foreground">Founder takeaway</dt>
+                            <dt className="font-bold text-foreground">{story.takeawayLabel ?? "Founder takeaway"}</dt>
                             <dd className="mt-1 text-muted-foreground">{story.lesson}</dd>
                           </div>
                       </dl>
@@ -201,20 +261,43 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                               </a>
                             ),
                           )}
-                          <a
-                            href={story.sourcePost}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-2 rounded-xl border border-primary/25 px-4 py-2.5 text-sm font-bold text-primary hover:border-primary"
-                          >
-                            View source post <ExternalLink className="h-4 w-4" />
-                          </a>
+                          {story.sourcePost && (
+                            <a
+                              href={story.sourcePost}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 rounded-xl border border-primary/25 px-4 py-2.5 text-sm font-bold text-primary hover:border-primary"
+                            >
+                              View supporting source <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
                       </div>
                     </div>
                   </article>
                 ))}
               </div>
             </section>
+
+            {summary.audiencePhotos && summary.audiencePhotos.length > 0 && (
+              <section id="audience-pitches" className="scroll-mt-24">
+                <p className="label-overline mb-3">Community stage</p>
+                <h2 className="font-heading text-3xl font-bold text-primary">Audience pitches</h2>
+                <div className="mt-7 grid gap-5 sm:grid-cols-2">
+                  {summary.audiencePhotos.map((photo) => (
+                    <div
+                      key={photo.image}
+                      className="aspect-[4/3] overflow-hidden rounded-3xl border-2 border-primary/15 bg-[#f8f0e3] shadow-[0_14px_40px_rgba(27,75,57,0.08)]"
+                    >
+                      <img
+                        src={photo.image}
+                        alt={photo.imageAlt}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <section id="founder-lessons" className="scroll-mt-24 rounded-3xl bg-primary p-7 text-primary-foreground md:p-9">
               <div className="flex items-start gap-4">
@@ -238,13 +321,13 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
             <nav aria-label="Event summary sections" className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">Explore this event</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Jump to a section or open a founder profile.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Jump to a section or open a speaker profile.</p>
               <div className="mt-5 grid gap-2">
                 <a href="#event-overview" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <BookOpen className="h-4 w-4" /> Event overview
                 </a>
                 <a href="#founder-journeys" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
-                  <Users className="h-4 w-4" /> Founder journey
+                  <Users className="h-4 w-4" /> Stories & demos
                 </a>
                 <a href="#founder-lessons" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <Lightbulb className="h-4 w-4" /> Key lessons
@@ -253,7 +336,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
             </nav>
 
             <section aria-labelledby="founder-profile-links" className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
-              <h2 id="founder-profile-links" className="font-heading text-xl font-bold text-primary">Founder profiles</h2>
+              <h2 id="founder-profile-links" className="font-heading text-xl font-bold text-primary">Speakers and teams</h2>
               <div className="mt-4 space-y-3">
                 {summary.founderStories.map((story) => (
                   <article key={story.company} className="rounded-2xl border bg-surface-1 p-4">
@@ -290,9 +373,9 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
             <div className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
               <BookOpen className="h-7 w-7 text-secondary" />
-              <h2 className="mt-4 font-heading text-xl font-bold text-primary">Verified recap</h2>
+              <h2 className="mt-4 font-heading text-xl font-bold text-primary">Evidence-backed recap</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                Founder names, stories, lessons, and media were verified against the event posts. Checked-in attendance remains unpublished until verified.
+                Speaker names, roles, and company descriptions were checked against session photos and public company or speaker sources. Checked-in attendance remains unpublished until verified.
               </p>
             </div>
             <div className="rounded-3xl border border-border bg-surface-1 p-6">
@@ -307,6 +390,14 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
             >
               Browse past event summaries <ArrowRight className="h-4 w-4" />
             </Link>
+            {summary.galleryPath && (
+              <Link
+                to={summary.galleryPath}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/25 bg-card px-4 py-3 font-bold text-primary hover:border-primary"
+              >
+                View photo gallery <Images className="h-4 w-4" />
+              </Link>
+            )}
             <Link
               to="/events?view=upcoming"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground"

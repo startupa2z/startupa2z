@@ -15,7 +15,10 @@ export type FounderStory = {
     url: string;
     internal?: boolean;
   }>;
-  sourcePost: string;
+  sourcePost?: string;
+  storyLabel?: string;
+  approachLabel?: string;
+  takeawayLabel?: string;
 };
 
 export type EventSummary = {
@@ -24,27 +27,150 @@ export type EventSummary = {
   title: string;
   eventTitle: string;
   date: string;
+  startDateIso: string;
+  endDateIso: string;
   venue: string;
   address: string;
   coverImage: string;
+  coverImageAlt: string;
+  galleryPath?: string;
   summary: string;
   program: string[];
   founderStories: FounderStory[];
+  audiencePhotos?: Array<{
+    image: string;
+    imageAlt: string;
+  }>;
   keyLessons: string[];
   status: "draft" | "published";
 };
 
 export const eventSummaries: EventSummary[] = [
   {
+    slug: "hacker-dojo-august-25-2026",
+    eventSlug: "founders-pitch-mix-2026-08-25",
+    title: "August 25 at Hacker Dojo: Freight AI, Vachi, and Quantum Security",
+    eventTitle: "Bay Area Founders Pitch & Startup Networking",
+    date: "August 25, 2026",
+    startDateIso: "2026-08-25T17:00:00-07:00",
+    endDateIso: "2026-08-25T20:00:00-07:00",
+    venue: "Hacker Dojo, Mountain View",
+    address: "855 Maude Ave, Mountain View, CA 94043",
+    coverImage: "/event-media/august-25-2026/event-summary-collage.jpg",
+    coverImageAlt: "Collage of the StartupA2Z founder presentations and audience pitches at Hacker Dojo on August 25, 2026",
+    galleryPath: "/gallery/founders-pitch-mix-2026-08-25",
+    summary:
+      "StartupA2Z's August 25 Founders Pitch & Mix brought Bay Area builders together for founder stories, live product demonstrations, direct feedback, and networking. Neil Fernandes explained how EnrouteAI moved operations-research thinking into a practical freight-pricing workflow. Achal Pandey shared the harder lesson behind Vachi: traction can be real and still not justify continuing on the same path. Ridham Bhagat demonstrated how Quip Network adds post-quantum protection to an existing blockchain wallet workflow.",
+    program: [
+      "Founder stories grounded in real operating problems",
+      "Live startup and product demonstrations",
+      "Audience questions and direct founder feedback",
+      "Bay Area founder and builder networking",
+    ],
+    founderStories: [
+      {
+        anchor: "enrouteai",
+        founders: "Neil Fernandes",
+        company: "EnrouteAI",
+        headline: "Turning freight-pricing spreadsheet work into a repeatable workflow",
+        challenge:
+          "Truckload carrier teams receive shipper RFPs in inconsistent spreadsheets and must price hundreds or thousands of lanes under deadline pressure. Market benchmarks, company strategy, cost data, and bid history are often scattered across separate tools and files.",
+        approach:
+          "Neil connected his operations-research background to a focused industry workflow: accept the bid file as it arrives, validate the lanes, price them using the carrier's own economics and market context, and export the completed bid in the shipper's original format.",
+        lesson:
+          "A strong vertical product does not ask customers to abandon the workflow around the problem. It removes the slowest, most error-prone work while preserving the inputs and outputs the customer already has to use.",
+        image: "/event-media/august-25-2026/neil-fernandes-enrouteai.jpg",
+        imageAlt: "Neil Fernandes presenting EnrouteAI's freight-pricing journey at Hacker Dojo",
+        website: "https://enrouteai.com/",
+        founderProfiles: [
+          {
+            name: "Neil Fernandes",
+            url: "https://www.linkedin.com/in/neilfern/",
+          },
+        ],
+        sourcePost: "https://enrouteai.com/blog/what-does-enrouteai-do",
+      },
+      {
+        anchor: "vachi",
+        founders: "Achal Pandey",
+        company: "Vachi",
+        headline: "Learning when traction is not enough reason to continue",
+        challenge:
+          "Vachi began with the ambition to build an AI chief of staff that could understand intent and reduce the mental burden of tracking unfinished work. Early small-business users validated the pain, but the broader product direction remained difficult to turn into the right long-term company.",
+        approach:
+          "Achal and his team tested the problem through direct customer conversations and a voice-first brain-dump application. The product reached more than 100,000 downloads, yet the learning from those experiments led him to close that chapter instead of continuing on momentum alone.",
+        lesson:
+          "Usage, effort, and affection for a product are not substitutes for founder conviction about the future. Stopping a product with visible traction can be the disciplined decision when the evidence changes the thesis.",
+        image: "/event-media/august-25-2026/achal-pandey-vachi.jpg",
+        imageAlt: "Achal Pandey sharing the founder journey behind Vachi at Hacker Dojo",
+        website: "https://www.linkedin.com/in/achalpandey/",
+        founderProfiles: [
+          {
+            name: "Achal Pandey",
+            url: "https://www.linkedin.com/in/achalpandey/",
+          },
+        ],
+      },
+      {
+        anchor: "quip-network",
+        founders: "Ridham Bhagat · Technical presenter",
+        company: "Quip Network",
+        headline: "Protecting today’s blockchain wallets from future quantum attacks",
+        challenge:
+          "Today’s wallets are not post-quantum secure, and the blockchain stack is built around how those wallets sign transactions. Once a capable quantum attacker can break those signatures, the attacker could authorize transactions and spend another user’s funds.",
+        approach:
+          "Instead of keeping funds directly in the wallet, keep them in an on-chain smart contract. A pluggable verifier decides which signatures are valid and when the contract can release the funds.",
+        lesson:
+          "Post-quantum signature schemes are still maturing. A swappable verifier allows the cryptography to be upgraded without moving the protected funds or forcing users to migrate their keys.",
+        image: "/event-media/august-25-2026/ridham-bhagat-quip-network.jpg",
+        imageAlt: "Ridham Bhagat demonstrating a Quip Network quantum-resistant smart-contract wallet at Hacker Dojo",
+        website: "https://quip.network/",
+        founderProfiles: [
+          {
+            name: "Ridham Bhagat",
+            url: "https://www.linkedin.com/in/ridham-bhagat-22a047106/",
+          },
+        ],
+        sourcePost: "https://quip.network/blog/what-is-quip-network",
+        storyLabel: "Technical demo",
+        approachLabel: "The solution",
+        takeawayLabel: "Why it is swappable",
+      },
+    ],
+    audiencePhotos: [
+      {
+        image: "/event-media/august-25-2026/audience-pitch-1.jpg",
+        imageAlt: "An audience speaker sharing a pitch during the StartupA2Z event at Hacker Dojo",
+      },
+      {
+        image: "/event-media/august-25-2026/audience-pitch-2.jpg",
+        imageAlt: "Another audience speaker presenting an idea during the StartupA2Z event at Hacker Dojo",
+      },
+    ],
+    keyLessons: [
+      "Start with a recurring problem whose current workaround is visibly expensive or slow.",
+      "Fit into the customer's real workflow before asking the customer to change it.",
+      "Use product experiments to test the business thesis, not only feature demand.",
+      "Traction is evidence, but it does not automatically prove the current direction is right.",
+      "Reduce adoption friction by strengthening the tools customers already use.",
+      "Founder communities become useful when builders share the decisions behind the product, including when they stop or change course.",
+    ],
+    status: "draft",
+  },
+  {
     slug: "hacker-dojo-august-12-2026",
     eventSlug: "startup-a-to-z-hacker-dojo-august-12",
     title: "August 12 at Hacker Dojo: The First StartupA2Z Founder Gathering",
     eventTitle: "Bay Area Founders Pitch & Startup Networking",
     date: "August 12, 2026",
+    startDateIso: "2026-08-12T17:00:00-07:00",
+    endDateIso: "2026-08-12T20:00:00-07:00",
     venue: "Hacker Dojo, Mountain View",
     address: "855 Maude Ave, Mountain View, CA 94043",
     coverImage:
       "https://images.lumacdn.com/event-social/uj/b1008796-76dc-4efd-96b4-b3e35890b79f.png",
+    coverImageAlt: "StartupA2Z founder gathering at Hacker Dojo on August 12, 2026",
+    galleryPath: "/gallery/startup-a-to-z-hacker-dojo-august-12",
     summary:
       "StartupA2Z's first Hacker Dojo Founder Pitch & Mix brought builders together for practical startup fundamentals, founder demonstrations, direct feedback, and community conversation. Four presentations stood out: affordable hands-on computing, easier FPGA deployment for machine-learning teams, continuous application security, and more consistent AI-video production.",
     program: [

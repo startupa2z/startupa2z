@@ -63,7 +63,7 @@ const EventSummaries = () => (
               >
                 <img
                   src={summary.coverImage}
-                  alt="StartupA2Z August 12 event"
+                  alt={summary.coverImageAlt}
                   className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                 />
               </Link>

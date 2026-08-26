@@ -15,7 +15,7 @@ test("mobile navigation keeps every primary destination accessible", async ({ pa
 });
 
 test("core mobile pages do not overflow horizontally", async ({ page }) => {
-  for (const route of ["/", "/events", "/startups", "/resources", "/sponsorship"]) {
+  for (const route of ["/", "/events", "/startups", "/resources", "/gallery/founders-pitch-mix-2026-08-25", "/sponsorship"]) {
     await page.goto(route);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, route).toBeLessThanOrEqual(1);

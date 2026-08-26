@@ -12,6 +12,7 @@ const publicRoutes = [
   "/events/startup-a-to-z-hacker-dojo-august-12",
   "/resources",
   "/gallery",
+  "/gallery/founders-pitch-mix-2026-08-25",
   "/contact",
   "/sponsorship",
   "/apply-to-pitch",
@@ -53,6 +54,24 @@ test("header groups expose the expected destinations", async ({ page }) => {
   await expect(navigation.getByRole("link", { name: "Sponsor", exact: true })).toHaveAttribute("href", "/sponsorship");
 });
 
+test("homepage gallery moves between dated events and opens the selected gallery", async ({ page }) => {
+  await page.goto("/");
+
+  const august25Gallery = page.getByRole("link", { name: "Open gallery for August 25, 2026" });
+  await expect(august25Gallery).toBeVisible();
+  await expect(august25Gallery).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
+
+  await page.getByRole("button", { name: "Previous gallery: August 12, 2026" }).click();
+  const august12Gallery = page.getByRole("link", { name: "Open gallery for August 12, 2026" });
+  await expect(august12Gallery).toBeVisible();
+  await expect(august12Gallery).toHaveAttribute("href", "/gallery/startup-a-to-z-hacker-dojo-august-12");
+
+  await page.getByRole("button", { name: "Next gallery: August 25, 2026" }).click();
+  await expect(august25Gallery).toBeVisible();
+  await august25Gallery.click();
+  await expect(page).toHaveURL(/\/gallery\/founders-pitch-mix-2026-08-25$/);
+});
+
 test("sign in and apply to pitch open the correct authentication modes", async ({ page }) => {
   await page.goto("/");
 
@@ -76,6 +95,42 @@ test("event filtering and completed event detail work", async ({ page }) => {
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();
+});
+
+test("August 25 event opens the local evidence-backed founder recap", async ({ page }) => {
+  await page.goto("/events/founders-pitch-mix-2026-08-25");
+  await expect(page.getByText("Local draft", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Freight AI, Vachi, and Quantum Security/ })).toBeVisible();
+  await expect(page.getByAltText("Collage of the StartupA2Z founder presentations and audience pitches at Hacker Dojo on August 25, 2026")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Learning when traction is not enough reason to continue" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Protecting today’s blockchain wallets from future quantum attacks" })).toBeVisible();
+  await expect(page.getByText("Neil Fernandes", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Achal Pandey", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Ridham Bhagat · Technical presenter", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Audience pitches" })).toBeVisible();
+  await expect(page.getByAltText("An audience speaker sharing a pitch during the StartupA2Z event at Hacker Dojo")).toBeVisible();
+  await expect(page.getByAltText("Another audience speaker presenting an idea during the StartupA2Z event at Hacker Dojo")).toBeVisible();
+  await expect(page.getByRole("link", { name: "View photo gallery" })).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
+});
+
+test("August 25 gallery highlights the community group photo and opens the viewer", async ({ page }) => {
+  await page.goto("/gallery");
+  const eventCard = page.getByRole("article").filter({ hasText: "Event 02" });
+  await expect(eventCard.getByText("12 photos", { exact: true })).toBeVisible();
+
+  await page.goto("/gallery/founders-pitch-mix-2026-08-25");
+  await expect(page.getByText("Event 02 · August 25, 2026")).not.toBeVisible();
+  await expect(page.getByAltText("StartupA2Z founders and community members together at Hacker Dojo after the August 25 event").first()).toBeVisible();
+  await expect(page.getByText("12 photographs", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Read the August 25, 2026 event recap from the gallery hero image" })).toHaveAttribute("href", "/events/founders-pitch-mix-2026-08-25");
+  await expect(page.getByRole("link", { name: "Read the August 25, 2026 event recap with founder stories, demos, and lessons" })).toHaveAttribute("href", "/events/founders-pitch-mix-2026-08-25");
+
+  await page.getByRole("button", { name: "Open photo 1 of 12" }).click();
+  await expect(page.getByRole("dialog", { name: /Bay Area Founders Pitch/ })).toBeVisible();
+  await expect(page.getByText("1 / 12", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Close photo viewer" }).click();
+  await expect(page.getByRole("dialog", { name: /Bay Area Founders Pitch/ })).not.toBeVisible();
 });
 
 test("upcoming featured section never promotes a past event", async ({ page }) => {

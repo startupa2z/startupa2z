@@ -23,12 +23,63 @@ interface GalleryPhoto {
   alt: string;
 }
 
-const EVENT = {
+interface GalleryEvent {
+  slug: string;
+  number: string;
+  title: string;
+  shortTitle: string;
+  date: string;
+  isoDate: string;
+  month: string;
+  day: string;
+  year: string;
+  venue: string;
+  city: string;
+  recapPath: string;
+  galleryPath: string;
+  description: string;
+  photos: GalleryPhoto[];
+}
+
+const AUGUST_12_PHOTO_COUNT = 20;
+const AUGUST_12_DISPLAY_ORDER = [20, ...Array.from({ length: 19 }, (_, index) => index + 1)];
+const AUGUST_12_PHOTOS: GalleryPhoto[] = AUGUST_12_DISPLAY_ORDER.map((photoNumber, index) => ({
+  id: photoNumber,
+  src: `/event-gallery/2026-08-12/event-01-${String(photoNumber).padStart(2, "0")}.jpg`,
+  alt:
+    index === 0
+      ? "StartupA2Z founders and community members at Hacker Dojo after Event 1"
+      : `StartupA2Z Event 1 founder gathering at Hacker Dojo, photo ${index + 1} of ${AUGUST_12_PHOTO_COUNT}`,
+}));
+
+const AUGUST_25_PHOTO_ALTS = [
+  "StartupA2Z founders and community members together at Hacker Dojo after the August 25 event",
+  "Founders and builders listening to a StartupA2Z presentation at Hacker Dojo",
+  "Neil Fernandes presenting EnrouteAI at the StartupA2Z event",
+  "Achal Pandey sharing the Vachi founder journey at StartupA2Z",
+  "Ridham Bhagat demonstrating Quip Network at StartupA2Z",
+  "An audience member sharing a pitch during the StartupA2Z community stage",
+  "Another audience member presenting an idea during the StartupA2Z community stage",
+  "StartupA2Z attendees participating in the August 25 founder gathering",
+  "A founder presentation in progress at the StartupA2Z August 25 event",
+  "A wide view of the StartupA2Z community listening to a presentation",
+  "Founders and builders gathered for presentations at Hacker Dojo",
+  "The Vachi founder journey presentation during the StartupA2Z event",
+];
+
+const AUGUST_25_PHOTOS: GalleryPhoto[] = AUGUST_25_PHOTO_ALTS.map((alt, index) => ({
+  id: index + 1,
+  src: `/event-gallery/2026-08-25/event-02-${String(index + 1).padStart(2, "0")}.jpg`,
+  alt,
+}));
+
+const AUGUST_12_EVENT: GalleryEvent = {
   slug: "startup-a-to-z-hacker-dojo-august-12",
   number: "01",
   title: "Bay Area Founders Pitch & Startup Networking",
   shortTitle: "Founder Pitch & Mix",
   date: "August 12, 2026",
+  isoDate: "2026-08-12",
   month: "AUG",
   day: "12",
   year: "2026",
@@ -36,21 +87,29 @@ const EVENT = {
   city: "Mountain View, California",
   recapPath: "/events/startup-a-to-z-hacker-dojo-august-12",
   galleryPath: "/gallery/startup-a-to-z-hacker-dojo-august-12",
+  description: "Founder presentations, product demonstrations, community conversations, and the people who made StartupA2Z's first Hacker Dojo gathering memorable.",
+  photos: AUGUST_12_PHOTOS,
 };
 
-const PHOTO_COUNT = 20;
-const DISPLAY_ORDER = [20, ...Array.from({ length: 19 }, (_, index) => index + 1)];
+const AUGUST_25_EVENT: GalleryEvent = {
+  slug: "founders-pitch-mix-2026-08-25",
+  number: "02",
+  title: "Bay Area Founders Pitch & Startup Networking",
+  shortTitle: "Founder Pitch & Mix",
+  date: "August 25, 2026",
+  isoDate: "2026-08-25",
+  month: "AUG",
+  day: "25",
+  year: "2026",
+  venue: "Hacker Dojo",
+  city: "Mountain View, California",
+  recapPath: "/events/founders-pitch-mix-2026-08-25",
+  galleryPath: "/gallery/founders-pitch-mix-2026-08-25",
+  description: "Founder journeys, product demonstrations, audience pitches, and the community that came together to exchange practical lessons.",
+  photos: AUGUST_25_PHOTOS,
+};
 
-const PHOTOS: GalleryPhoto[] = DISPLAY_ORDER.map((photoNumber, index) => ({
-  id: photoNumber,
-  src: `/event-gallery/2026-08-12/event-01-${String(photoNumber).padStart(2, "0")}.jpg`,
-  alt:
-    index === 0
-      ? "StartupA2Z founders and community members at Hacker Dojo after Event 1"
-      : `StartupA2Z Event 1 founder gathering at Hacker Dojo, photo ${index + 1} of ${PHOTO_COUNT}`,
-}));
-
-const FEATURED_PHOTO = PHOTOS[0];
+const EVENTS = [AUGUST_25_EVENT, AUGUST_12_EVENT];
 
 const GalleryLanding = () => (
   <PageLayout>
@@ -58,7 +117,7 @@ const GalleryLanding = () => (
       title="Event Photo Gallery | StartupA2Z.org"
       description="Browse photo galleries from StartupA2Z founder gatherings, pitch nights, startup demonstrations, and Bay Area community events."
       canonical="https://startupa2z.org/gallery"
-      ogImage={`https://startupa2z.org${FEATURED_PHOTO.src}`}
+      ogImage={`https://startupa2z.org${EVENTS[0].photos[0].src}`}
     />
 
     <section className="relative overflow-hidden bg-[#082c22] pt-[calc(64px+4rem)] text-white md:pt-[calc(64px+5rem)]">
@@ -95,36 +154,44 @@ const GalleryLanding = () => (
           <p className="max-w-md text-sm leading-6 text-muted-foreground">New event galleries will appear here, with the newest gathering first.</p>
         </div>
 
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="group grid overflow-hidden rounded-[2rem] border border-black/[0.08] bg-white shadow-[0_22px_65px_rgba(20,45,35,0.09)] lg:grid-cols-[1.08fr_0.92fr]"
-        >
-          <Link to={EVENT.galleryPath} className="relative min-h-72 overflow-hidden bg-muted lg:min-h-[430px]">
-            <img src={FEATURED_PHOTO.src} alt={FEATURED_PHOTO.alt} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md">
-              <Images className="h-4 w-4 text-secondary" /> {PHOTO_COUNT} photos
-            </div>
-          </Link>
+        <div className="space-y-8">
+          {EVENTS.map((event, index) => {
+            const featuredPhoto = event.photos[0];
+            return (
+              <motion.article
+                key={event.slug}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="group grid overflow-hidden rounded-[2rem] border border-black/[0.08] bg-white shadow-[0_22px_65px_rgba(20,45,35,0.09)] lg:grid-cols-[1.08fr_0.92fr]"
+              >
+                <Link to={event.galleryPath} className="relative min-h-72 overflow-hidden bg-muted lg:min-h-[430px]">
+                  <img src={featuredPhoto.src} alt={featuredPhoto.alt} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md">
+                    <Images className="h-4 w-4 text-secondary" /> {event.photos.length} photos
+                  </div>
+                </Link>
 
-          <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              <span className="rounded-full bg-secondary/12 px-3 py-1.5 text-secondary">Latest gallery</span>
-              <span>Event {EVENT.number}</span>
-            </div>
-            <h3 className="mt-5 font-heading text-3xl font-bold leading-tight text-foreground sm:text-4xl">{EVENT.title}</h3>
-            <div className="mt-5 space-y-2 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-secondary" /> {EVENT.date}</p>
-              <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-secondary" /> {EVENT.venue} · {EVENT.city}</p>
-            </div>
-            <p className="mt-6 leading-7 text-muted-foreground">Founder presentations, product demonstrations, community conversations, and the people who made StartupA2Z&apos;s first Hacker Dojo gathering memorable.</p>
-            <Link to={EVENT.galleryPath} className="mt-8 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-              View event gallery <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </motion.article>
+                <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                    {index === 0 && <span className="rounded-full bg-secondary/12 px-3 py-1.5 text-secondary">Latest gallery</span>}
+                    <span>Event {event.number}</span>
+                  </div>
+                  <h3 className="mt-5 font-heading text-3xl font-bold leading-tight text-foreground sm:text-4xl">{event.title}</h3>
+                  <div className="mt-5 space-y-2 text-sm text-muted-foreground">
+                    <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-secondary" /> {event.date}</p>
+                    <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-secondary" /> {event.venue} · {event.city}</p>
+                  </div>
+                  <p className="mt-6 leading-7 text-muted-foreground">{event.description}</p>
+                  <Link to={event.galleryPath} className="mt-8 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                    View event gallery <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.article>
+            );
+          })}
+        </div>
       </div>
     </section>
 
@@ -136,15 +203,19 @@ const GalleryLanding = () => (
   </PageLayout>
 );
 
-const GalleryEventDetail = () => {
+const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLButtonElement | null>(null);
   const touchStartX = useRef<number | null>(null);
 
+  const photos = event.photos;
+  const featuredPhoto = photos[0];
+  const photoCount = photos.length;
+
   const activePhoto = useMemo(
-    () => (lightboxIndex === null ? null : PHOTOS[lightboxIndex]),
-    [lightboxIndex],
+    () => (lightboxIndex === null ? null : photos[lightboxIndex]),
+    [lightboxIndex, photos],
   );
 
   const openLightbox = useCallback(
@@ -162,15 +233,15 @@ const GalleryEventDetail = () => {
 
   const previousPhoto = useCallback(() => {
     setLightboxIndex((index) =>
-      index === null ? 0 : (index - 1 + PHOTOS.length) % PHOTOS.length,
+      index === null ? 0 : (index - 1 + photos.length) % photos.length,
     );
-  }, []);
+  }, [photos.length]);
 
   const nextPhoto = useCallback(() => {
     setLightboxIndex((index) =>
-      index === null ? 0 : (index + 1) % PHOTOS.length,
+      index === null ? 0 : (index + 1) % photos.length,
     );
-  }, []);
+  }, [photos.length]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -204,17 +275,17 @@ const GalleryEventDetail = () => {
   return (
     <PageLayout>
       <SEO
-        title={`${EVENT.title} Photo Gallery | StartupA2Z.org`}
+        title={`${event.title} Photo Gallery | StartupA2Z.org`}
         description="Explore photos from StartupA2Z founder gatherings, pitch nights, startup demonstrations, and community events in the Bay Area."
-        canonical={`https://startupa2z.org${EVENT.galleryPath}`}
-        ogImage={`https://startupa2z.org${FEATURED_PHOTO.src}`}
+        canonical={`https://startupa2z.org${event.galleryPath}`}
+        ogImage={`https://startupa2z.org${featuredPhoto.src}`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ImageGallery",
           name: "StartupA2Z Event Gallery",
-          url: `https://startupa2z.org${EVENT.galleryPath}`,
-          datePublished: "2026-08-12",
-          associatedMedia: PHOTOS.map((photo) => ({
+          url: `https://startupa2z.org${event.galleryPath}`,
+          datePublished: event.isoDate,
+          associatedMedia: photos.map((photo) => ({
             "@type": "ImageObject",
             contentUrl: `https://startupa2z.org${photo.src}`,
             caption: photo.alt,
@@ -253,10 +324,10 @@ const GalleryEventDetail = () => {
               growing founder community.
             </p>
             <a
-              href="#event-01"
+              href={`#event-${event.number}`}
               className="mt-8 inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#082c22] transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-[#082c22]"
             >
-              Explore Event 01
+              Explore Event {event.number}
               <ChevronRight className="h-4 w-4" />
             </a>
           </motion.div>
@@ -270,8 +341,8 @@ const GalleryEventDetail = () => {
             <div className="absolute -inset-3 rotate-2 rounded-[2rem] border border-white/10 bg-white/5" />
             <div className="relative aspect-[4/3] overflow-hidden rounded-[1.6rem] border border-white/15 bg-black/20 shadow-2xl shadow-black/30">
               <img
-                src={FEATURED_PHOTO.src}
-                alt={FEATURED_PHOTO.alt}
+                src={featuredPhoto.src}
+                alt={featuredPhoto.alt}
                 className="h-full w-full object-cover"
                 fetchPriority="high"
               />
@@ -279,12 +350,21 @@ const GalleryEventDetail = () => {
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 sm:p-7">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-[0.18em] text-secondary">
-                    Event 01
+                    Event {event.number}
                   </span>
-                  <p className="mt-1 text-lg font-bold sm:text-xl">{EVENT.shortTitle}</p>
+                  <p className="mt-1 text-lg font-bold sm:text-xl">{event.shortTitle}</p>
                 </div>
-                <div className="rounded-full border border-white/15 bg-black/25 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
-                  {PHOTO_COUNT} photos
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <div className="rounded-full border border-white/15 bg-black/25 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+                    {photoCount} photos
+                  </div>
+                  <Link
+                    to={event.recapPath}
+                    aria-label={`Read the ${event.date} event recap from the gallery hero image`}
+                    className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-extrabold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-white hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  >
+                    Read event recap <ArrowUpRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -292,49 +372,55 @@ const GalleryEventDetail = () => {
         </div>
       </section>
 
-      <section id="event-01" className="scroll-mt-24 bg-[#f7f6f1] py-16 md:py-24">
+      <section id={`event-${event.number}`} className="scroll-mt-24 bg-[#f7f6f1] py-16 md:py-24">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
           <div className="rounded-[2rem] border border-black/[0.07] bg-white p-5 shadow-[0_24px_70px_rgba(20,45,35,0.08)] sm:p-8 lg:p-10">
             <div className="grid gap-7 border-b border-black/[0.08] pb-9 lg:grid-cols-[140px_1fr_auto] lg:items-center">
               <div className="flex w-fit items-center overflow-hidden rounded-2xl border border-primary/15 bg-primary/[0.06] text-primary lg:block lg:text-center">
                 <div className="px-4 py-3 text-xs font-black tracking-[0.22em] lg:border-b lg:border-primary/15">
-                  {EVENT.month}
+                  {event.month}
                 </div>
                 <div className="border-l border-primary/15 px-4 py-2 font-heading text-4xl font-bold leading-none lg:border-l-0 lg:py-3 lg:text-5xl">
-                  {EVENT.day}
+                  {event.day}
                 </div>
                 <div className="border-l border-primary/15 px-4 py-3 text-xs font-bold tracking-[0.16em] lg:border-l-0 lg:border-t lg:border-primary/15">
-                  {EVENT.year}
+                  {event.year}
                 </div>
               </div>
 
               <div>
                 <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
-                  <span>Event {EVENT.number}</span>
+                  <span>Event {event.number}</span>
                   <span className="h-1 w-1 rounded-full bg-secondary" />
-                  <span>{PHOTO_COUNT} photographs</span>
+                  <span>{photoCount} photographs</span>
                 </div>
                 <h2 className="max-w-3xl font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  {EVENT.title}
+                  {event.title}
                 </h2>
                 <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
                   <span className="inline-flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-secondary" />
-                    {EVENT.date}
+                    {event.date}
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-secondary" />
-                    {EVENT.venue} · {EVENT.city}
+                    {event.venue} · {event.city}
                   </span>
                 </div>
               </div>
 
               <Link
-                to={EVENT.recapPath}
-                className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-primary/20 px-5 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                to={event.recapPath}
+                aria-label={`Read the ${event.date} event recap with founder stories, demos, and lessons`}
+                className="group flex w-full min-w-0 items-center justify-between gap-4 rounded-2xl bg-secondary px-5 py-4 text-white shadow-[0_12px_28px_rgba(232,137,26,0.28)] transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_16px_36px_rgba(27,75,57,0.24)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:w-[290px]"
               >
-                Read event recap
-                <ArrowUpRight className="h-4 w-4" />
+                <span>
+                  <span className="block text-base font-extrabold">Read event recap</span>
+                  <span className="mt-1 block text-xs font-medium text-white/80">Founder stories, demos &amp; lessons</span>
+                </span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/15 transition-transform group-hover:translate-x-1">
+                  <ArrowUpRight className="h-5 w-5" />
+                </span>
               </Link>
             </div>
 
@@ -355,7 +441,7 @@ const GalleryEventDetail = () => {
             </div>
 
             <div className="grid auto-rows-[130px] grid-cols-2 gap-2 sm:auto-rows-[170px] sm:gap-3 md:grid-cols-3 lg:auto-rows-[210px] lg:grid-cols-4">
-              {PHOTOS.map((photo, index) => {
+              {photos.map((photo, index) => {
                 const isFeature = index === 0;
                 return (
                   <motion.button
@@ -363,7 +449,7 @@ const GalleryEventDetail = () => {
                     type="button"
                     onClick={(event) => openLightbox(index, event.currentTarget)}
                     className={`group relative overflow-hidden rounded-xl bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:rounded-2xl ${isFeature ? "col-span-2 row-span-2" : ""}`}
-                    aria-label={`Open photo ${index + 1} of ${PHOTOS.length}`}
+                    aria-label={`Open photo ${index + 1} of ${photos.length}`}
                   >
                     <img
                       src={photo.src}
@@ -397,7 +483,7 @@ const GalleryEventDetail = () => {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label={`${EVENT.title} photo viewer`}
+            aria-label={`${event.title} photo viewer`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -412,15 +498,15 @@ const GalleryEventDetail = () => {
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4 sm:px-6">
               <div className="min-w-0">
                 <p className="truncate text-xs font-bold uppercase tracking-[0.16em] text-secondary">
-                  Event {EVENT.number} · {EVENT.date}
+                  Event {event.number} · {event.date}
                 </p>
                 <p className="mt-0.5 truncate text-sm font-medium text-white/75">
-                  {EVENT.shortTitle}
+                  {event.shortTitle}
                 </p>
               </div>
               <div className="ml-4 flex items-center gap-3">
                 <span className="text-xs tabular-nums text-white/55">
-                  {lightboxIndex + 1} / {PHOTOS.length}
+                  {lightboxIndex + 1} / {photos.length}
                 </span>
                 <button
                   ref={closeButtonRef}
@@ -483,7 +569,7 @@ const GalleryEventDetail = () => {
               onClick={(event) => event.stopPropagation()}
             >
               <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto pb-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.25)_transparent]">
-                {PHOTOS.map((photo, index) => (
+                {photos.map((photo, index) => (
                   <button
                     key={photo.id}
                     type="button"
@@ -512,8 +598,9 @@ const Gallery = () => {
   const { eventSlug } = useParams<{ eventSlug?: string }>();
 
   if (!eventSlug) return <GalleryLanding />;
-  if (eventSlug !== EVENT.slug) return <Navigate to="/gallery" replace />;
-  return <GalleryEventDetail />;
+  const event = EVENTS.find((candidate) => candidate.slug === eventSlug);
+  if (!event) return <Navigate to="/gallery" replace />;
+  return <GalleryEventDetail event={event} />;
 };
 
 export default Gallery;
