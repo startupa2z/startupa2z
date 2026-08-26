@@ -19,6 +19,7 @@ export type FounderStory = {
   storyLabel?: string;
   approachLabel?: string;
   takeawayLabel?: string;
+  keywords?: string[];
 };
 
 export type EventSummary = {
@@ -73,6 +74,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Neil Fernandes",
         company: "EnrouteAI",
         headline: "Turning freight-pricing spreadsheet work into a repeatable workflow",
+        keywords: ["Freight pricing", "RFP automation", "Workflow AI", "Spreadsheet validation"],
         challenge:
           "Truckload carrier teams receive shipper RFPs in inconsistent spreadsheets and must price hundreds or thousands of lanes under deadline pressure. Market benchmarks, company strategy, cost data, and bid history are often scattered across separate tools and files.",
         approach:
@@ -95,6 +97,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Achal Pandey",
         company: "Vachi",
         headline: "Learning when traction is not enough reason to continue",
+        keywords: ["Founder conviction", "Product traction", "Customer discovery", "When to stop"],
         challenge:
           "Vachi began with the ambition to build an AI chief of staff that could understand intent and reduce the mental burden of tracking unfinished work. Early small-business users validated the pain, but the broader product direction remained difficult to turn into the right long-term company.",
         approach:
@@ -116,6 +119,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Ridham Bhagat · Technical presenter",
         company: "Quip Network",
         headline: "Protecting today’s blockchain wallets from future quantum attacks",
+        keywords: ["Post-quantum security", "Smart contracts", "Pluggable verifier", "Wallet protection"],
         challenge:
           "Today’s wallets are not post-quantum secure, and the blockchain stack is built around how those wallets sign transactions. Once a capable quantum attacker can break those signatures, the attacker could authorize transactions and spend another user’s funds.",
         approach:
@@ -185,6 +189,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Digvijay Goswami and Sidharth Raja",
         company: "Keyframe AI",
         headline: "Moving AI video from impressive clips to repeatable production",
+        keywords: ["AI video", "Creative workflow", "Visual consistency", "Repeatable production"],
         challenge:
           "AI-generated video can be fast and visually striking, but characters, scenes, movement, and creative direction often become inconsistent across a complete story.",
         approach:
@@ -215,6 +220,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "ClaudIO Olmedo",
         company: "One Dollar Computer",
         headline: "Making hands-on computing accessible for more children",
+        keywords: ["Affordable computing", "RISC-V", "Open source", "Technology education"],
         challenge:
           "Meaningful technology education often assumes access to expensive laptops, laboratories, and finished applications.",
         approach:
@@ -238,6 +244,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Ayush Kumar and the ConfigAI team",
         company: "ConfigAI",
         headline: "Reducing the expertise barrier between AI models and FPGAs",
+        keywords: ["FPGA deployment", "ML compiler", "Hardware automation", "Developer tools"],
         challenge:
           "Deploying machine-learning models on specialized hardware can take months and traditionally requires deep knowledge of chip design, hardware languages, and optimization tools.",
         approach:
@@ -261,6 +268,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Divakar Prayaga",
         company: "PurpleLens",
         headline: "Treating application security as a continuous engineering capability",
+        keywords: ["Application security", "Continuous testing", "Secure development", "AI-assisted coding"],
         challenge:
           "AI-assisted development helps teams ship faster, while increasingly automated attacks make periodic, end-of-cycle security testing harder to rely on.",
         approach:

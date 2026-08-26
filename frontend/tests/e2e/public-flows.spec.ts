@@ -1,5 +1,15 @@
 import { expect, test } from "@playwright/test";
 
+const founderPlaybookRoutes = [
+  "/resources/founder-playbooks/neil-fernandes-enrouteai",
+  "/resources/founder-playbooks/achal-pandey-vachi",
+  "/resources/founder-playbooks/ridham-bhagat-quip-network",
+  "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai",
+  "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer",
+  "/resources/founder-playbooks/ayush-kumar-configai",
+  "/resources/founder-playbooks/divakar-prayaga-purplelens",
+];
+
 const publicRoutes = [
   "/",
   "/about",
@@ -11,6 +21,8 @@ const publicRoutes = [
   "/events",
   "/events/startup-a-to-z-hacker-dojo-august-12",
   "/resources",
+  "/resources/founder-playbooks",
+  ...founderPlaybookRoutes,
   "/gallery",
   "/gallery/founders-pitch-mix-2026-08-25",
   "/contact",
@@ -48,7 +60,7 @@ test("header groups expose the expected destinations", async ({ page }) => {
 
   await navigation.getByRole("link", { name: "Resources", exact: true }).hover();
   await expect(navigation.getByRole("link", { name: "Gallery", exact: true })).toBeVisible();
-  await expect(navigation.getByRole("link", { name: "Founder's Playbook", exact: true })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Founder’s Playbook", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks");
   await expect(navigation.getByRole("link", { name: "Pitch Deck Resources", exact: true })).toBeVisible();
 
   await expect(navigation.getByRole("link", { name: "Sponsor", exact: true })).toHaveAttribute("href", "/sponsorship");
@@ -95,6 +107,10 @@ test("event filtering and completed event detail work", async ({ page }) => {
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Moving AI video from impressive clips to repeatable production", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai");
+  await expect(page.getByRole("link", { name: "Making hands-on computing accessible for more children", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer");
+  await expect(page.getByRole("link", { name: "Reducing the expertise barrier between AI models and FPGAs", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/ayush-kumar-configai");
+  await expect(page.getByRole("link", { name: "Treating application security as a continuous engineering capability", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/divakar-prayaga-purplelens");
 });
 
 test("August 25 event opens the local evidence-backed founder recap", async ({ page }) => {
@@ -102,9 +118,21 @@ test("August 25 event opens the local evidence-backed founder recap", async ({ p
   await expect(page.getByText("Local draft", { exact: true })).not.toBeVisible();
   await expect(page.getByRole("heading", { name: /Freight AI, Vachi, and Quantum Security/ })).toBeVisible();
   await expect(page.getByAltText("Collage of the StartupA2Z founder presentations and audience pitches at Hacker Dojo on August 25, 2026")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow" })).toBeVisible();
+  const neilPlaybook = page.getByRole("link", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow", exact: true });
+  await expect(neilPlaybook).toHaveAttribute("href", "/resources/founder-playbooks/neil-fernandes-enrouteai");
+  await expect(page.getByRole("link", { name: "EnrouteAI website" })).toHaveAttribute("href", "https://enrouteai.com/");
+  await expect(page.getByRole("link", { name: "Neil Fernandes on LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/in/neilfern/");
+  await expect(page.getByRole("heading", { name: "The problem", exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Inconsistent shipper RFP spreadsheets", { exact: true })).toBeVisible();
+  await expect(page.getByText("Upload the bid file as received", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Founder takeaway preview")).not.toHaveClass(/blur/);
+  await expect(page.getByText("Fit into the customer’s existing workflow", { exact: true })).toBeVisible();
+  await expect(page.getByText("For the detailed problem, demonstration, and founder takeaway, open Founder’s Playbook.", { exact: true })).toHaveCount(0);
+  await expect(page.locator("#founder-enrouteai").getByRole("link", { name: "Read the full Founder’s Playbook" })).toHaveAttribute("href", "/resources/founder-playbooks/neil-fernandes-enrouteai");
   await expect(page.getByRole("heading", { name: "Learning when traction is not enough reason to continue" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Protecting today’s blockchain wallets from future quantum attacks" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Learning when traction is not enough reason to continue", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/achal-pandey-vachi");
+  await expect(page.getByRole("link", { name: "Protecting today’s blockchain wallets from future quantum attacks", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/ridham-bhagat-quip-network");
   await expect(page.getByText("Neil Fernandes", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Achal Pandey", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Ridham Bhagat · Technical presenter", { exact: true }).first()).toBeVisible();
@@ -112,6 +140,32 @@ test("August 25 event opens the local evidence-backed founder recap", async ({ p
   await expect(page.getByAltText("An audience speaker sharing a pitch during the StartupA2Z event at Hacker Dojo")).toBeVisible();
   await expect(page.getByAltText("Another audience speaker presenting an idea during the StartupA2Z event at Hacker Dojo")).toBeVisible();
   await expect(page.getByRole("link", { name: "View photo gallery" })).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
+});
+
+test("Neil's event highlight opens the Founder’s Playbook detail page", async ({ page }) => {
+  await page.goto("/events/founders-pitch-mix-2026-08-25");
+  await page.getByRole("link", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow", exact: true }).click();
+  await expect(page).toHaveURL(/\/resources\/founder-playbooks\/neil-fernandes-enrouteai$/);
+  await expect(page.locator("section.gradient-hero-solid").getByText("Founder’s Playbook", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What problem did Neil speak about?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Keep the customer’s workflow. Replace the difficult middle." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Adoption friction is part of the product" })).toBeVisible();
+  await expect(page.locator("#founder-take")).not.toHaveClass(/bg-primary/);
+  await expect(page.getByRole("link", { name: "Supporting source" })).toHaveAttribute("href", "https://enrouteai.com/blog/what-does-enrouteai-do");
+  await expect(page.getByRole("link", { name: "August 25, 2026 event gallery" })).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
+});
+
+test("every published talk has a structured Founder’s Playbook", async ({ page }) => {
+  for (const route of founderPlaybookRoutes) {
+    await page.goto(route);
+    await expect(page.locator("section.gradient-hero-solid").getByText("Founder’s Playbook", { exact: true })).toBeVisible();
+    await expect(page.locator("#problem")).toBeVisible();
+    await expect(page.locator("#solution")).toBeVisible();
+    await expect(page.locator("#demonstration")).toBeVisible();
+    await expect(page.locator("#founder-take")).toBeVisible();
+    await expect(page.locator("#founder-take")).not.toHaveClass(/bg-primary/);
+    await expect(page.locator("#links")).toBeVisible();
+  }
 });
 
 test("August 25 gallery highlights the community group photo and opens the viewer", async ({ page }) => {
@@ -125,6 +179,29 @@ test("August 25 gallery highlights the community group photo and opens the viewe
   await expect(page.getByText("12 photographs", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Read the August 25, 2026 event recap from the gallery hero image" })).toHaveAttribute("href", "/events/founders-pitch-mix-2026-08-25");
   await expect(page.getByRole("link", { name: "Read the August 25, 2026 event recap with founder stories, demos, and lessons" })).toHaveAttribute("href", "/events/founders-pitch-mix-2026-08-25");
+
+  await page.getByRole("button", { name: "Open photo 12 of 12" }).scrollIntoViewIfNeeded();
+  await expect.poll(() => page.getByRole("button", { name: /Open photo/ }).locator("img").evaluateAll((images) =>
+    images.every((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0),
+  )).toBe(true);
+  const photoBrightness = await page.getByRole("button", { name: /Open photo/ }).locator("img").evaluateAll((images) =>
+    images.map((image) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 24;
+      canvas.height = 24;
+      const context = canvas.getContext("2d");
+      if (!context) return 0;
+      context.drawImage(image as HTMLImageElement, 0, 0, canvas.width, canvas.height);
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+      let total = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        total += pixels[index] + pixels[index + 1] + pixels[index + 2];
+      }
+      return total / (canvas.width * canvas.height * 3);
+    }),
+  );
+  expect(photoBrightness).toHaveLength(12);
+  for (const brightness of photoBrightness) expect(brightness).toBeGreaterThan(10);
 
   await page.getByRole("button", { name: "Open photo 1 of 12" }).click();
   await expect(page.getByRole("dialog", { name: /Bay Area Founders Pitch/ })).toBeVisible();
@@ -196,30 +273,60 @@ test("resource shortcuts land on the intended sections", async ({ page }) => {
   await expect(page.locator("#pitch-deck-resources")).toContainText("Pitch Deck Resources");
 });
 
+test("Founder’s Playbook resource link opens the complete library", async ({ page }) => {
+  await page.goto("/resources");
+  await page.getByRole("link", { name: "View all playbooks" }).click();
+  await expect(page).toHaveURL(/\/resources\/founder-playbooks$/);
+  await expect(page.getByRole("heading", { name: "All founder and builder talks" })).toBeVisible();
+  await expect(page.getByText("7 playbooks", { exact: true })).toBeVisible();
+  for (const route of founderPlaybookRoutes) {
+    await expect(page.locator(`a[href="${route}"]`).first()).toBeVisible();
+  }
+});
+
 test("startup cards open dedicated internal profiles", async ({ page }) => {
   await page.goto("/startups");
   await page.getByRole("link", { name: "View keyframe.art profile" }).click();
   await expect(page).toHaveURL(/\/startups\/keyframe$/);
   await expect(page.getByRole("heading", { name: "keyframe.art", level: 1 })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What keyframe.art is looking for" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What keyframe.art provides" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "About keyframe.art" })).toBeVisible();
   await expect(page.getByText("Founded", { exact: true })).toBeVisible();
   await expect(page.getByText("2025", { exact: true })).toBeVisible();
   await expect(page.getByText("Team size", { exact: true })).toBeVisible();
-  await expect(page.getByText("Founder & CEO", { exact: true })).toBeVisible();
-  const askAndOffer = page.getByLabel("keyframe.art ask and offer");
-  await expect(askAndOffer.getByRole("list")).toHaveCount(2);
-  await expect(askAndOffer.getByRole("listitem")).toHaveCount(6);
-  await expect(askAndOffer.getByText("1", { exact: true })).toHaveCount(0);
-  await expect(askAndOffer.getByText("2", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Founder & CEO", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Our ask", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Our story", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "keyframe.art website" })).toHaveAttribute("href", "https://www.keyframe.art/");
-  await expect(page.getByRole("link", { name: "Book a call" })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "API docs" })).toHaveCount(0);
-  const offerHeading = page.getByRole("heading", { name: "What keyframe.art provides" });
-  const videoHeading = page.getByRole("heading", { name: "See what keyframe.art is building" });
-  if (await videoHeading.count()) {
-    expect(await offerHeading.evaluate((offer, video) => Boolean(offer.compareDocumentPosition(video as Node) & Node.DOCUMENT_POSITION_FOLLOWING), await videoHeading.elementHandle())).toBe(true);
+  await expect(page.getByRole("link", { name: "Open Playbook" })).toHaveAttribute("href", "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai");
+});
+
+test("startup directory opens company profiles independently from founder playbooks", async ({ page }) => {
+  await page.goto("/startups");
+  const expectedLinks = [
+    ["EnrouteAI", "/startups/enrouteai"],
+    ["Vachi", "/startups/vachi"],
+    ["One Dollar Computer", "/startups/one-dollar-computer"],
+    ["ConfigAI", "/startups/configai"],
+    ["PurpleLens", "/startups/purplelens"],
+  ];
+
+  for (const [name, href] of expectedLinks) {
+    await expect(page.getByRole("link", { name: `View ${name} profile` })).toHaveAttribute("href", href);
   }
+  await expect(page.getByRole("link", { name: "View keyframe.art profile" })).toHaveAttribute("href", "/startups/keyframe");
+  await expect(page.getByRole("link", { name: "View Quip Network profile" })).toHaveCount(0);
+});
+
+test("EnrouteAI directory card opens a company profile", async ({ page }) => {
+  await page.goto("/startups");
+  await page.getByRole("link", { name: "View EnrouteAI profile" }).click();
+  await expect(page).toHaveURL(/\/startups\/enrouteai$/);
+  await expect(page.getByRole("heading", { name: "EnrouteAI", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "About EnrouteAI" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "EnrouteAI website" })).toHaveAttribute("href", "https://enrouteai.com/");
+  await expect(page.getByRole("link", { name: "Open Playbook" })).toHaveAttribute("href", "/resources/founder-playbooks/neil-fernandes-enrouteai");
+  await expect(page.getByText("Our ask", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Our story", { exact: true })).toHaveCount(0);
 });
 
 test("founder directory opens a founder profile linked to the startup story", async ({ page }) => {

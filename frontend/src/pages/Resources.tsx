@@ -3,6 +3,7 @@ import SEO from "@/components/SEO";
 import SectionHeading from "@/components/SectionHeading";
 import AnimatedCard from "@/components/AnimatedCard";
 import CTABanner from "@/components/CTABanner";
+import { founderPlaybooks, getFounderPlaybookPath } from "@/data/founderPlaybooks";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -43,12 +44,7 @@ const categories = [
     icon: Briefcase,
     title: "Founder Playbooks",
     id: "founder-playbooks",
-    items: [
-      "Idea Validation Checklist",
-      "MVP Launch Guide",
-      "Co-Founder Agreement Template",
-      "First 100 Customers Strategy",
-    ],
+    items: [],
   },
   {
     icon: BarChart3,
@@ -178,15 +174,29 @@ const Resources = () => (
                 {cat.title}
               </h3>
               <ul className="space-y-2">
-                {cat.items.map((item) => (
-                  <li
-                    key={item}
-                    className="text-sm text-muted-foreground"
-                  >
-                    {item}
-                  </li>
+                {cat.id === "founder-playbooks" ? (
+                  founderPlaybooks.map((playbook) => (
+                    <li key={playbook.slug} className="text-sm text-muted-foreground">
+                      <Link
+                        to={getFounderPlaybookPath(playbook)}
+                        className="group inline-flex items-center gap-2 font-semibold text-primary hover:text-secondary"
+                      >
+                        {playbook.label} <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    </li>
+                  ))
+                ) : cat.items.map((item) => (
+                  <li key={item} className="text-sm text-muted-foreground">{item}</li>
                 ))}
               </ul>
+              {cat.id === "founder-playbooks" && (
+                <Link
+                  to="/resources/founder-playbooks"
+                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-secondary hover:text-secondary-foreground"
+                >
+                  View all playbooks <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
               </AnimatedCard>
             </div>
           ))}

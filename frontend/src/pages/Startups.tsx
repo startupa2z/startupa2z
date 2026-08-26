@@ -24,97 +24,7 @@ import {
   Leaf,
 } from "lucide-react";
 import { BusinessListing, fetchBusinesses } from "@/lib/api";
-
-const featuredBusinesses: BusinessListing[] = [
-  {
-    id: "featured-lumina-ai",
-    name: "Lumina AI",
-    pitch: "Generative video orchestration for architectural visualization.",
-    stage: "Series A",
-    location: "San Francisco",
-    category: "Deep Tech",
-    tags: ["ML", "Design"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-chordpay",
-    name: "ChordPay",
-    pitch: "Instant royalty distributions for independent digital creators.",
-    stage: "Seed",
-    location: "London, UK",
-    category: "Fintech",
-    tags: ["Payments", "Web3"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-biosettle",
-    name: "BioSettle",
-    pitch: "Decentralized patient enrollment for rare disease clinical trials.",
-    stage: "Pre-Seed",
-    location: "Berlin",
-    category: "Healthtech",
-    tags: ["Pharma", "Compliance"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-forge-robotics",
-    name: "Forge Robotics",
-    pitch: "Modular pick-and-place robots for dark-store fulfillment.",
-    stage: "Growth",
-    location: "Boston",
-    category: "Deep Tech",
-    tags: ["Hardware", "AI"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-streamflow",
-    name: "StreamFlow",
-    pitch: "No-code data pipelines for enterprise cloud synchronization.",
-    stage: "Series B",
-    location: "Tel Aviv",
-    category: "SaaS",
-    tags: ["Enterprise", "Cloud"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-greenfleet",
-    name: "GreenFleet",
-    pitch: "Electric fleet management for last-mile delivery networks.",
-    stage: "Seed",
-    location: "San Francisco",
-    category: "Greentech",
-    tags: ["Logistics", "EV"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-medbridge-ai",
-    name: "MedBridge AI",
-    pitch: "AI-powered clinical trial matching platform for hospitals.",
-    stage: "Pre-Seed",
-    location: "New York",
-    category: "Healthtech",
-    tags: ["AI", "Healthcare"],
-    website_url: null,
-    created_at: "",
-  },
-  {
-    id: "featured-paynova",
-    name: "PayNova",
-    pitch: "Instant cross-border payments for freelancers worldwide.",
-    stage: "Seed",
-    location: "Singapore",
-    category: "Fintech",
-    tags: ["Payments", "Gig Economy"],
-    website_url: null,
-    created_at: "",
-  },
-];
+import { featuredBusinesses } from "@/data/staticBusinesses";
 
 const categoryItems = [
   { label: "All Businesses", icon: Grid3X3, value: "All" },
@@ -154,7 +64,13 @@ const Startups = () => {
     let cancelled = false;
     fetchBusinesses()
       .then(({ data }) => {
-        if (!cancelled && data.length > 0) setBusinesses(data);
+        if (!cancelled && data.length > 0) {
+          const apiNames = new Set(data.map((business) => business.name.toLowerCase()));
+          setBusinesses([
+            ...data,
+            ...featuredBusinesses.filter((business) => !apiNames.has(business.name.toLowerCase())),
+          ]);
+        }
       })
       .catch(() => {
         // Keep the featured directory visible if the API is temporarily unavailable.

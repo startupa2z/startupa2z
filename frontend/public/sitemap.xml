@@ -2,121 +2,205 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://startupa2z.org/</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/about</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/contact</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/startup-a-to-z-hacker-dojo-august-12</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/founders-pitch-mix-2026-08-25</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/founder-networking-workshop-2026-09-01</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/founders-pitch-mix-2026-09-08</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/founders-pitch-mix-2026-09-15</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/founders-pitch-mix-2026-09-22</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/events/founders-pitch-mix-2026-09-29</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/founders</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/investors</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/resources</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/resources/event-summaries</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/neil-fernandes-enrouteai</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/achal-pandey-vachi</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/ridham-bhagat-quip-network</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/claudio-olmedo-one-dollar-computer</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/ayush-kumar-configai</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/founder-playbooks/divakar-prayaga-purplelens</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/startups/enrouteai</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/startups/vachi</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/startups/keyframe</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/startups/one-dollar-computer</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/startups/configai</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/startups/purplelens</loc>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/gallery</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/gallery/startup-a-to-z-hacker-dojo-august-12</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/gallery/founders-pitch-mix-2026-08-25</loc>
-    <lastmod>2026-08-26T00:00:00.000Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/sponsorship</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://startupa2z.org/startups</loc>
-    <lastmod>2026-08-20T00:14:24.465Z</lastmod>
+    <lastmod>2026-08-26T22:05:38.763Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

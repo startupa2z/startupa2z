@@ -16,10 +16,106 @@ import {
 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
-import { getEventSummary } from "@/data/eventSummaries";
+import { FounderStory, getEventSummary } from "@/data/eventSummaries";
+import { FounderPlaybook, getFounderPlaybookByStory, getFounderPlaybookPath } from "@/data/founderPlaybooks";
 
 type EventSummaryDetailProps = {
   summarySlug?: string;
+};
+
+const FounderPlaybookPreview = ({ story, index, playbook }: { story: FounderStory; index: number; playbook: FounderPlaybook }) => {
+  const playbookPath = getFounderPlaybookPath(playbook);
+  const showWebsite = !story.founderProfiles.some((profile) => profile.url === story.website);
+
+  return (
+    <article
+      id={`founder-${story.anchor}`}
+      className="overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_40px_rgba(27,75,57,0.08)]"
+    >
+      <div className="grid border-b border-primary/10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-stretch">
+        <div className="flex flex-col justify-center p-6 sm:p-7 md:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary">
+            {story.storyLabel ?? "Founder talk"} {String(index + 1).padStart(2, "0")} · {story.company}
+          </p>
+          <Link to={playbookPath} className="group mt-3 inline-flex items-start gap-3">
+            <h3 className="font-heading text-2xl font-bold leading-tight text-primary transition-colors group-hover:text-secondary">
+              {story.headline}
+            </h3>
+            <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-secondary transition-transform group-hover:translate-x-1" />
+          </Link>
+          <p className="mt-2 font-semibold text-foreground">{story.founders}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {showWebsite && (story.directoryPath ? (
+              <Link to={story.directoryPath} className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-secondary">
+                {story.company} profile <Building2 className="h-4 w-4" />
+              </Link>
+            ) : (
+              <a href={story.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-secondary">
+                {story.company} website <ExternalLink className="h-4 w-4" />
+              </a>
+            ))}
+            {story.founderProfiles.map((profile) => profile.internal ? (
+              <Link
+                key={profile.name}
+                to={profile.url}
+                aria-label={`${profile.name} profile`}
+                title={`${profile.name} profile`}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#0A66C2] transition-colors hover:bg-[#0A66C2]/10"
+              >
+                <Users className="h-5 w-5" />
+              </Link>
+            ) : (
+              <a
+                key={profile.name}
+                href={profile.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${profile.name} on LinkedIn`}
+                title={`${profile.name} on LinkedIn`}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#0A66C2] transition-colors hover:bg-[#0A66C2]/10"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+            ))}
+          </div>
+        </div>
+        <Link to={playbookPath} aria-label={`Read ${story.headline}`} className="group border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0">
+          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+            <img
+              src={story.image}
+              alt={story.imageAlt}
+              className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${story.anchor === "keyframe-ai" ? "scale-[1.35] object-[center_74%] group-hover:scale-[1.38]" : ""}`}
+            />
+          </div>
+        </Link>
+      </div>
+      <div className="p-6 sm:p-7 md:p-8">
+        <div className="grid gap-3 text-sm leading-6 md:grid-cols-2">
+          <section className="rounded-2xl bg-surface-1 px-4 py-4">
+            <h4 className="font-bold text-foreground">The problem</h4>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+              {playbook.problemPoints.slice(0, 3).map((point) => <li key={point}>{point}</li>)}
+            </ul>
+          </section>
+          <section className="rounded-2xl bg-surface-1 px-4 py-4">
+            <h4 className="font-bold text-foreground">What they demonstrated</h4>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+              {playbook.workflowSteps.slice(0, 3).map((step) => <li key={step}>{step}</li>)}
+            </ul>
+          </section>
+          <section className="rounded-2xl border border-secondary/20 bg-secondary/5 px-4 py-4 md:col-span-2">
+            <h4 className="font-bold text-foreground">{playbook.takeLabel ?? "Founder takeaway"}</h4>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+              {playbook.takeaways.slice(0, 2).map((takeaway) => <li key={takeaway.title}>{takeaway.title}</li>)}
+            </ul>
+          </section>
+        </div>
+        <Link to={playbookPath} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-secondary hover:text-secondary-foreground">
+          Read the full Founder’s Playbook <BookOpen className="h-4 w-4" />
+        </Link>
+      </div>
+    </article>
+  );
 };
 
 const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
@@ -178,7 +274,104 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                 These stories are drawn from the presentations, session photos, and supporting public sources. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another builder can apply.
               </p>
               <div className="mt-8 space-y-8">
-                {summary.founderStories.map((story, index) => (
+                {summary.founderStories.map((story, index) => story.anchor === "enrouteai" ? (
+                  <article
+                    key={story.company}
+                    id={`founder-${story.anchor}`}
+                    className="overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_40px_rgba(27,75,57,0.08)]"
+                  >
+                    <div className="grid border-b border-primary/10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-stretch">
+                      <div className="flex flex-col justify-center p-6 sm:p-7 md:p-8">
+                        <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary">
+                          Founder talk {String(index + 1).padStart(2, "0")} · {story.company}
+                        </p>
+                        <Link
+                          to="/resources/founder-playbooks/neil-fernandes-enrouteai"
+                          className="group mt-3 inline-flex items-start gap-3"
+                        >
+                          <h3 className="font-heading text-2xl font-bold leading-tight text-primary transition-colors group-hover:text-secondary">
+                            {story.headline}
+                          </h3>
+                          <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-secondary transition-transform group-hover:translate-x-1" />
+                        </Link>
+                        <p className="mt-2 font-semibold text-foreground">{story.founders}</p>
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                          <a
+                            href={story.website}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-secondary"
+                          >
+                            EnrouteAI website <ExternalLink className="h-4 w-4" />
+                          </a>
+                          <a
+                            href={story.founderProfiles[0].url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label="Neil Fernandes on LinkedIn"
+                            title="Neil Fernandes on LinkedIn"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#0A66C2] transition-colors hover:bg-[#0A66C2]/10"
+                          >
+                            <Linkedin className="h-5 w-5" />
+                          </a>
+                        </div>
+                      </div>
+                      <Link
+                        to="/resources/founder-playbooks/neil-fernandes-enrouteai"
+                        aria-label={`Read ${story.headline}`}
+                        className="group border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0"
+                      >
+                        <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+                          <img
+                            src={story.image}
+                            alt={story.imageAlt}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                    <div className="p-6 sm:p-7 md:p-8">
+                      <div className="grid gap-3 text-sm leading-6 md:grid-cols-2">
+                        <section className="rounded-2xl bg-surface-1 px-4 py-4" aria-labelledby="neil-problem-preview">
+                          <h4 id="neil-problem-preview" className="font-bold text-foreground">The problem</h4>
+                          <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+                            <li>Inconsistent shipper RFP spreadsheets</li>
+                            <li>Hundreds of lanes priced under deadline</li>
+                            <li>Pricing inputs scattered across tools</li>
+                          </ul>
+                        </section>
+                        <section className="rounded-2xl bg-surface-1 px-4 py-4" aria-labelledby="neil-demo-preview">
+                          <h4 id="neil-demo-preview" className="font-bold text-foreground">What Neil demonstrated</h4>
+                          <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+                            <li>Upload the bid file as received</li>
+                            <li>Validate lanes before pricing</li>
+                            <li>Export in the shipper’s original format</li>
+                          </ul>
+                        </section>
+                        <section className="rounded-2xl border border-secondary/20 bg-secondary/5 px-4 py-4 md:col-span-2" aria-labelledby="neil-takeaway-preview">
+                          <h4 id="neil-takeaway-preview" className="font-bold text-foreground">Founder takeaway</h4>
+                          <ul aria-label="Founder takeaway preview" className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+                            <li>Fit into the customer’s existing workflow</li>
+                            <li>Automate the slowest, most error-prone work</li>
+                          </ul>
+                        </section>
+                      </div>
+                      <Link
+                        to="/resources/founder-playbooks/neil-fernandes-enrouteai"
+                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-secondary hover:text-secondary-foreground"
+                      >
+                        Read the full Founder’s Playbook <BookOpen className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </article>
+                ) : getFounderPlaybookByStory(summary.eventSlug, story.anchor) ? (
+                  <FounderPlaybookPreview
+                    key={story.company}
+                    story={story}
+                    index={index}
+                    playbook={getFounderPlaybookByStory(summary.eventSlug, story.anchor)!}
+                  />
+                ) : (
                   <article
                     key={story.company}
                     id={`founder-${story.anchor}`}

@@ -18,6 +18,8 @@ const Events = lazy(() => import("./pages/Events.tsx"));
 const EventDetail = lazy(() => import("./pages/EventDetail.tsx"));
 const Resources = lazy(() => import("./pages/Resources.tsx"));
 const EventSummaries = lazy(() => import("./pages/EventSummaries.tsx"));
+const FounderPlaybookDetail = lazy(() => import("./pages/FounderPlaybookDetail.tsx"));
+const FounderPlaybooks = lazy(() => import("./pages/FounderPlaybooks.tsx"));
 const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Sponsorship = lazy(() => import("./pages/Sponsorship.tsx"));
 const Gallery = lazy(() => import("./pages/Gallery.tsx"));
@@ -53,6 +55,8 @@ const App = () => (
           <Route path="/community" element={<Navigate to="/events" replace />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/resources/event-summaries" element={<EventSummaries />} />
+          <Route path="/resources/founder-playbooks" element={<FounderPlaybooks />} />
+          <Route path="/resources/founder-playbooks/:slug" element={<FounderPlaybookDetail />} />
           <Route path="/sponsorship" element={<Sponsorship />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/gallery/:eventSlug" element={<Gallery />} />
