@@ -1,7 +1,7 @@
 import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 
 const recurringPitchMixCover =
-  "/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png?v=20260827";
+  "/event-covers/startupa2z-founders-pitch-mix-every-tuesday.png?v=20260827";
 
 export type EventItem = {
   id?: string;

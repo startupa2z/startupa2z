@@ -67,7 +67,7 @@ requireText(sep1Html, '"@type": "Event"', "September 1 Event schema type");
 requireText(sep1Html, '"startDate": "2026-09-01T17:00:00-07:00"', "September 1 Event start date");
 requireText(sep1Html, '"endDate": "2026-09-01T20:00:00-07:00"', "September 1 Event end date");
 requireText(sep1Html, '"@type": "PostalAddress"', "September 1 postal address");
-requireText(sep1Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png", "September 1 absolute event image");
+requireText(sep1Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-tuesday.png", "September 1 absolute event image");
 requireText(sep1Html, "https://luma.com/txup8dqa", "September 1 Luma registration destination");
 requireText(sep1Html, '"@type": "FAQPage"', "September 1 FAQ schema");
 requireText(sep1Html, '"@type": "BreadcrumbList"', "September 1 breadcrumb schema");
