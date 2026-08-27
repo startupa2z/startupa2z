@@ -186,6 +186,7 @@ test("August 25 event opens the local evidence-backed founder recap", async ({ p
   await expect(page.getByAltText("An audience speaker sharing a pitch during the StartupA2Z event at Hacker Dojo")).toBeVisible();
   await expect(page.getByAltText("Another audience speaker presenting an idea during the StartupA2Z event at Hacker Dojo")).toBeVisible();
   await expect(page.getByRole("link", { name: "View photo gallery" })).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
+  await expect(page.getByRole("link", { name: "See upcoming events", exact: true })).toHaveAttribute("href", "/events?view=upcoming");
 });
 
 test("Neil's event highlight opens the Founder’s Playbook detail page", async ({ page }) => {
@@ -288,6 +289,18 @@ test("August 25 gallery highlights the community group photo and opens the viewe
   await expect(page.getByText("1 / 12", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close photo viewer" }).click();
   await expect(page.getByRole("dialog", { name: /Bay Area Founders Pitch/ })).not.toBeVisible();
+});
+
+test("upcoming-event calls to action never open Contact", async ({ page }) => {
+  for (const route of [
+    "/",
+    "/gallery",
+    "/gallery/founders-pitch-mix-2026-08-25",
+  ]) {
+    await page.goto(route);
+    const upcomingLink = page.getByRole("link", { name: /see upcoming events/i });
+    await expect(upcomingLink).toHaveAttribute("href", "/events?view=upcoming");
+  }
 });
 
 test("upcoming featured section never promotes a past event", async ({ page }) => {

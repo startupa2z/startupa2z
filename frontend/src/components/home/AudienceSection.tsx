@@ -46,7 +46,7 @@ const AudienceSection = () => (
           Founders in the room.
         </motion.h2>
         <Link
-          to="/events"
+          to="/events?view=upcoming"
           className="hidden md:inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-primary hover:gap-2.5 transition-all"
         >
           See upcoming events <ArrowRight className="w-4 h-4" />

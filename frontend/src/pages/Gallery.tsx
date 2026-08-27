@@ -199,6 +199,7 @@ const GalleryLanding = () => (
       title="Be in the Next Frame"
       description="Join the next StartupA2Z gathering and build alongside founders moving from idea to execution."
       primaryCTA="See Upcoming Events"
+      primaryLink="/events?view=upcoming"
     />
   </PageLayout>
 );
@@ -476,6 +477,7 @@ const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
         title="Be in the Next Frame"
         description="Join the next StartupA2Z gathering and build alongside founders who are moving from idea to execution."
         primaryCTA="See Upcoming Events"
+        primaryLink="/events?view=upcoming"
       />
 
       <AnimatePresence>
