@@ -28,7 +28,7 @@ const audiences = [
     icon: Users,
     title: "Community",
     description:
-      "Join startup circles, attend meetups, and be part of the Bay Area ecosystem.",
+      "Join startup circles, attend events, and be part of the Bay Area ecosystem.",
     link: "/events",
   },
 ];

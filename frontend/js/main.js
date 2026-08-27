@@ -101,7 +101,7 @@
     const titleEl    = modalOverlay.querySelector('.modal__title');
     const subtitleEl = modalOverlay.querySelector('.modal__subtitle');
     if (titleEl)    titleEl.textContent    = 'Reserve Your Spot';
-    if (subtitleEl) subtitleEl.textContent = eventName || 'Secure your place at the next meetup.';
+    if (subtitleEl) subtitleEl.textContent = eventName || 'Secure your place at the next event.';
     modalOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     // Reset form

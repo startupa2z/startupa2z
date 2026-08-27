@@ -18,10 +18,10 @@ const navItems: NavItem[] = [
   { to: "/", label: "Home" },
   {
     to: "/events",
-    label: "Events",
+    label: "Explore Events",
     children: [
-      { to: "/events?view=upcoming", label: "Bay Area Startup Events" },
-      { to: "/events?view=past", label: "Past Founder Events" },
+      { to: "/events?view=upcoming", label: "Upcoming Events" },
+      { to: "/events?view=past", label: "Past Events" },
     ],
   },
   {
@@ -37,11 +37,10 @@ const navItems: NavItem[] = [
     to: "/resources",
     label: "Resources",
     children: [
-      { to: "/resources/event-summaries", label: "Past Events Summary" },
-      { to: "/gallery", label: "Gallery" },
       { to: "/resources/founder-playbooks", label: "Founder’s Playbook" },
       { to: "/resources/case-studies", label: "Case Studies" },
-      { to: "/resources#pitch-deck-resources", label: "Pitch Deck Resources" },
+      { to: "/gallery", label: "Gallery" },
+      { to: "/resources/event-summaries", label: "Past Events Summary" },
     ],
   },
   {

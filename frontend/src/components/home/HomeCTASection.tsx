@@ -19,7 +19,7 @@ const HomeCTASection = () => (
             Build one.
           </h2>
           <p className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-white/45 mt-3">
-            Explore upcoming meetups across the Bay Area
+            Explore upcoming events across the Bay Area
           </p>
         </motion.div>
 
@@ -34,7 +34,7 @@ const HomeCTASection = () => (
             to="/events"
             className="inline-flex items-center px-7 py-3 rounded-full bg-white text-primary text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(0,0,0,0.15)] active:scale-[0.97] transition-all"
           >
-            Explore Meetups
+            Explore Events
           </Link>
           <button
             type="button"

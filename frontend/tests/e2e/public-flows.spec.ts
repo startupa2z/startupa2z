@@ -55,15 +55,23 @@ test("header groups expose the expected destinations", async ({ page }) => {
   await page.goto("/");
   const navigation = page.getByRole("navigation");
 
+  await navigation.getByRole("link", { name: "Explore Events", exact: true }).hover();
+  await expect(navigation.getByRole("link", { name: "Upcoming Events", exact: true }))
+    .toHaveAttribute("href", "/events?view=upcoming");
+  await expect(navigation.getByRole("link", { name: "Past Events", exact: true }))
+    .toHaveAttribute("href", "/events?view=past");
+
   await navigation.getByRole("link", { name: "Community", exact: true }).hover();
   await expect(navigation.getByRole("link", { name: "Startup Directory", exact: true })).toBeVisible();
   await expect(navigation.getByRole("link", { name: "Founder Directory", exact: true })).toBeVisible();
   await expect(navigation.getByRole("link", { name: "Investor Network", exact: true })).toBeVisible();
 
   await navigation.getByRole("link", { name: "Resources", exact: true }).hover();
-  await expect(navigation.getByRole("link", { name: "Gallery", exact: true })).toBeVisible();
   await expect(navigation.getByRole("link", { name: "Founder’s Playbook", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks");
-  await expect(navigation.getByRole("link", { name: "Pitch Deck Resources", exact: true })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Case Studies", exact: true })).toHaveAttribute("href", "/resources/case-studies");
+  await expect(navigation.getByRole("link", { name: "Gallery", exact: true })).toHaveAttribute("href", "/gallery");
+  await expect(navigation.getByRole("link", { name: "Past Events Summary", exact: true })).toHaveAttribute("href", "/resources/event-summaries");
+  await expect(navigation.getByRole("link", { name: "Pitch Deck Resources", exact: true })).toHaveCount(0);
 
   await expect(navigation.getByRole("link", { name: "Sponsor", exact: true })).toHaveAttribute("href", "/sponsorship");
 });
@@ -86,6 +94,32 @@ test("homepage gallery moves between dated events and opens the selected gallery
   await expect(page).toHaveURL(/\/gallery\/founders-pitch-mix-2026-08-25$/);
 });
 
+test("homepage uses event terminology and opens the add-business form", async ({ page }) => {
+  await page.goto("/");
+
+  const exploreEventLinks = page.locator("main").getByRole("link", { name: "Explore Events", exact: true });
+  await expect(exploreEventLinks.first()).toBeVisible();
+  expect(await exploreEventLinks.count()).toBeGreaterThanOrEqual(2);
+  for (const link of await exploreEventLinks.all()) await expect(link).toHaveAttribute("href", "/events");
+
+  const pitchLink = page.getByRole("link", { name: "Apply to Pitch", exact: true });
+  const addBusinessLink = page.getByRole("link", { name: "Add Startup/Business", exact: true });
+  await expect(pitchLink).toBeVisible();
+  await expect(addBusinessLink).toBeVisible();
+  const [eventBox, pitchBox, businessBox] = await Promise.all([
+    exploreEventLinks.first().boundingBox(),
+    pitchLink.boundingBox(),
+    addBusinessLink.boundingBox(),
+  ]);
+  if (!eventBox || !pitchBox || !businessBox) throw new Error("Hero actions must have visible layout boxes");
+  expect(Math.abs(eventBox.y - pitchBox.y)).toBeLessThan(4);
+  expect(Math.abs(eventBox.y - businessBox.y)).toBeLessThan(4);
+
+  await addBusinessLink.click();
+  await expect(page).toHaveURL(/\/startups\?add=1$/);
+  await expect(page.getByRole("dialog", { name: "Add Startup/Business" })).toBeVisible();
+});
+
 test("sign in and apply to pitch open the correct authentication modes", async ({ page }) => {
   await page.goto("/");
 
@@ -106,6 +140,8 @@ test("event filtering and completed event detail work", async ({ page }) => {
 
   await page.getByRole("link", { name: "Upcoming", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Upcoming Events" })).toBeVisible();
+  await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
+    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png?v=20260827");
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();
@@ -261,7 +297,7 @@ test("upcoming featured section never promotes a past event", async ({ page }) =
             time: "5:00 PM - 7:00 PM",
             venue: "Past Venue",
             address: "",
-            type: "Meetup",
+            type: "Event",
             description: "Past event",
             long_description: "Past event",
             agenda: [],
@@ -280,7 +316,7 @@ test("upcoming featured section never promotes a past event", async ({ page }) =
             time: "5:00 PM - 7:00 PM",
             venue: "Future Venue",
             address: "",
-            type: "Meetup",
+            type: "Event",
             description: "Future event",
             long_description: "Future event",
             agenda: [],

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
 import BusinessSubmissionDialog from "@/components/BusinessSubmissionDialog";
@@ -53,12 +53,13 @@ const colorForCategory = (category: string) => {
 };
 
 const Startups = () => {
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [stage, setStage] = useState("All Stages");
   const [location, setLocation] = useState("Global");
   const [category, setCategory] = useState("All");
   const [businesses, setBusinesses] = useState<BusinessListing[]>(featuredBusinesses);
-  const [submissionOpen, setSubmissionOpen] = useState(false);
+  const [submissionOpen, setSubmissionOpen] = useState(searchParams.get("add") === "1");
 
   useEffect(() => {
     let cancelled = false;

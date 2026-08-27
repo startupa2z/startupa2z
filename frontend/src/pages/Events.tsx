@@ -33,12 +33,12 @@ const eventFaqs = [
   {
     question: "What startup events are happening in Silicon Valley?",
     answer:
-      "StartupA2Z.org publishes upcoming Silicon Valley startup events including founder meetups, practical workshops, pitch sessions, and tech networking events in Mountain View and nearby Bay Area cities.",
+      "StartupA2Z.org publishes upcoming Silicon Valley startup events including founder gatherings, practical workshops, pitch sessions, and tech networking events in Mountain View and nearby Bay Area cities.",
   },
   {
     question: "Are StartupA2Z.org founder events free?",
     answer:
-      "Many StartupA2Z.org founder meetups and networking events are free. Check the individual event page for current pricing, capacity, and registration details.",
+      "Many StartupA2Z.org founder events and networking sessions are free. Check the individual event page for current pricing, capacity, and registration details.",
   },
   {
     question: "Where are StartupA2Z.org events held?",
@@ -98,7 +98,7 @@ const Events = () => {
     <PageLayout>
       <SEO
         title={`Startup & Founder Networking Events in the Bay Area | StartupA2Z`}
-        description={`Find Bay Area startup networking events, Silicon Valley founder meetups, entrepreneur workshops, pitch events, and Mountain View startup events.`}
+        description={`Find Bay Area startup networking events, Silicon Valley founder events, entrepreneur workshops, pitch events, and Mountain View startup events.`}
         canonical={`https://startupa2z.org/events`}
         ogImage={`https://startupa2z.org/assets/og-events.jpg`}
         jsonLd={{
@@ -109,7 +109,7 @@ const Events = () => {
               "@id": "https://startupa2z.org/events#page",
               name: "Bay Area and Silicon Valley Startup and Founder Events",
               description:
-                "Upcoming startup events, founder meetups, pitch events, workshops, and networking opportunities across the Bay Area and Silicon Valley.",
+                "Upcoming startup events, founder gatherings, pitch events, workshops, and networking opportunities across the Bay Area and Silicon Valley.",
               url: "https://startupa2z.org/events",
             },
             {
@@ -153,7 +153,7 @@ const Events = () => {
               Bay Area Startup Networking and Founder Events
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Discover Silicon Valley founder meetups, Mountain View startup
+              Discover Silicon Valley founder events, Mountain View startup
               events, entrepreneur workshops, pitch sessions, and high-value
               tech networking across the Bay Area.
             </p>
@@ -369,9 +369,9 @@ const Events = () => {
               </p>
             </article>
             <article className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="font-heading text-xl font-bold text-primary">Silicon Valley Founder Meetups</h2>
+              <h2 className="font-heading text-xl font-bold text-primary">Silicon Valley Founder Events</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                Explore startup meetups, entrepreneur events, and tech networking for people across Mountain View, San Jose, San Francisco, and the wider Silicon Valley ecosystem.
+                Explore startup events, entrepreneur gatherings, and tech networking for people across Mountain View, San Jose, San Francisco, and the wider Silicon Valley ecosystem.
               </p>
             </article>
           </div>
@@ -398,7 +398,7 @@ const Events = () => {
 
       <CTABanner
         title="Want to Host an Event?"
-        description="Partner with Startupa2z to host meetups, workshops, or pitch nights for the Bay Area community."
+        description="Partner with Startupa2z to host events, workshops, or pitch nights for the Bay Area community."
         primaryCTA="Get in Touch"
       />
     </PageLayout>

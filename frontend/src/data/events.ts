@@ -1,7 +1,7 @@
 import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 
 const recurringPitchMixCover =
-  "/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png";
+  "/event-covers/startupa2z-founders-pitch-mix-every-wednesday.png?v=20260827";
 
 export type EventItem = {
   id?: string;
@@ -52,7 +52,7 @@ const pitchMixEvents: EventItem[] = [
   time: "5:00 PM - 8:00 PM",
   venue: "Hacker Dojo, Mountain View",
   address: "855 Maude Ave, Mountain View, CA 94043",
-  type: "Founder Meetup",
+  type: "Founder Event",
   desc: `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
   longDesc: pitchMixLongDescription(date),
   agenda: pitchMixAgenda,
@@ -110,7 +110,7 @@ export const seedEvents: EventItem[] = [
     time: "5:00 PM - 8:00 PM",
     venue: "Hacker Dojo, Mountain View",
     address: "855 Maude Ave, Mountain View, CA 94043",
-    type: "Founder Meetup",
+    type: "Founder Event",
     desc: "A free Bay Area founder pitch and startup networking event at Hacker Dojo in Mountain View on August 12, 2026.",
     longDesc:
       "Startup A to Z brings founders, operators, investors, mentors, and aspiring entrepreneurs together for practical learning and meaningful connections. The first session opens with a fast-paced Startup Basics from A to Z talk, followed by two organized founder pitches, two audience pitches, direct feedback, and networking. Founder speakers will be announced soon.",

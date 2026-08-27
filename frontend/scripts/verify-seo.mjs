@@ -100,7 +100,7 @@ requireText(eventsHtml, 'href="https://startupa2z.org/events"', "events canonica
 requireText(eventsHtml, '"name": "Bay Area Founder Networking & Startup Workshop | Mountain View"', "events structured listing");
 requireText(eventsHtml, "Founder Networking Events", "events search guide");
 requireText(eventsHtml, "Startup Pitch Events", "events search guide");
-requireText(eventsHtml, "Silicon Valley Founder Meetups", "events search guide");
+requireText(eventsHtml, "Silicon Valley Founder Events", "events search guide");
 requireText(eventsHtml, '"@type": "CollectionPage"', "events collection schema");
 requireText(eventsHtml, '"@type": "FAQPage"', "events FAQ schema");
 

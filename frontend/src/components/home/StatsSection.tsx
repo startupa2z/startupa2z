@@ -56,7 +56,7 @@ const StatsSection = () => {
         className="pt-8 mt-4 col-span-full"
       >
         <blockquote className="text-[clamp(1rem,2vw,1.2rem)] italic text-foreground leading-[1.65] max-w-[620px]">
-          "The highest-signal startup community in the Bay Area. Every meetup
+          "The highest-signal startup community in the Bay Area. Every event
           I've attended has changed how I think about building."
         </blockquote>
         <cite className="block mt-3 text-[0.82rem] not-italic text-muted-foreground font-semibold">

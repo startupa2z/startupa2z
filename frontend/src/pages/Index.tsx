@@ -16,7 +16,7 @@ const Index = () => (
   <PageLayout>
     <SEO
       title={`Startup Events in Bay Area | StartupA2Z.org`}
-      description={`Discover startup events, founder meetups, networking sessions, and mentorship opportunities in the Bay Area.`}
+      description={`Discover startup events, founder gatherings, networking sessions, and mentorship opportunities in the Bay Area.`}
       canonical={`https://startupa2z.org/`}
       ogImage={`https://startupa2z.org/assets/og-home.jpg`}
       jsonLd={{

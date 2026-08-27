@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Camera, ChevronLeft, ChevronRight, Linkedin, Instagram, Facebook, MapPin, Mic2 } from "lucide-react";
+import { ArrowRight, CalendarDays, Camera, ChevronLeft, ChevronRight, Linkedin, Instagram, Facebook, MapPin, Mic2, Plus } from "lucide-react";
 import { X as XIcon } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -127,18 +127,24 @@ const HeroSection = () => {
             </p>
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:gap-2.5">
               <Link
                 to="/events"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] text-white text-[0.9rem] font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-[0_8px_28px_rgba(232,137,26,0.35)]"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-br from-secondary to-[hsl(30,100%,58%)] px-5 py-3 text-[0.82rem] font-semibold text-white shadow-[0_8px_28px_rgba(232,137,26,0.35)] transition-all hover:-translate-y-0.5 hover:opacity-90 active:scale-[0.97]"
               >
-                Explore Meetups <ArrowRight className="w-4 h-4" />
+                Explore Events <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/apply-to-pitch"
-                className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-3 text-[0.9rem] font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-white/15"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/40 bg-white/10 px-5 py-3 text-[0.82rem] font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-white/15"
               >
                 <Mic2 className="h-4 w-4 text-secondary" /> Apply to Pitch
+              </Link>
+              <Link
+                to="/startups?add=1"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/40 bg-white/10 px-5 py-3 text-[0.82rem] font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-white/15"
+              >
+                <Plus className="h-4 w-4 text-secondary" /> Add Startup/Business
               </Link>
             </div>
 
@@ -180,7 +186,7 @@ const HeroSection = () => {
               >
                 <div className="min-w-0">
                   <div className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-primary">
-                    Next Meetup
+                    Next Event
                   </div>
                   <h3 className="mt-1 line-clamp-2 text-[0.96rem] font-bold leading-snug tracking-[-0.01em] text-foreground">
                     {nextEvent.title}
@@ -210,7 +216,7 @@ const HeroSection = () => {
                     to="/events"
                     className="inline-flex items-center justify-center rounded-full border border-primary/25 bg-primary/5 px-3 py-2 text-[0.66rem] font-bold uppercase tracking-[0.06em] text-primary transition-colors hover:bg-primary hover:text-white"
                   >
-                    Explore Meetups
+                    Explore Events
                   </Link>
                 </div>
               </div>
