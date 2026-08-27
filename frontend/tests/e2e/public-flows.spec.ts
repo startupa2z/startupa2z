@@ -23,6 +23,8 @@ const publicRoutes = [
   "/resources",
   "/resources/founder-playbooks",
   ...founderPlaybookRoutes,
+  "/resources/case-studies",
+  "/resources/case-studies/neil-fernandes-enrouteai",
   "/gallery",
   "/gallery/founders-pitch-mix-2026-08-25",
   "/contact",
@@ -147,10 +149,20 @@ test("Neil's event highlight opens the Founder’s Playbook detail page", async 
   await page.getByRole("link", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow", exact: true }).click();
   await expect(page).toHaveURL(/\/resources\/founder-playbooks\/neil-fernandes-enrouteai$/);
   await expect(page.locator("section.gradient-hero-solid").getByText("Founder’s Playbook", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What problem did Neil speak about?" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Keep the customer’s workflow. Replace the difficult middle." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Adoption friction is part of the product" })).toBeVisible();
-  await expect(page.locator("#founder-take")).not.toHaveClass(/bg-primary/);
+  await expect(page.locator("section.gradient-hero-solid").getByRole("link", { name: "View Case Study" })).toHaveAttribute("href", "/resources/case-studies/neil-fernandes-enrouteai");
+  await expect(page.getByRole("heading", { name: "Founder and company introduction" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The business behind the playbook" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "From small operators to major enterprises" })).toBeVisible();
+  await expect(page.getByText("$6–7B", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The freight-pricing problem" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Build the pricing engine behind the fleet’s decision." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "From transportation research to EnrouteAI" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The operating lessons behind the company" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Build toward pull, not persuasion" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Questions from the talk" })).toBeVisible();
+  await expect(page.locator("#faqs summary").first()).toContainText("What does EnrouteAI do?");
+  await page.locator("#faqs summary").first().click();
+  await expect(page.locator("#faqs details").first()).toContainText("full-truckload capacity");
   await expect(page.getByRole("link", { name: "Supporting source" })).toHaveAttribute("href", "https://enrouteai.com/blog/what-does-enrouteai-do");
   await expect(page.getByRole("link", { name: "August 25, 2026 event gallery" })).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
 });
@@ -166,6 +178,26 @@ test("every published talk has a structured Founder’s Playbook", async ({ page
     await expect(page.locator("#founder-take")).not.toHaveClass(/bg-primary/);
     await expect(page.locator("#links")).toBeVisible();
   }
+});
+
+test("EnrouteAI case study explains the business through visual models", async ({ page }) => {
+  await page.goto("/resources/case-studies/neil-fernandes-enrouteai");
+  await expect(page.locator("section.gradient-hero-solid").getByText("Startup Case Study", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How EnrouteAI found its market by selling the outcome first" })).toBeVisible();
+  await expect(page.getByAltText("Semi-truck fleet with freight-capacity, route, and pricing data visualizations")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Operating context" })).toBeVisible();
+  await expect(page.getByText("6", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("$6–7B", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Logarithmic visual scale.", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Four models explain what changed" })).toBeVisible();
+  await expect(page.getByText("Optimize package-delivery routes", { exact: true })).toBeVisible();
+  await expect(page.locator("#visual-models").getByText("Customer pull", { exact: true })).toBeVisible();
+  await expect(page.getByText("Product push", { exact: true })).toBeVisible();
+  await expect(page.locator("#visual-models").getByText("The learn-by-selling loop", { exact: false })).toBeVisible();
+  await expect(page.getByText("Founder’s operating playbook", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("FAQs from Neil’s talk", { exact: true })).not.toBeVisible();
+  await expect(page.getByRole("link", { name: "Read Founder’s Playbook" })).toHaveAttribute("href", "/resources/founder-playbooks/neil-fernandes-enrouteai");
+  await expect(page.getByText("Evidence from the talk", { exact: true })).not.toBeVisible();
 });
 
 test("August 25 gallery highlights the community group photo and opens the viewer", async ({ page }) => {
@@ -271,6 +303,17 @@ test("resource shortcuts land on the intended sections", async ({ page }) => {
 
   await page.goto("/resources#pitch-deck-resources");
   await expect(page.locator("#pitch-deck-resources")).toContainText("Pitch Deck Resources");
+
+  await page.goto("/resources#case-studies");
+  await expect(page.locator("#case-studies")).toContainText("Case Studies");
+});
+
+test("Case Studies resource link opens the case-study library", async ({ page }) => {
+  await page.goto("/resources");
+  await page.getByRole("link", { name: "View case studies" }).click();
+  await expect(page).toHaveURL(/\/resources\/case-studies$/);
+  await expect(page.getByRole("heading", { name: "Company journeys explained visually" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open case study" })).toHaveAttribute("href", "/resources/case-studies/neil-fernandes-enrouteai");
 });
 
 test("Founder’s Playbook resource link opens the complete library", async ({ page }) => {

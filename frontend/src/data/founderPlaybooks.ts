@@ -3,11 +3,42 @@ export type PlaybookTakeaway = {
   description: string;
 };
 
+export type PlaybookFaq = {
+  question: string;
+  answer: string;
+};
+
+export type CaseStudyChapter = {
+  label: string;
+  title: string;
+  paragraphs: string[];
+  points?: string[];
+  quote?: string;
+};
+
+export type FounderCaseStudy = {
+  title: string;
+  deck: string;
+  visual: string;
+  visualAlt: string;
+  snapshot: Array<{ label: string; value: string }>;
+  metrics: Array<{ value: string; label: string; note: string }>;
+  customerRange: {
+    minimum: string;
+    maximum: string;
+    description: string;
+  };
+  chapters: CaseStudyChapter[];
+  operatingDecisions: PlaybookTakeaway[];
+};
+
 export type FounderPlaybook = {
   slug: string;
   label: string;
   eventSlug: string;
   storyAnchor: string;
+  introductionHeading?: string;
+  introductionParagraphs?: string[];
   problemHeading: string;
   problemPoints: string[];
   solutionHeading: string;
@@ -16,6 +47,15 @@ export type FounderPlaybook = {
   takeLabel?: string;
   takeHeading: string;
   takeaways: PlaybookTakeaway[];
+  problemNarrative?: string;
+  solutionNarrative?: string;
+  founderJourneyHeading?: string;
+  founderJourney?: string[];
+  lessonsHeading?: string;
+  lessons?: PlaybookTakeaway[];
+  takeNarrative?: string;
+  faqs?: PlaybookFaq[];
+  caseStudy?: FounderCaseStudy;
 };
 
 export const founderPlaybooks: FounderPlaybook[] = [
@@ -24,26 +64,258 @@ export const founderPlaybooks: FounderPlaybook[] = [
     label: "Neil Fernandes · EnrouteAI",
     eventSlug: "founders-pitch-mix-2026-08-25",
     storyAnchor: "enrouteai",
-    problemHeading: "What problem did Neil speak about?",
+    introductionHeading: "Founder and company introduction",
+    introductionParagraphs: [
+      "Neil Fernandes built his expertise around transportation, operations research, and the mathematics behind routes, loading, capacity, and delivery economics. Working with an MIT professor also gave him direct exposure to the operational problems transportation companies face.",
+      "EnrouteAI is a bootstrapped freight-technology company that helps fleet owners decide what price they should charge for full-truckload capacity. This Playbook captures the customer-discovery and company-building lessons behind that journey.",
+    ],
+    caseStudy: {
+      title: "How EnrouteAI found its market by selling the outcome first",
+      deck:
+        "A transportation-optimization idea became a freight-pricing business by treating the product as adaptable and following the customer’s most urgent work.",
+      visual: "/event-media/august-25-2026/enrouteai-case-study-freight-pricing.png",
+      visualAlt: "Semi-truck fleet with freight-capacity, route, and pricing data visualizations",
+      snapshot: [
+        { label: "Industry", value: "Trucking and freight" },
+        { label: "Started with", value: "Delivery optimization" },
+        { label: "Found demand in", value: "Full-truckload pricing" },
+        { label: "Growth model", value: "Bootstrapped and customer-led" },
+      ],
+      metrics: [
+        { value: "6", label: "Team members", note: "At the time of the session" },
+        { value: "$1M", label: "Smallest customer revenue", note: "Approximate company revenue" },
+        { value: "$6–7B", label: "Largest customer revenue", note: "Approximate company revenue" },
+        { value: "2", label: "Early acquisition channels", note: "Trade conferences and cold calling" },
+      ],
+      customerRange: {
+        minimum: "$1M",
+        maximum: "$6–7B",
+        description: "The reported annual-revenue range of companies served by EnrouteAI—from a small operator to a major U.S. furniture manufacturer.",
+      },
+      chapters: [
+        {
+          label: "The context",
+          title: "Domain expertise shaped the starting point",
+          paragraphs: [
+            "Transportation had interested Neil since childhood. He later studied it during his master’s program and worked with an MIT professor, where he saw the operational problems faced by transportation companies firsthand.",
+            "He understood the mathematics behind route planning, loading, capacity, and delivery economics. The opportunity appeared to be bringing capabilities used by companies such as Amazon to smaller operators that could not build large optimization teams.",
+          ],
+        },
+        {
+          label: "The original bet",
+          title: "Make advanced delivery optimization available to everyone",
+          paragraphs: [
+            "Neil’s first product helped plan package-delivery routes and determine how a truck should be loaded. It was technically connected to a real industry problem—but that did not automatically make it the right business.",
+            "The initial product became a starting point rather than the final destination. The underlying optimization capability was valuable; the market still had to reveal where that capability was most urgently needed.",
+          ],
+        },
+        {
+          label: "The challenge",
+          title: "Good technology did not remove adoption friction",
+          paragraphs: [
+            "Fleet operators already had processes, spreadsheets, deadlines, and people responsible for pricing. Asking them to adopt a new product created resistance even when the technology was strong.",
+            "Neil realized that a general pain point is not the same as demand. Customers experience many problems, but they act only when important work is blocked and time is running out.",
+          ],
+          quote: "People do not buy products. They buy a solution to the problem they have.",
+        },
+        {
+          label: "The discovery",
+          title: "Demand is a blocked project with a deadline",
+          paragraphs: [
+            "Truckload carriers must submit prices for their capacity whether EnrouteAI exists or not. That pricing project is the demand. The stronger offer was not ‘buy our pricing software’; it was ‘we will price this bid before your deadline.’",
+            "That distinction changed both the message and the way Neil evaluated opportunities.",
+          ],
+          points: [
+            "There is a specific project the customer must complete.",
+            "The customer is blocked by current tools, knowledge, or capacity.",
+            "The project is urgent and attached to a real deadline.",
+          ],
+        },
+        {
+          label: "The action",
+          title: "Find one real buyer, show up, and learn by selling",
+          paragraphs: [
+            "Neil replaced abstract personas with a concrete hypothesis: a specific pricing leader at a specific trucking company. From there, he worked backward to find where those buyers gathered.",
+            "Specialized trucking conferences and cold calling helped him reach early prospects. Instead of waiting for a finished product, he recommended showing a mock-up or completing the work manually to learn what customers would actually pay to solve.",
+          ],
+          points: [
+            "Name the exact decision-maker and company.",
+            "Go where that buyer already spends time.",
+            "Show the outcome with a mock-up before overbuilding.",
+            "Use rejection and manual delivery to shorten the learning cycle.",
+          ],
+        },
+        {
+          label: "The turning point",
+          title: "Customer pull moved the company into truckload pricing",
+          paragraphs: [
+            "The original delivery product evolved as customers exposed a stronger opportunity. If route optimization could reveal the cost of serving a load, the same foundation could help determine what that truck capacity should be sold for.",
+            "EnrouteAI became a pricing engine for full-truckload fleets. The product direction came from repeated market evidence—not from protecting the original idea.",
+          ],
+        },
+        {
+          label: "Where it stands",
+          title: "A focused, bootstrapped business serving very different fleet operators",
+          paragraphs: [
+            "Neil said EnrouteAI now has a team of six. Its customers range from a business with roughly $1 million in revenue to a major U.S. furniture manufacturer with approximately $6–7 billion in revenue.",
+            "The talk did not present a predetermined five-year expansion plan. Neil’s position was that the next market—whether LTL, ocean freight, air freight, or something else—should be decided by demonstrated customer pull.",
+          ],
+        },
+      ],
+      operatingDecisions: [
+        {
+          title: "Bootstrap unless scale creates a clear reason to raise",
+          description: "VC is useful for some companies, but capital cannot repair missing product-market fit. Neil would reconsider only if demand or competition required much faster scaling.",
+        },
+        {
+          title: "Treat the first hire as a company-defining decision",
+          description: "A poor first hire can damage a young company. Trust, alignment, and a credible network introduction matter more than making the team look large quickly.",
+        },
+        {
+          title: "Build for a decade, not an overnight outcome",
+          description: "Neil described entrepreneurship as a marathon. Realistic expectations help founders preserve energy and avoid making short-term decisions for an imagined quick exit.",
+        },
+        {
+          title: "Let customers decide the roadmap",
+          description: "The company should move toward the market that pulls hardest rather than forcing reality to match a founder’s original prediction.",
+        },
+      ],
+    },
+    problemHeading: "The freight-pricing problem",
     problemPoints: [
-      "Every shipper can send a different spreadsheet structure.",
-      "Teams may need to price hundreds or thousands of lanes against a fixed deadline.",
-      "Costs, market benchmarks, customer strategy, and bid history often live in separate systems.",
-      "Manual cleanup and validation consume time before pricing even begins.",
+      "Trucking fleets must decide what price to quote for the capacity on their trucks.",
+      "Many carriers still price full truckloads using spreadsheets, intuition, and manual analysis.",
+      "Routes, capacity, costs, and market conditions make truckload pricing difficult to do consistently.",
+      "The pricing work must still be completed by a deadline whether or not a software product exists.",
     ],
-    solutionHeading: "Keep the customer’s workflow. Replace the difficult middle.",
-    demonstrationHeading: "A repeatable freight-pricing workflow",
+    problemNarrative:
+      "Airlines use sophisticated systems to price seats dynamically. Trucking fleets sell capacity in a similar way, but many still depend on spreadsheets and experience to decide what a full truckload should cost.",
+    solutionHeading: "Build the pricing engine behind the fleet’s decision.",
+    solutionNarrative:
+      "EnrouteAI applies optimization to help fleet owners determine what price they should charge for full-truckload capacity. Neil’s larger point was that customers buy the completed pricing outcome—not the underlying AI, mathematics, or software.",
+    founderJourneyHeading: "From transportation research to EnrouteAI",
+    founderJourney: [
+      "Neil’s interest in transportation began early and continued through his master’s research.",
+      "Working with an MIT professor exposed him to transportation companies and their operational problems firsthand.",
+      "His first product focused on package-delivery optimization: route planning, truck loading, and bringing Amazon-like capabilities to smaller operators.",
+      "Customer conversations and selling revealed a stronger opportunity in truckload pricing, so the same optimization foundation evolved into EnrouteAI’s current product.",
+      "EnrouteAI now has a six-person team and serves organizations ranging from roughly $1 million in revenue to a major U.S. furniture manufacturer with approximately $6–7 billion in revenue.",
+    ],
+    demonstrationHeading: "A framework for validating demand",
     workflowSteps: [
-      "Upload the RFP as received",
-      "Validate lanes and inputs",
-      "Price with carrier economics and market context",
-      "Export in the shipper’s original format",
+      "Name a specific buyer—not an abstract persona",
+      "Find a project that is blocked, urgent, and deadline-driven",
+      "Use a mock-up or deliver the result manually",
+      "Iterate until customers pull the solution from you",
     ],
-    takeHeading: "Adoption friction is part of the product",
+    lessonsHeading: "The operating lessons behind the company",
+    lessons: [
+      {
+        title: "Demand exists before the product",
+        description: "Real demand is an important project that must be completed by a deadline, is currently blocked, and is urgent enough for the customer to act.",
+      },
+      {
+        title: "Sell the outcome",
+        description: "Offering to complete a customer’s bid is easier to adopt than asking the customer to buy another product and change how the work gets done.",
+      },
+      {
+        title: "Learn by selling",
+        description: "A mock-up, a manual service, and direct rejection can teach more than months of isolated product development or theoretical positioning.",
+      },
+      {
+        title: "Let the startup evolve",
+        description: "EnrouteAI moved from package-delivery optimization to truckload pricing because customers exposed a stronger market problem.",
+      },
+      {
+        title: "Find the first customer precisely",
+        description: "Identify a real decision-maker at a real company, then reverse-engineer where that person can be reached. Neil used industry conferences and cold calling.",
+      },
+      {
+        title: "Look for customer pull",
+        description: "Strong sales is less about persuading reluctant prospects and more about finding buyers whose urgent, blocked work makes them ask for the solution.",
+      },
+      {
+        title: "Use venture capital selectively",
+        description: "VC fits only some businesses. Raising before product-market fit can amplify the wrong decisions, and money cannot repair missing demand.",
+      },
+      {
+        title: "Prepare for a long journey",
+        description: "Neil described entrepreneurship as a decade-long marathon, not an overnight path to wealth. Founders must manage expectations and avoid burnout.",
+      },
+      {
+        title: "Treat the first hire as a founder-level decision",
+        description: "A poor first hire can seriously damage a young company. Trust, alignment, and introductions through a credible network matter greatly.",
+      },
+      {
+        title: "Let customers determine the roadmap",
+        description: "EnrouteAI may eventually enter LTL, ocean, or air freight, but Neil will follow demonstrated customer pull rather than force a five-year prediction.",
+      },
+    ],
+    takeHeading: "Build toward pull, not persuasion",
+    takeNarrative:
+      "The shortest path is to identify a specific buyer with urgent, blocked work, deliver the outcome before overbuilding, and let repeated customer pull determine what the startup becomes.",
     takeaways: [
-      { title: "Choose the right wedge", description: "Start with recurring work that is visibly expensive, slow, or error-prone." },
-      { title: "Preserve what works", description: "Keep the customer’s familiar inputs and required outputs whenever possible." },
-      { title: "Sell the operational value", description: "Lead with faster decisions and fewer mistakes, not the technology alone." },
+      { title: "Validate urgency", description: "A pain point becomes demand when the customer has a blocked project and a real deadline." },
+      { title: "Deliver before scaling", description: "Use mock-ups and manual execution to prove value before investing heavily in the product." },
+      { title: "Follow the evidence", description: "Allow customers, sales, and repeated use to shape the product and the company’s direction." },
+    ],
+    faqs: [
+      {
+        question: "What does EnrouteAI do?",
+        answer: "It helps owners of trucking fleets determine what price they should charge for full-truckload capacity.",
+      },
+      {
+        question: "How is EnrouteAI similar to airline pricing?",
+        answer: "Airlines dynamically price seats. EnrouteAI applies optimization principles to the capacity that trucking fleets sell.",
+      },
+      {
+        question: "Does EnrouteAI price less-than-truckload shipments?",
+        answer: "Not currently. Neil said the company’s present focus is full-truckload pricing.",
+      },
+      {
+        question: "What was Neil’s original product?",
+        answer: "It focused on package-delivery optimization, including route planning and deciding how trucks should be loaded.",
+      },
+      {
+        question: "How did the product move into truckload pricing?",
+        answer: "Selling and customer conversations revealed a stronger opportunity. The original optimization capability evolved to address that demand.",
+      },
+      {
+        question: "How should founders identify genuine demand?",
+        answer: "Find a customer project that is blocked, urgent, and tied to a deadline—not merely a general pain point.",
+      },
+      {
+        question: "Should founders build the complete product before approaching customers?",
+        answer: "No. Neil recommended starting with a mock-up or manually delivering the outcome so the founder can learn before overbuilding.",
+      },
+      {
+        question: "How did Neil find early customers?",
+        answer: "He showed up at specialized trucking conferences, spoke directly with specific decision-makers, and used cold calling.",
+      },
+      {
+        question: "Why does Neil prefer customer pull over persuasion?",
+        answer: "Customers facing urgent, blocked work adopt faster. A prospect who requires heavy convincing may buy temporarily and then churn.",
+      },
+      {
+        question: "Does Neil plan to raise venture capital?",
+        answer: "Not presently. He believes VC is suitable for only some companies and cannot compensate for missing product-market fit.",
+      },
+      {
+        question: "How large is the EnrouteAI team?",
+        answer: "Neil said the company currently has six team members.",
+      },
+      {
+        question: "What matters when making the first hire?",
+        answer: "Trust, alignment, and a strong personal or network-based reference. Neil considers the first hire a high-impact decision that can harm the company if handled poorly.",
+      },
+      {
+        question: "Where will EnrouteAI expand next?",
+        answer: "Neil has not predetermined the answer. The company will follow demonstrated demand, whether that eventually leads to LTL, ocean freight, air freight, or another adjacent market.",
+      },
+      {
+        question: "What resources did Neil recommend?",
+        answer: "He explicitly recommended The Mom Test and Paul Graham’s early startup essays.",
+      },
     ],
   },
   {

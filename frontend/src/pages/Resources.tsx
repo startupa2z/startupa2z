@@ -48,6 +48,12 @@ const categories = [
   },
   {
     icon: BarChart3,
+    title: "Case Studies",
+    id: "case-studies",
+    items: [],
+  },
+  {
+    icon: BarChart3,
     title: "Growth & Marketing",
     id: "growth-marketing",
     items: [
@@ -80,6 +86,8 @@ const categories = [
     ],
   },
 ];
+
+const caseStudyPlaybooks = founderPlaybooks.filter((playbook) => playbook.caseStudy);
 
 const Resources = () => (
   <PageLayout>
@@ -185,6 +193,17 @@ const Resources = () => (
                       </Link>
                     </li>
                   ))
+                ) : cat.id === "case-studies" ? (
+                  caseStudyPlaybooks.map((playbook) => (
+                    <li key={playbook.slug} className="text-sm text-muted-foreground">
+                      <Link
+                        to={`/resources/case-studies/${playbook.slug}`}
+                        className="group inline-flex items-center gap-2 font-semibold text-primary hover:text-secondary"
+                      >
+                        {playbook.caseStudy?.title} <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    </li>
+                  ))
                 ) : cat.items.map((item) => (
                   <li key={item} className="text-sm text-muted-foreground">{item}</li>
                 ))}
@@ -195,6 +214,14 @@ const Resources = () => (
                   className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-secondary hover:text-secondary-foreground"
                 >
                   View all playbooks <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
+              {cat.id === "case-studies" && (
+                <Link
+                  to="/resources/case-studies"
+                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-secondary hover:text-secondary-foreground"
+                >
+                  View case studies <ArrowRight className="h-4 w-4" />
                 </Link>
               )}
               </AnimatedCard>

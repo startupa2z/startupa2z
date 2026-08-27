@@ -40,6 +40,7 @@ const navItems: NavItem[] = [
       { to: "/resources/event-summaries", label: "Past Events Summary" },
       { to: "/gallery", label: "Gallery" },
       { to: "/resources/founder-playbooks", label: "Founder’s Playbook" },
+      { to: "/resources/case-studies", label: "Case Studies" },
       { to: "/resources#pitch-deck-resources", label: "Pitch Deck Resources" },
     ],
   },

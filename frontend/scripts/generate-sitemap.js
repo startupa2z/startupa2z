@@ -33,6 +33,8 @@ const staticRoutes = [
   "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer",
   "/resources/founder-playbooks/ayush-kumar-configai",
   "/resources/founder-playbooks/divakar-prayaga-purplelens",
+  "/resources/case-studies",
+  "/resources/case-studies/neil-fernandes-enrouteai",
   "/startups/enrouteai",
   "/startups/vachi",
   "/startups/keyframe",
