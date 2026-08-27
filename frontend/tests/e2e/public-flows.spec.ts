@@ -141,9 +141,15 @@ test("event filtering and completed event detail work", async ({ page }) => {
   await page.getByRole("link", { name: "Upcoming", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Upcoming Events" })).toBeVisible();
   await expect(page.getByAltText("Bay Area Founder Networking & Startup Workshop | Mountain View event"))
-    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday.png?v=20260827");
+    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
-    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday.png?v=20260827");
+    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
+  await page.getByRole("button", { name: "List view" }).click();
+  await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
+    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
+  await page.getByRole("button", { name: "Grid view" }).click();
+  await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
+    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();

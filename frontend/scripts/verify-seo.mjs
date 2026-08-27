@@ -42,6 +42,17 @@ const rejectText = (html, text, label) => {
   if (html.includes(text)) throw new Error(`${label}: unexpectedly contains ${text}`);
 };
 
+const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  timeZone: "America/Los_Angeles",
+});
+for (const eventDate of ["2026-09-01", "2026-09-08", "2026-09-15", "2026-09-22", "2026-09-29"]) {
+  const weekday = weekdayFormatter.format(new Date(`${eventDate}T17:00:00-07:00`));
+  if (weekday !== "Tuesday") {
+    throw new Error(`${eventDate} weekday: expected Tuesday, received ${weekday}`);
+  }
+}
+
 const eventHtml = readRoute(`/events/${eventSlug}`);
 const homeHtml = readRoute("/");
 rejectText(homeHtml, "http://localhost:", "homepage build output");
@@ -67,7 +78,8 @@ requireText(sep1Html, '"@type": "Event"', "September 1 Event schema type");
 requireText(sep1Html, '"startDate": "2026-09-01T17:00:00-07:00"', "September 1 Event start date");
 requireText(sep1Html, '"endDate": "2026-09-01T20:00:00-07:00"', "September 1 Event end date");
 requireText(sep1Html, '"@type": "PostalAddress"', "September 1 postal address");
-requireText(sep1Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-tuesday.png", "September 1 absolute event image");
+requireText(sep1Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png", "September 1 absolute event image");
+rejectText(sep1Html, "Wednesday", "September 1 weekday");
 requireText(sep1Html, "https://luma.com/txup8dqa", "September 1 Luma registration destination");
 requireText(sep1Html, '"@type": "FAQPage"', "September 1 FAQ schema");
 requireText(sep1Html, '"@type": "BreadcrumbList"', "September 1 breadcrumb schema");
