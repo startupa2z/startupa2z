@@ -82,15 +82,15 @@ export const founderPlaybooks: FounderPlaybook[] = [
         { label: "Growth model", value: "Bootstrapped and customer-led" },
       ],
       metrics: [
-        { value: "6", label: "Team members", note: "At the time of the session" },
+        { value: "Small", label: "Team", note: "Bootstrapped and customer-led" },
         { value: "$1M", label: "Smallest customer revenue", note: "Approximate company revenue" },
-        { value: "$6–7B", label: "Largest customer revenue", note: "Approximate company revenue" },
+        { value: "Enterprise", label: "Largest customer company", note: "Multi-billion-dollar U.S. enterprise" },
         { value: "2", label: "Early acquisition channels", note: "Trade conferences and cold calling" },
       ],
       customerRange: {
         minimum: "$1M",
-        maximum: "$6–7B",
-        description: "The reported annual-revenue range of companies served by EnrouteAI—from a small operator to a major U.S. furniture manufacturer.",
+        maximum: "Multi-billion-dollar enterprise",
+        description: "The reported annual-revenue range of companies served by EnrouteAI—from a small operator to a multi-billion-dollar U.S. enterprise.",
       },
       chapters: [
         {
@@ -157,7 +157,7 @@ export const founderPlaybooks: FounderPlaybook[] = [
           label: "Where it stands",
           title: "A focused, bootstrapped business serving very different fleet operators",
           paragraphs: [
-            "Neil said EnrouteAI now has a team of six. Its customers range from a business with roughly $1 million in revenue to a major U.S. furniture manufacturer with approximately $6–7 billion in revenue.",
+            "EnrouteAI operates with a small team. Its customers range from a business with roughly $1 million in revenue to a multi-billion-dollar U.S. enterprise.",
             "The talk did not present a predetermined five-year expansion plan. Neil’s position was that the next market—whether LTL, ocean freight, air freight, or something else—should be decided by demonstrated customer pull.",
           ],
         },
@@ -199,7 +199,7 @@ export const founderPlaybooks: FounderPlaybook[] = [
       "Working with an MIT professor exposed him to transportation companies and their operational problems firsthand.",
       "His first product focused on package-delivery optimization: route planning, truck loading, and bringing Amazon-like capabilities to smaller operators.",
       "Customer conversations and selling revealed a stronger opportunity in truckload pricing, so the same optimization foundation evolved into EnrouteAI’s current product.",
-      "EnrouteAI now has a six-person team and serves organizations ranging from roughly $1 million in revenue to a major U.S. furniture manufacturer with approximately $6–7 billion in revenue.",
+      "EnrouteAI operates with a small team and serves organizations ranging from roughly $1 million in revenue to a multi-billion-dollar U.S. enterprise.",
     ],
     demonstrationHeading: "A framework for validating demand",
     workflowSteps: [
@@ -262,7 +262,7 @@ export const founderPlaybooks: FounderPlaybook[] = [
     faqs: [
       {
         question: "What does EnrouteAI do?",
-        answer: "It helps owners of trucking fleets determine what price they should charge for full-truckload capacity.",
+        answer: "EnrouteAI makes RFP pricing software for truckload carriers. It helps fleets decide what to charge for full-truckload capacity when responding to freight RFPs.",
       },
       {
         question: "How is EnrouteAI similar to airline pricing?",
@@ -302,7 +302,7 @@ export const founderPlaybooks: FounderPlaybook[] = [
       },
       {
         question: "How large is the EnrouteAI team?",
-        answer: "Neil said the company currently has six team members.",
+        answer: "EnrouteAI operates with a small team.",
       },
       {
         question: "What matters when making the first hire?",

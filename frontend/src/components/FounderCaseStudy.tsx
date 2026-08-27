@@ -69,11 +69,11 @@ const FounderCaseStudy = ({ playbook, story, event }: FounderCaseStudyProps) => 
               <span className="absolute right-0 top-1/2 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-card bg-primary shadow" />
             </div>
             <div className="mt-4 grid grid-cols-5 text-center text-xs font-semibold text-muted-foreground">
-              <span className="text-left font-bold text-secondary">{caseStudy.customerRange.minimum}</span>
+              <span className="text-left font-bold leading-4 text-secondary">{caseStudy.customerRange.minimum}</span>
               <span>$10M</span>
               <span>$100M</span>
               <span>$1B</span>
-              <span className="text-right font-bold text-primary">{caseStudy.customerRange.maximum}</span>
+              <span className="text-right font-bold leading-4 text-primary">{caseStudy.customerRange.maximum}</span>
             </div>
           </div>
           <p className="mt-6 border-t border-primary/10 pt-4 text-xs leading-5 text-muted-foreground">Logarithmic visual scale. These figures describe customer-company revenue—not EnrouteAI revenue, valuation, or customer count.</p>

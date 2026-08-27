@@ -74,7 +74,7 @@ export const eventSummaries: EventSummary[] = [
         founders: "Neil Fernandes",
         company: "EnrouteAI",
         headline: "Turning freight-pricing spreadsheet work into a repeatable workflow",
-        keywords: ["Full-truckload pricing", "Customer pull", "Founder-led sales", "Bootstrapping", "Product-market fit"],
+        keywords: ["Freight RFP pricing", "Full-truckload pricing", "Customer pull", "Founder-led sales", "Bootstrapping", "Product-market fit"],
         challenge:
           "Truckload carrier teams receive shipper RFPs in inconsistent spreadsheets and must price hundreds or thousands of lanes under deadline pressure. Market benchmarks, company strategy, cost data, and bid history are often scattered across separate tools and files.",
         approach:
