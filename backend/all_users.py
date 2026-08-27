@@ -124,6 +124,7 @@ async def upsert_all_user(
     phone: str | None = None,
     company: str | None = None,
     job_title: str | None = None,
+    linkedin_url: str | None = None,
     member_user_id=None,
 ) -> None:
     normalized_email = email.strip().lower()
@@ -141,10 +142,10 @@ async def upsert_all_user(
     await db.execute(
         """INSERT INTO all_users
                   (email, normalized_email, full_name, first_name, last_name, phone,
-                   company, job_title, member_user_id, is_member,
+                   company, job_title, linkedin_url, member_user_id, is_member,
                    is_website_registrant, is_luma_attendee, is_lead,
                    first_source, last_source)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $15)
            ON CONFLICT (normalized_email) DO UPDATE
                  SET email = EXCLUDED.email,
                      full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), all_users.full_name),
@@ -153,6 +154,7 @@ async def upsert_all_user(
                      phone = COALESCE(NULLIF(EXCLUDED.phone, ''), all_users.phone),
                      company = COALESCE(NULLIF(EXCLUDED.company, ''), all_users.company),
                      job_title = COALESCE(NULLIF(EXCLUDED.job_title, ''), all_users.job_title),
+                     linkedin_url = COALESCE(NULLIF(EXCLUDED.linkedin_url, ''), all_users.linkedin_url),
                      member_user_id = COALESCE(EXCLUDED.member_user_id, all_users.member_user_id),
                      is_member = all_users.is_member OR EXCLUDED.is_member,
                      is_website_registrant = all_users.is_website_registrant OR EXCLUDED.is_website_registrant,
@@ -168,6 +170,7 @@ async def upsert_all_user(
         phone,
         company,
         job_title,
+        linkedin_url,
         member_user_id,
         is_member,
         is_website,

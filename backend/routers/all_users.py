@@ -25,6 +25,12 @@ HEADER_ALIASES = {
     "phone": {"phone", "phone number", "mobile", "mobile number"},
     "company": {"company", "company name", "organization", "organisation"},
     "job_title": {"job title", "title", "role", "position"},
+    "linkedin_url": {
+        "linkedin",
+        "linkedin url",
+        "linkedin profile",
+        "what is your linkedin profile?",
+    },
 }
 
 
@@ -133,6 +139,7 @@ async def import_all_users_csv(
             "phone": _clean(row.get(columns.get("phone", ""))),
             "company": _clean(row.get(columns.get("company", ""))),
             "job_title": _clean(row.get(columns.get("job_title", ""))),
+            "linkedin_url": _clean(row.get(columns.get("linkedin_url", ""))),
         }
         if normalized_email in contacts:
             duplicate_rows += 1
