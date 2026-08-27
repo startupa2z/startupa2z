@@ -335,7 +335,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                         <section className="rounded-2xl bg-surface-1 px-4 py-4" aria-labelledby="neil-problem-preview">
                           <h4 id="neil-problem-preview" className="font-bold text-foreground">The problem</h4>
                           <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-                            <li>Inconsistent shipper RFP spreadsheets</li>
+                            <li>Inconsistent shipper RFP (Request for Proposal) spreadsheets</li>
                             <li>Hundreds of lanes priced under deadline</li>
                             <li>Pricing inputs scattered across tools</li>
                           </ul>

@@ -78,7 +78,7 @@ export const founderPlaybooks: FounderPlaybook[] = [
       snapshot: [
         { label: "Industry", value: "Trucking and freight" },
         { label: "Started with", value: "Delivery optimization" },
-        { label: "Found demand in", value: "Full-truckload pricing" },
+        { label: "Found demand in", value: "Freight RFP (Request for Proposal) pricing" },
         { label: "Growth model", value: "Bootstrapped and customer-led" },
       ],
       metrics: [
@@ -262,7 +262,7 @@ export const founderPlaybooks: FounderPlaybook[] = [
     faqs: [
       {
         question: "What does EnrouteAI do?",
-        answer: "EnrouteAI makes RFP pricing software for truckload carriers. It helps fleets decide what to charge for full-truckload capacity when responding to freight RFPs.",
+        answer: "EnrouteAI makes RFP (Request for Proposal) pricing software for truckload carriers. It helps fleets decide what to charge for full-truckload capacity when responding to freight RFPs.",
       },
       {
         question: "How is EnrouteAI similar to airline pricing?",

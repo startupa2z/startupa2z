@@ -125,7 +125,7 @@ test("August 25 event opens the local evidence-backed founder recap", async ({ p
   await expect(page.getByRole("link", { name: "EnrouteAI website" })).toHaveAttribute("href", "https://enrouteai.com/");
   await expect(page.getByRole("link", { name: "Neil Fernandes on LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/in/neilfern/");
   await expect(page.getByRole("heading", { name: "The problem", exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Inconsistent shipper RFP spreadsheets", { exact: true })).toBeVisible();
+  await expect(page.getByText("Inconsistent shipper RFP (Request for Proposal) spreadsheets", { exact: true })).toBeVisible();
   await expect(page.getByText("Upload the bid file as received", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Founder takeaway preview")).not.toHaveClass(/blur/);
   await expect(page.getByText("Fit into the customer’s existing workflow", { exact: true })).toBeVisible();
@@ -152,6 +152,7 @@ test("Neil's event highlight opens the Founder’s Playbook detail page", async 
   await expect(page.locator("section.gradient-hero-solid").getByRole("link", { name: "View Case Study" })).toHaveAttribute("href", "/resources/case-studies/neil-fernandes-enrouteai");
   await expect(page.getByRole("heading", { name: "Founder and company introduction" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "The business behind the playbook" })).toBeVisible();
+  await expect(page.getByText("Freight RFP (Request for Proposal) pricing", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "From small operators to major enterprises" })).toBeVisible();
   await expect(page.getByText("Multi-billion-dollar enterprise", { exact: true })).toBeVisible();
   await expect(page.getByText("Freight RFP pricing", { exact: true })).toBeVisible();
@@ -163,7 +164,7 @@ test("Neil's event highlight opens the Founder’s Playbook detail page", async 
   await expect(page.getByRole("heading", { name: "Questions from the talk" })).toBeVisible();
   await expect(page.locator("#faqs summary").first()).toContainText("What does EnrouteAI do?");
   await page.locator("#faqs summary").first().click();
-  await expect(page.locator("#faqs details").first()).toContainText("RFP pricing software for truckload carriers");
+  await expect(page.locator("#faqs details").first()).toContainText("RFP (Request for Proposal) pricing software for truckload carriers");
   await expect(page.locator("#faqs details").first()).toContainText("responding to freight RFPs");
   await expect(page.getByRole("link", { name: "Supporting source" })).toHaveAttribute("href", "https://enrouteai.com/blog/what-does-enrouteai-do");
   await expect(page.getByRole("link", { name: "August 25, 2026 event gallery" })).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");
@@ -188,6 +189,7 @@ test("EnrouteAI case study explains the business through visual models", async (
   await expect(page.getByRole("heading", { name: "How EnrouteAI found its market by selling the outcome first" })).toBeVisible();
   await expect(page.getByAltText("Semi-truck fleet with freight-capacity, route, and pricing data visualizations")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Operating context" })).toBeVisible();
+  await expect(page.getByText("Freight RFP (Request for Proposal) pricing", { exact: true })).toBeVisible();
   await expect(page.getByText("Small", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Multi-billion-dollar U.S. enterprise", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Logarithmic visual scale.", { exact: false })).toBeVisible();

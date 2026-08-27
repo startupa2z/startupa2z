@@ -5,7 +5,7 @@ export const staticBusinessProfiles: Record<string, BusinessListing> = {
     id: "community-enrouteai",
     slug: "enrouteai",
     name: "EnrouteAI",
-    pitch: "RFP pricing software that helps truckload carriers turn inconsistent bid files into a repeatable pricing workflow.",
+    pitch: "RFP (Request for Proposal) pricing software that helps truckload carriers turn inconsistent bid files into a repeatable pricing workflow.",
     stage: "Early stage",
     location: "United States",
     category: "SaaS",

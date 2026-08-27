@@ -76,7 +76,7 @@ export const eventSummaries: EventSummary[] = [
         headline: "Turning freight-pricing spreadsheet work into a repeatable workflow",
         keywords: ["Freight RFP pricing", "Full-truckload pricing", "Customer pull", "Founder-led sales", "Bootstrapping", "Product-market fit"],
         challenge:
-          "Truckload carrier teams receive shipper RFPs in inconsistent spreadsheets and must price hundreds or thousands of lanes under deadline pressure. Market benchmarks, company strategy, cost data, and bid history are often scattered across separate tools and files.",
+          "Truckload carrier teams receive shipper RFP (Request for Proposal) spreadsheets in inconsistent formats and must price hundreds or thousands of lanes under deadline pressure. Market benchmarks, company strategy, cost data, and bid history are often scattered across separate tools and files.",
         approach:
           "Neil connected his operations-research background to a focused industry workflow: accept the bid file as it arrives, validate the lanes, price them using the carrier's own economics and market context, and export the completed bid in the shipper's original format.",
         lesson:
