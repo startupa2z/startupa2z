@@ -167,6 +167,8 @@ const mapRow = (r: {
   // database supplies the live event set and operational values.
   const seedEvent = seedEvents.find((event) => event.slug === r.slug);
   const isRecurringPitchMix = r.slug.startsWith("founders-pitch-mix-2026-");
+  const usesCurrentEventCover =
+    isRecurringPitchMix || r.slug === "founder-networking-workshop-2026-09-01";
   return {
     id: r.id,
     slug: r.slug,
@@ -184,7 +186,7 @@ const mapRow = (r: {
     capacity: r.capacity,
     price: r.price,
     featured: r.featured,
-    imageUrl: isRecurringPitchMix
+    imageUrl: usesCurrentEventCover
       ? recurringPitchMixCover
       : r.image_url || seedEvent?.imageUrl || null,
     startDateIso: seedEvent?.startDateIso ?? null,
