@@ -2,6 +2,11 @@ import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 
 const recurringPitchMixCover =
   "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827";
+const september22WizCover =
+  "/event-covers/startupa2z-wiz-special-founder-session-september-22-2026-wide.png?v=20260828";
+
+const eventCoverForSlug = (slug: string) =>
+  slug === "founders-pitch-mix-2026-09-22" ? september22WizCover : recurringPitchMixCover;
 
 export type EventItem = {
   id?: string;
@@ -61,7 +66,7 @@ const pitchMixEvents: EventItem[] = [
   capacity: 0,
   price: "Free",
   featured: false,
-  imageUrl: recurringPitchMixCover,
+  imageUrl: eventCoverForSlug(slug),
   startDateIso: `${isoDate}T17:00:00-07:00`,
   endDateIso: `${isoDate}T20:00:00-07:00`,
   registrationUrl: `https://luma.com/${lumaSlug}?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix`,
@@ -187,7 +192,7 @@ const mapRow = (r: {
     price: r.price,
     featured: r.featured,
     imageUrl: usesCurrentEventCover
-      ? recurringPitchMixCover
+      ? eventCoverForSlug(r.slug)
       : r.image_url || seedEvent?.imageUrl || null,
     startDateIso: seedEvent?.startDateIso ?? null,
     endDateIso: seedEvent?.endDateIso ?? null,
