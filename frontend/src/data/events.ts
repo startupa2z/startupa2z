@@ -3,7 +3,7 @@ import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 const recurringPitchMixCover =
   "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827";
 const september22WizCover =
-  "/event-covers/startupa2z-wiz-special-founder-session-september-22-2026-wide.png?v=20260828";
+  "/event-covers/startupa2z-wiz-scaling-securely-september-22-2026-wide.png?v=20260828-2";
 
 const eventCoverForSlug = (slug: string) =>
   slug === "founders-pitch-mix-2026-09-22" ? september22WizCover : recurringPitchMixCover;
@@ -44,33 +44,59 @@ const pitchMixAgenda = [
   { time: "7:15 PM", item: "Post-session networking" },
 ];
 
+const september22Agenda = [
+  { time: "5:00 PM", item: "Arrival and founder networking" },
+  { time: "5:30 PM", item: "Welcome and introduction by Satish" },
+  { time: "5:40 PM", item: "The Wiz story and modern cloud architecture" },
+  { time: "6:00 PM", item: "Securing the cloud without slowing velocity" },
+  { time: "6:20 PM", item: "Injecting security directly into the product: code to cloud" },
+  { time: "6:40 PM", item: "Startup ROI and accelerating enterprise sales" },
+  { time: "6:55 PM", item: "Interactive founder discussion and open Q&A" },
+  { time: "7:10 PM", item: "Post-session networking" },
+];
+
 const pitchMixEvents: EventItem[] = [
   ["founders-pitch-mix-2026-08-25", "August 25, 2026", "2026-08-25", "mm8nnyc1"],
   ["founders-pitch-mix-2026-09-08", "September 8, 2026", "2026-09-08", "25odwnxl"],
   ["founders-pitch-mix-2026-09-15", "September 15, 2026", "2026-09-15", "hmvkxmas"],
   ["founders-pitch-mix-2026-09-22", "September 22, 2026", "2026-09-22", "c7ebjedo"],
   ["founders-pitch-mix-2026-09-29", "September 29, 2026", "2026-09-29", "lxlrmvle"],
-].map(([slug, date, isoDate, lumaSlug]) => ({
-  slug,
-  title: "Bay Area Founders Pitch & Startup Networking",
-  date,
-  time: "5:00 PM - 8:00 PM",
-  venue: "Hacker Dojo, Mountain View",
-  address: "855 Maude Ave, Mountain View, CA 94043",
-  type: "Founder Event",
-  desc: `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
-  longDesc: pitchMixLongDescription(date),
-  agenda: pitchMixAgenda,
-  speakers: [{ name: "Satish Govindappa", role: "Host, StartupA2Z" }],
-  spots: 0,
-  capacity: 0,
-  price: "Free",
-  featured: false,
-  imageUrl: eventCoverForSlug(slug),
-  startDateIso: `${isoDate}T17:00:00-07:00`,
-  endDateIso: `${isoDate}T20:00:00-07:00`,
-  registrationUrl: `https://luma.com/${lumaSlug}?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix`,
-}));
+].map(([slug, date, isoDate, lumaSlug]) => {
+  const isWizSession = slug === "founders-pitch-mix-2026-09-22";
+
+  return {
+    slug,
+    title: isWizSession
+      ? "Scaling Securely: Cloud & AI Security for Fast-Moving Startups"
+      : "Bay Area Founders Pitch & Startup Networking",
+    date,
+    time: "5:00 PM - 8:00 PM",
+    venue: "Hacker Dojo, Mountain View",
+    address: "855 Maude Ave, Mountain View, CA 94043",
+    type: isWizSession ? "Cloud & AI Security" : "Founder Event",
+    desc: isWizSession
+      ? "A StartupA2Z and Wiz session for founders and technical leaders on scaling cloud and AI security without slowing product velocity."
+      : `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
+    longDesc: isWizSession
+      ? "StartupA2Z and Wiz bring founders, CTOs, heads of engineering, and technical leaders together for Scaling Securely: Cloud & AI Security for Fast-Moving Startups. Kevin Cooke will lead a presentation and open discussion on the Wiz story and modern cloud architecture, securing the cloud without slowing velocity, injecting security into the product from code to cloud, the ROI of early security investments, and how stronger security can accelerate enterprise sales."
+      : pitchMixLongDescription(date),
+    agenda: isWizSession ? september22Agenda : pitchMixAgenda,
+    speakers: isWizSession
+      ? [
+          { name: "Satish Govindappa", role: "Host, StartupA2Z" },
+          { name: "Kevin Cooke", role: "Presenter, Wiz" },
+        ]
+      : [{ name: "Satish Govindappa", role: "Host, StartupA2Z" }],
+    spots: 0,
+    capacity: 0,
+    price: "Free",
+    featured: false,
+    imageUrl: eventCoverForSlug(slug),
+    startDateIso: `${isoDate}T17:00:00-07:00`,
+    endDateIso: `${isoDate}T20:00:00-07:00`,
+    registrationUrl: `https://luma.com/${lumaSlug}?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix`,
+  };
+});
 
 // Public fallbacks mirror Luma. The database supplies the live event set.
 export const seedEvents: EventItem[] = [
@@ -172,6 +198,7 @@ const mapRow = (r: {
   // database supplies the live event set and operational values.
   const seedEvent = seedEvents.find((event) => event.slug === r.slug);
   const isRecurringPitchMix = r.slug.startsWith("founders-pitch-mix-2026-");
+  const isWizSession = r.slug === "founders-pitch-mix-2026-09-22";
   const usesCurrentEventCover =
     isRecurringPitchMix || r.slug === "founder-networking-workshop-2026-09-01";
   return {
@@ -182,11 +209,19 @@ const mapRow = (r: {
     time: r.time,
     venue: r.venue,
     address: r.address ?? "",
-    type: r.type,
+    type: isWizSession ? seedEvent?.type ?? r.type : r.type,
     desc: seedEvent?.desc ?? r.description ?? "",
     longDesc: seedEvent?.longDesc ?? r.long_description ?? "",
-    agenda: Array.isArray(r.agenda) ? (r.agenda as DbAgendaItem[]) : [],
-    speakers: Array.isArray(r.speakers) ? (r.speakers as DbSpeaker[]) : [],
+    agenda: isWizSession
+      ? seedEvent?.agenda ?? []
+      : Array.isArray(r.agenda)
+        ? (r.agenda as DbAgendaItem[])
+        : [],
+    speakers: isWizSession
+      ? seedEvent?.speakers ?? []
+      : Array.isArray(r.speakers)
+        ? (r.speakers as DbSpeaker[])
+        : [],
     spots: r.spots,
     capacity: r.capacity,
     price: r.price,
