@@ -3,7 +3,7 @@ import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 const recurringPitchMixCover =
   "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827";
 const september22WizCover =
-  "/event-covers/startupa2z-wiz-scaling-securely-september-22-2026-wide.png?v=20260828-2";
+  "/event-covers/startupa2z-wiz-special-session-for-founders-wiz-story-september-22-2026-wide.png?v=20260828-5";
 
 const eventCoverForSlug = (slug: string) =>
   slug === "founders-pitch-mix-2026-09-22" ? september22WizCover : recurringPitchMixCover;
@@ -67,24 +67,24 @@ const pitchMixEvents: EventItem[] = [
   return {
     slug,
     title: isWizSession
-      ? "Scaling Securely: Cloud & AI Security for Fast-Moving Startups"
+      ? "Special Session for Founders: The Wiz Story"
       : "Bay Area Founders Pitch & Startup Networking",
     date,
     time: "5:00 PM - 8:00 PM",
     venue: "Hacker Dojo, Mountain View",
     address: "855 Maude Ave, Mountain View, CA 94043",
-    type: isWizSession ? "Cloud & AI Security" : "Founder Event",
+    type: isWizSession ? "Special Session for Founders" : "Founder Event",
     desc: isWizSession
-      ? "A StartupA2Z and Wiz session for founders and technical leaders on scaling cloud and AI security without slowing product velocity."
+      ? "A special StartupA2Z session for founders, led by Kevin Cooke, on the Wiz story, startup lessons, product security, and enterprise growth."
       : `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
     longDesc: isWizSession
-      ? "StartupA2Z and Wiz bring founders, CTOs, heads of engineering, and technical leaders together for Scaling Securely: Cloud & AI Security for Fast-Moving Startups. Kevin Cooke will lead a presentation and open discussion on the Wiz story and modern cloud architecture, securing the cloud without slowing velocity, injecting security into the product from code to cloud, the ROI of early security investments, and how stronger security can accelerate enterprise sales."
+      ? "StartupA2Z and Wiz bring founders, CTOs, heads of engineering, and technical leaders together for a special session for founders: The Wiz Story. Kevin Cooke will share the company journey and lead an open discussion on modern cloud architecture, building security into the product from code to cloud, protecting engineering velocity, the ROI of early security investments, and how stronger security can accelerate enterprise sales."
       : pitchMixLongDescription(date),
     agenda: isWizSession ? september22Agenda : pitchMixAgenda,
     speakers: isWizSession
       ? [
           { name: "Satish Govindappa", role: "Host, StartupA2Z" },
-          { name: "Kevin Cooke", role: "Presenter, Wiz" },
+          { name: "Kevin Cooke", role: "Session Leader, Wiz" },
         ]
       : [{ name: "Satish Govindappa", role: "Host, StartupA2Z" }],
     spots: 0,

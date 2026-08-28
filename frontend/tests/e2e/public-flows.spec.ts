@@ -134,6 +134,28 @@ test("sign in and apply to pitch open the correct authentication modes", async (
   await expect(page.getByRole("button", { name: "Sign up with email address" })).toBeVisible();
 });
 
+test("homepage promotes the temporary Wiz founder session", async ({ page }) => {
+  await page.goto("/");
+
+  const banner = page.getByRole("complementary", { name: "Featured Wiz session for founders" });
+  await expect(banner).toBeVisible();
+  await expect(banner).toContainText("Featured session for founders");
+  const artwork = banner.getByAltText("StartupA2Z and Wiz special session for founders");
+  await expect(artwork).toHaveCSS("object-fit", "cover");
+  await expect(artwork).toHaveCSS("object-position", "50% 0%");
+  await expect(banner.getByRole("heading", { name: /The Wiz Story/ })).toBeVisible();
+  await expect(banner).toContainText("September 22 · 5:00–8:00 PM");
+  await expect(banner).toContainText("Hacker Dojo · Mountain View");
+  await expect(banner.getByRole("link", { name: "View session", exact: true })).toHaveAttribute(
+    "href",
+    "/events/founders-pitch-mix-2026-09-22",
+  );
+  await expect(banner.getByRole("link", { name: /Reserve a spot/ })).toHaveAttribute(
+    "href",
+    /https:\/\/luma\.com\/c7ebjedo/,
+  );
+});
+
 test("event filtering and completed event detail work", async ({ page }) => {
   await page.goto("/events?view=past");
   await expect(page.getByRole("heading", { name: "Past Events" })).toBeVisible();
@@ -147,7 +169,7 @@ test("event filtering and completed event detail work", async ({ page }) => {
   const september22Card = page.locator('a[href="/events/founders-pitch-mix-2026-09-22"]');
   await expect(september22Card.locator("img").first()).toHaveAttribute(
     "src",
-    "/event-covers/startupa2z-wiz-scaling-securely-september-22-2026-wide.png?v=20260828-2",
+    "/event-covers/startupa2z-wiz-special-session-for-founders-wiz-story-september-22-2026-wide.png?v=20260828-5",
   );
   await page.getByRole("button", { name: "List view" }).click();
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
@@ -156,10 +178,10 @@ test("event filtering and completed event detail work", async ({ page }) => {
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
     .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
   await page.goto("/events/founders-pitch-mix-2026-09-22");
-  await expect(page.getByRole("heading", { name: "Scaling Securely: Cloud & AI Security for Fast-Moving Startups" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Special Session for Founders: The Wiz Story" })).toBeVisible();
   await expect(page.getByText("Kevin Cooke", { exact: true })).toBeVisible();
   await expect(page.getByText("Injecting security directly into the product: code to cloud", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What the session will cover" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Inside the Wiz story" })).toBeVisible();
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();

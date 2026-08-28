@@ -6,6 +6,7 @@ import { X as XIcon } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
 import { fetchHomeStats, type HomeStats } from "@/lib/api";
+import SpecialEventBanner from "./SpecialEventBanner";
 
 const socialLinks = [
   { href: "https://luma.com/startupa2z", icon: CalendarDays, label: "Luma" },
@@ -74,9 +75,9 @@ const HeroSection = () => {
 
   return (
     <section
-      className="relative min-h-[100svh] flex items-center overflow-hidden"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden"
       style={{
-        paddingTop: "calc(64px + clamp(3rem, 6vw, 5rem))",
+        paddingTop: "calc(64px + clamp(1rem, 2.5vw, 1.75rem))",
         paddingBottom: "clamp(4rem, 7vw, 6rem)",
       }}
     >
@@ -91,7 +92,9 @@ const HeroSection = () => {
       {/* Gradient overlay */}
       <div className="absolute inset-0 gradient-hero" />
 
-      <div className="relative z-10 container-narrow px-[clamp(1.5rem,5vw,3rem)] w-full">
+      <SpecialEventBanner />
+
+      <div className="relative z-10 mt-[clamp(2.5rem,5vw,4.5rem)] container-narrow px-[clamp(1.5rem,5vw,3rem)] w-full">
         <div className="grid items-stretch gap-[clamp(2.5rem,4vw,4rem)] lg:grid-cols-[minmax(0,1fr)_minmax(420px,500px)]">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

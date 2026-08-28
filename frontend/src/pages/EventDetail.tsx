@@ -37,20 +37,20 @@ type EventSearchContent = {
 
 const eventSearchContent: Record<string, EventSearchContent> = {
   "founders-pitch-mix-2026-09-22": {
-    title: "Scaling Securely: Cloud & AI Security for Startups | Sep 22",
+    title: "Special Session for Founders: The Wiz Story | Sep 22",
     description:
-      "Join StartupA2Z and Wiz on September 22, 2026, at Hacker Dojo in Mountain View for a practical Cloud and AI security session with Kevin Cooke.",
+      "Join StartupA2Z and Wiz on September 22, 2026, at Hacker Dojo in Mountain View for a special session for founders led by Kevin Cooke on the Wiz story.",
     audienceHeading: "Who should attend",
     audience:
-      "This session is for founders, CTOs, heads of engineering, and technical leaders who need to strengthen cloud and AI security while keeping product and engineering teams moving quickly.",
-    valueHeading: "What the session will cover",
+      "This special session is for founders, CTOs, heads of engineering, and technical leaders who want to learn from the journey behind Wiz and apply those lessons while building and scaling their own companies.",
+    valueHeading: "Inside the Wiz story",
     value:
-      "Learn how modern cloud architecture changes the security model, how to inject security from code to cloud without slowing delivery, and how early security investment can reduce risk and help startups accelerate enterprise sales.",
+      "Hear the company journey, the thinking behind modern cloud architecture, how security can become part of the product without slowing delivery, and why early security investment can help startups earn enterprise trust and accelerate sales.",
     faqs: [
       {
-        question: "What Cloud and AI security events are happening in Mountain View in September 2026?",
+        question: "What special founder sessions are happening in Mountain View in September 2026?",
         answer:
-          "StartupA2Z and Wiz are hosting Scaling Securely: Cloud & AI Security for Fast-Moving Startups at Hacker Dojo in Mountain View on September 22, 2026, from 5:00 PM to 8:00 PM.",
+          "StartupA2Z and Wiz are hosting Special Session for Founders: The Wiz Story at Hacker Dojo in Mountain View on September 22, 2026, from 5:00 PM to 8:00 PM.",
       },
       {
         question: "Who should attend the StartupA2Z and Wiz session?",
@@ -58,12 +58,12 @@ const eventSearchContent: Record<string, EventSearchContent> = {
           "The session is designed for startup founders, CTOs, heads of engineering, and technical leaders responsible for building and scaling cloud-based products.",
       },
       {
-        question: "What will Kevin Cooke cover?",
+        question: "What will Kevin Cooke share?",
         answer:
-          "The discussion covers the Wiz story and modern cloud architecture, cloud security without reduced engineering velocity, code-to-cloud security, startup ROI, enterprise sales, and an open founder Q&A.",
+          "Kevin Cooke will share the Wiz story and discuss modern cloud architecture, security without reduced engineering velocity, building security from code to cloud, startup ROI, enterprise sales, and founder questions.",
       },
       {
-        question: "What is the format of the September 22 security session?",
+        question: "What is the format of the September 22 founder session?",
         answer:
           "The core program is a 60-to-90-minute presentation and open discussion, followed by networking with founders and technical leaders.",
       },
