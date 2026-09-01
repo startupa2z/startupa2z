@@ -212,7 +212,7 @@ const HeroSection = () => {
                     rel={nextEvent.registrationUrl ? "noopener noreferrer" : undefined}
                     className="inline-flex items-center justify-center gap-1.5 rounded-full bg-secondary px-4 py-2.5 text-xs font-bold uppercase tracking-[0.08em] text-white shadow-md transition-colors hover:bg-primary"
                   >
-                    RSVP
+                    {nextEvent.slug === "founder-networking-workshop-2026-09-01" ? "Waitlist" : "RSVP"}
                     <ArrowRight className="h-4 w-4" />
                   </a>
                   <Link

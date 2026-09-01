@@ -36,44 +36,6 @@ type EventSearchContent = {
 };
 
 const eventSearchContent: Record<string, EventSearchContent> = {
-  "founders-pitch-mix-2026-09-22": {
-    title: "Special Session for Founders: The Wiz Story | Sep 22",
-    description:
-      "Join StartupA2Z and Wiz on September 22, 2026, at Hacker Dojo in Mountain View for a special session for founders led by Kevin Cooke on the Wiz story.",
-    audienceHeading: "Who should attend",
-    audience:
-      "This special session is for founders, CTOs, heads of engineering, and technical leaders who want to learn from the journey behind Wiz and apply those lessons while building and scaling their own companies.",
-    valueHeading: "Inside the Wiz story",
-    value:
-      "Hear the company journey, the thinking behind modern cloud architecture, how security can become part of the product without slowing delivery, and why early security investment can help startups earn enterprise trust and accelerate sales.",
-    faqs: [
-      {
-        question: "What special founder sessions are happening in Mountain View in September 2026?",
-        answer:
-          "StartupA2Z and Wiz are hosting Special Session for Founders: The Wiz Story at Hacker Dojo in Mountain View on September 22, 2026, from 5:00 PM to 8:00 PM.",
-      },
-      {
-        question: "Who should attend the StartupA2Z and Wiz session?",
-        answer:
-          "The session is designed for startup founders, CTOs, heads of engineering, and technical leaders responsible for building and scaling cloud-based products.",
-      },
-      {
-        question: "What will Kevin Cooke share?",
-        answer:
-          "Kevin Cooke will share the Wiz story and discuss modern cloud architecture, security without reduced engineering velocity, building security from code to cloud, startup ROI, enterprise sales, and founder questions.",
-      },
-      {
-        question: "What is the format of the September 22 founder session?",
-        answer:
-          "The core program is a 60-to-90-minute presentation and open discussion, followed by networking with founders and technical leaders.",
-      },
-    ],
-    related: {
-      slug: "founders-pitch-mix-2026-09-29",
-      label: "September 29: Founders Pitch & Startup Networking",
-      description: "Continue the conversation at the next StartupA2Z founder event at Hacker Dojo.",
-    },
-  },
   "founders-pitch-mix-2026-08-25": {
     title: "Bay Area Founder Pitch & Networking | Aug 25",
     description:

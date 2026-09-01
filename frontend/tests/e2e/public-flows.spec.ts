@@ -134,25 +134,24 @@ test("sign in and apply to pitch open the correct authentication modes", async (
   await expect(page.getByRole("button", { name: "Sign up with email address" })).toBeVisible();
 });
 
-test("homepage promotes the temporary Wiz founder session", async ({ page }) => {
+test("homepage promotes tomorrow's full founder workshop", async ({ page }) => {
   await page.goto("/");
 
-  const banner = page.getByRole("complementary", { name: "Featured Wiz session for founders" });
+  const banner = page.getByRole("complementary", { name: "Featured September 1 founder workshop" });
   await expect(banner).toBeVisible();
-  await expect(banner).toContainText("Featured session for founders");
-  const artwork = banner.getByAltText("StartupA2Z and Wiz special session for founders");
-  await expect(artwork).toHaveCSS("object-fit", "cover");
-  await expect(artwork).toHaveCSS("object-position", "50% 0%");
-  await expect(banner.getByRole("heading", { name: /The Wiz Story/ })).toBeVisible();
-  await expect(banner).toContainText("September 22 · 5:00–8:00 PM");
-  await expect(banner).toContainText("Hacker Dojo · Mountain View");
-  await expect(banner.getByRole("link", { name: "View session", exact: true })).toHaveAttribute(
+  await expect(banner).toContainText("Tomorrow at Hacker Dojo");
+  const artwork = banner.getByAltText("StartupA2Z founder networking and GTM workshop");
+  await expect(artwork).toHaveCSS("object-fit", "contain");
+  await expect(banner.getByRole("heading", { name: "Founder Networking & GTM Workshop" })).toBeVisible();
+  await expect(banner).toContainText("September 1 | 5:00-8:00 PM");
+  await expect(banner).toContainText("93 registered | 47 on the waitlist");
+  await expect(banner.getByRole("link", { name: "View event", exact: true })).toHaveAttribute(
     "href",
-    "/events/founders-pitch-mix-2026-09-22",
+    "/events/founder-networking-workshop-2026-09-01",
   );
-  await expect(banner.getByRole("link", { name: /Reserve a spot/ })).toHaveAttribute(
+  await expect(banner.getByRole("link", { name: /Join waitlist/ })).toHaveAttribute(
     "href",
-    /https:\/\/luma\.com\/c7ebjedo/,
+    /https:\/\/luma\.com\/txup8dqa/,
   );
 });
 
@@ -169,7 +168,7 @@ test("event filtering and completed event detail work", async ({ page }) => {
   const september22Card = page.locator('a[href="/events/founders-pitch-mix-2026-09-22"]');
   await expect(september22Card.locator("img").first()).toHaveAttribute(
     "src",
-    "/event-covers/startupa2z-wiz-special-session-for-founders-wiz-story-september-22-2026-wide.png?v=20260828-5",
+    "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827",
   );
   await page.getByRole("button", { name: "List view" }).click();
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
@@ -178,10 +177,9 @@ test("event filtering and completed event detail work", async ({ page }) => {
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
     .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
   await page.goto("/events/founders-pitch-mix-2026-09-22");
-  await expect(page.getByRole("heading", { name: "Special Session for Founders: The Wiz Story" })).toBeVisible();
-  await expect(page.getByText("Kevin Cooke", { exact: true })).toBeVisible();
-  await expect(page.getByText("Injecting security directly into the product: code to cloud", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Inside the Wiz story" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bay Area Founders Pitch & Startup Networking" })).toBeVisible();
+  await expect(page.getByText("Kevin Cooke", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Part 1: Startup Fundamentals", { exact: true })).toBeVisible();
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();
