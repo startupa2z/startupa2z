@@ -137,6 +137,8 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
   const canonical = `https://startupa2z.org/events/${summary.eventSlug}`;
   const absoluteCoverImage = new URL(summary.coverImage, "https://startupa2z.org").toString();
+  const primarySectionAnchor = summary.recapSections?.length ? "workshop-recap" : "founder-journeys";
+  const primarySectionLabel = summary.recapSections?.length ? "Read workshop recap" : "Stories & demos";
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -239,8 +241,8 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
         <div className="container-narrow grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-12">
             <a
-              href="#founder-journeys"
-              aria-label="Jump to the founder stories and product demonstrations"
+              href={`#${primarySectionAnchor}`}
+              aria-label={`Jump to ${primarySectionLabel.toLowerCase()}`}
               className="group relative block overflow-hidden rounded-3xl border border-border bg-[#f8f0e3] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
             >
               <img
@@ -249,7 +251,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                 className="aspect-[16/9] h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.015]"
               />
               <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg backdrop-blur-sm transition-colors group-hover:bg-secondary group-hover:text-secondary-foreground">
-                Stories & demos <ArrowRight className="h-4 w-4" />
+                {primarySectionLabel} <ArrowRight className="h-4 w-4" />
               </span>
             </a>
 
@@ -267,11 +269,88 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
               </div>
             </section>
 
+            {summary.recapSections && summary.recapSections.length > 0 && (
+              <section id="workshop-recap" className="scroll-mt-24">
+                <p className="label-overline mb-3">Workshop recap</p>
+                <h2 className="max-w-3xl font-heading text-3xl font-bold text-primary md:text-4xl">
+                  Diagnose before trying to scale
+                </h2>
+                <p className="mt-4 max-w-3xl text-lg leading-8 text-muted-foreground">
+                  The workshop followed the GTM decisions in the order founders need to make them. The photographs below move with that story, from the framework in the room to the discussions around the tables.
+                </p>
+
+                <div className="mt-10 space-y-10">
+                  {summary.recapSections.map((section, index) => (
+                    <article
+                      key={section.title}
+                      className="grid overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_40px_rgba(27,75,57,0.08)] lg:grid-cols-[minmax(0,1fr)_300px] lg:items-center"
+                    >
+                      <figure className="bg-[#f8f0e3] p-4 sm:p-5 lg:order-2">
+                        <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+                          <img
+                            src={section.image}
+                            alt={section.imageAlt}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <figcaption className="mt-3 text-xs leading-5 text-muted-foreground">
+                          {section.imageAlt}
+                        </figcaption>
+                      </figure>
+                      <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">
+                          {String(index + 1).padStart(2, "0")} · {section.eyebrow}
+                        </p>
+                        <h3 className="mt-3 font-heading text-2xl font-bold leading-tight text-primary md:text-3xl">
+                          {section.title}
+                        </h3>
+                        <div className="mt-5 space-y-4 text-base leading-7 text-muted-foreground">
+                          {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                        </div>
+                        {section.bullets && (
+                          <ul className="mt-5 space-y-2">
+                            {section.bullets.map((bullet) => (
+                              <li key={bullet} className="flex items-start gap-3 text-sm font-semibold leading-6 text-foreground">
+                                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
+                                <span>{bullet}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {section.emphasis && (
+                          <blockquote className="mt-6 border-l-4 border-secondary bg-secondary/5 px-5 py-4 font-heading text-lg font-bold leading-7 text-primary">
+                            {section.emphasis}
+                          </blockquote>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                {summary.gtmSequence && (
+                  <div className="mt-10 rounded-3xl bg-primary p-6 text-primary-foreground sm:p-8">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">The founder sequence</p>
+                    <h3 className="mt-2 font-heading text-2xl font-bold">Make the decisions in the right order</h3>
+                    <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {summary.gtmSequence.map((step, index) => (
+                        <li key={step} className="rounded-2xl border border-white/15 bg-white/10 p-4">
+                          <span className="text-xs font-black text-secondary">{String(index + 1).padStart(2, "0")}</span>
+                          <p className="mt-2 text-sm font-bold leading-5">{step}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </section>
+            )}
+
             <section id="founder-journeys" className="scroll-mt-24">
-              <p className="label-overline mb-3">The StartupA2Z difference</p>
-              <h2 className="font-heading text-3xl font-bold text-primary">Founder stories and product demos</h2>
+              <p className="label-overline mb-3">{summary.recapSections ? "Workshop framework" : "The StartupA2Z difference"}</p>
+              <h2 className="font-heading text-3xl font-bold text-primary">{summary.recapSections ? "The GTM Blueprint" : "Founder stories and product demos"}</h2>
               <p className="mt-4 max-w-3xl leading-7 text-muted-foreground">
-                These stories are drawn from the presentations, session photos, and supporting public sources. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another builder can apply.
+                {summary.recapSections
+                  ? "The framework connected the customer, buying trigger, differentiation, category, positioning, and message into one operating sequence."
+                  : "These stories are drawn from the presentations, session photos, and supporting public sources. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another builder can apply."}
               </p>
               <div className="mt-8 space-y-8">
                 {summary.founderStories.map((story, index) => story.anchor === "enrouteai" ? (
@@ -473,8 +552,8 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
             {summary.audiencePhotos && summary.audiencePhotos.length > 0 && (
               <section id="audience-pitches" className="scroll-mt-24">
-                <p className="label-overline mb-3">Community stage</p>
-                <h2 className="font-heading text-3xl font-bold text-primary">Audience pitches</h2>
+                <p className="label-overline mb-3">{summary.communityPhotoLabel ?? "Community stage"}</p>
+                <h2 className="font-heading text-3xl font-bold text-primary">{summary.communityPhotoTitle ?? "Audience pitches"}</h2>
                 <div className="mt-7 grid gap-5 sm:grid-cols-2">
                   {summary.audiencePhotos.map((photo) => (
                     <div
@@ -519,8 +598,13 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                 <a href="#event-overview" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <BookOpen className="h-4 w-4" /> Event overview
                 </a>
+                {summary.recapSections && (
+                  <a href="#workshop-recap" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
+                    <BookOpen className="h-4 w-4" /> Workshop recap
+                  </a>
+                )}
                 <a href="#founder-journeys" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
-                  <Users className="h-4 w-4" /> Stories & demos
+                  <Users className="h-4 w-4" /> {summary.recapSections ? "GTM Blueprint" : "Stories & demos"}
                 </a>
                 <a href="#founder-lessons" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <Lightbulb className="h-4 w-4" /> Key lessons

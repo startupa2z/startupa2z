@@ -25,6 +25,13 @@ const emptyStats: HomeStats = {
 
 const galleryEvents = [
   {
+    date: "September 1, 2026",
+    image: "/event-gallery/2026-09-01/event-03-01.jpg",
+    href: "/gallery/founder-networking-workshop-2026-09-01",
+    alt: "StartupA2Z founders and builders together after the September 1 GTM workshop at Hacker Dojo",
+    photoCount: 10,
+  },
+  {
     date: "August 25, 2026",
     image: "/event-gallery/2026-08-25/event-02-01.jpg",
     href: "/gallery/founders-pitch-mix-2026-08-25",

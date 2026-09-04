@@ -73,6 +73,25 @@ const AUGUST_25_PHOTOS: GalleryPhoto[] = AUGUST_25_PHOTO_ALTS.map((alt, index) =
   alt,
 }));
 
+const SEPTEMBER_1_PHOTO_ALTS = [
+  "StartupA2Z founders and builders together after the September 1 GTM workshop at Hacker Dojo",
+  "Raj Badarinath introducing the GTM Blueprint during the StartupA2Z workshop",
+  "Founders and operators participating in the StartupA2Z GTM workshop at Hacker Dojo",
+  "A full-room view of the September 1 StartupA2Z workshop",
+  "A workshop exercise in progress during the StartupA2Z GTM session",
+  "Founders discussing go-to-market ideas in a small working group",
+  "A small-group discussion during the hands-on StartupA2Z workshop",
+  "StartupA2Z welcoming attendees at the September 1 founder workshop",
+  "Hacker Dojo in Mountain View before the StartupA2Z workshop",
+  "The StartupA2Z community gathering for a group photo after the workshop",
+];
+
+const SEPTEMBER_1_PHOTOS: GalleryPhoto[] = SEPTEMBER_1_PHOTO_ALTS.map((alt, index) => ({
+  id: index + 1,
+  src: `/event-gallery/2026-09-01/event-03-${String(index + 1).padStart(2, "0")}.jpg`,
+  alt,
+}));
+
 const AUGUST_12_EVENT: GalleryEvent = {
   slug: "startup-a-to-z-hacker-dojo-august-12",
   number: "01",
@@ -109,7 +128,25 @@ const AUGUST_25_EVENT: GalleryEvent = {
   photos: AUGUST_25_PHOTOS,
 };
 
-const EVENTS = [AUGUST_25_EVENT, AUGUST_12_EVENT];
+const SEPTEMBER_1_EVENT: GalleryEvent = {
+  slug: "founder-networking-workshop-2026-09-01",
+  number: "03",
+  title: "Bay Area Founder Networking & GTM Workshop",
+  shortTitle: "Founder GTM Workshop",
+  date: "September 1, 2026",
+  isoDate: "2026-09-01",
+  month: "SEP",
+  day: "01",
+  year: "2026",
+  venue: "Hacker Dojo",
+  city: "Mountain View, California",
+  recapPath: "/events/founder-networking-workshop-2026-09-01",
+  galleryPath: "/gallery/founder-networking-workshop-2026-09-01",
+  description: "A hands-on workshop where founders worked through go-to-market strategy, exchanged ideas in small groups, and turned revenue questions into practical next steps.",
+  photos: SEPTEMBER_1_PHOTOS,
+};
+
+const EVENTS = [SEPTEMBER_1_EVENT, AUGUST_25_EVENT, AUGUST_12_EVENT];
 
 const GalleryLanding = () => (
   <PageLayout>

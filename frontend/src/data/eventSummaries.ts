@@ -37,7 +37,19 @@ export type EventSummary = {
   galleryPath?: string;
   summary: string;
   program: string[];
+  recapSections?: Array<{
+    eyebrow: string;
+    title: string;
+    paragraphs: string[];
+    emphasis?: string;
+    bullets?: string[];
+    image: string;
+    imageAlt: string;
+  }>;
+  gtmSequence?: string[];
   founderStories: FounderStory[];
+  communityPhotoLabel?: string;
+  communityPhotoTitle?: string;
   audiencePhotos?: Array<{
     image: string;
     imageAlt: string;
@@ -47,6 +59,141 @@ export type EventSummary = {
 };
 
 export const eventSummaries: EventSummary[] = [
+  {
+    slug: "hacker-dojo-september-1-2026",
+    eventSlug: "founder-networking-workshop-2026-09-01",
+    title: "September 1 at Hacker Dojo: A Hands-On GTM Workshop for Founders",
+    eventTitle: "Bay Area Founder Networking & GTM Workshop",
+    date: "September 1, 2026",
+    startDateIso: "2026-09-01T17:00:00-07:00",
+    endDateIso: "2026-09-01T20:00:00-07:00",
+    venue: "Hacker Dojo, Mountain View",
+    address: "855 Maude Ave, Mountain View, CA 94043",
+    coverImage: "/event-gallery/2026-09-01/event-03-recap-collage.jpg",
+    coverImageAlt: "Collage of the StartupA2Z September 1 GTM workshop, including the community, Raj Badarinath presenting, and small-group discussions",
+    galleryPath: "/gallery/founder-networking-workshop-2026-09-01",
+    summary:
+      "The most valuable part of the workshop was not a new sales tactic, marketing tool, or growth hack. It was learning to diagnose why go-to-market efforts fail before trying to scale them. Raj Badarinath guided founders through the decisions that must connect before more GTM activity can produce repeatable revenue.",
+    program: [
+      "Diagnose the GTM decisions behind stalled revenue",
+      "Define the ICP, buying signals, and anti-ICP",
+      "Connect differentiation, category, positioning, and messaging",
+      "Find and prove a focused 0-to-1 wedge before scaling",
+    ],
+    recapSections: [
+      {
+        eyebrow: "Start with diagnosis",
+        title: "Why GTM efforts fail before they scale",
+        paragraphs: [
+          "Raj did not begin with how to generate more leads. He began with the decisions underneath every sales and marketing motion: who the company is selling to, why that customer should care now, and why the customer should choose this solution.",
+          "When those decisions are unclear, adding campaigns, tools, or sales activity does not fix the system. It amplifies the uncertainty already inside it.",
+        ],
+        emphasis: "Have we made the right decisions about who we are selling to, why they should care, and why they should choose us?",
+        image: "/event-gallery/2026-09-01/event-03-02.jpg",
+        imageAlt: "Raj Badarinath introducing the GTM Blueprint during the StartupA2Z workshop",
+      },
+      {
+        eyebrow: "Choose the customer",
+        title: "A useful ICP captures intensity and timing",
+        paragraphs: [
+          "An Ideal Customer Profile is more than an industry, company size, and buyer title. It should identify the customer who experiences the problem intensely enough to buy and the observable signals that show the timing is right.",
+          "The anti-ICP is equally important. Early-stage focus means deciding which plausible opportunities not to pursue, even when they look attractive.",
+        ],
+        bullets: [
+          "Who feels the problem most intensely?",
+          "What event or signal makes the problem urgent now?",
+          "Which customers should the company deliberately ignore?",
+        ],
+        image: "/event-gallery/2026-09-01/event-03-05.jpg",
+        imageAlt: "A workshop exercise in progress during the StartupA2Z GTM session",
+      },
+      {
+        eyebrow: "Earn differentiation",
+        title: "If a competitor can say it too, it is table stakes",
+        paragraphs: [
+          "Faster, easier, innovative, customer-focused, and powered by better technology often sound distinctive but are usually claims any credible competitor can make.",
+          "Real differentiation gives the buyer a meaningful reason to choose one alternative over another. The test is whether the strongest competitor could make the same statement and still be telling the truth.",
+        ],
+        emphasis: "Could your strongest competitor put the same statement on their website and still be telling the truth?",
+        image: "/event-gallery/2026-09-01/event-03-03.jpg",
+        imageAlt: "Founders and operators participating in the StartupA2Z GTM workshop at Hacker Dojo",
+      },
+      {
+        eyebrow: "Create the right frame",
+        title: "Category, positioning, and messaging must tell one story",
+        paragraphs: [
+          "Buyers place products into categories they already understand and budgets they already control. Creating a new category can be powerful, but it also adds the burden of teaching the market why the category should exist.",
+          "Positioning gives the buyer a useful mental shortcut: who the product is for, what problem it solves, and why this alternative is different. Messaging across websites, pitches, sales calls, LinkedIn posts, and decks should express those same decisions consistently.",
+        ],
+        image: "/event-gallery/2026-09-01/event-03-04.jpg",
+        imageAlt: "A full-room view of the September 1 StartupA2Z workshop",
+      },
+      {
+        eyebrow: "Prove the wedge",
+        title: "The 0-to-1 job is proof, not scale",
+        paragraphs: [
+          "An early-stage company does not need a sophisticated demand-generation machine. It needs one specific type of customer, experiencing one sufficiently painful problem, at the right moment, and willing to pay for the solution.",
+          "Only after that wedge works repeatedly does scaling the GTM engine make sense. Many apparent sales problems are actually unresolved customer, differentiation, category, or positioning problems earlier in the chain.",
+        ],
+        emphasis: "Do not start with how to reach 10,000 prospects. Start with which 100 prospects should care deeply and why they should care right now.",
+        image: "/event-gallery/2026-09-01/event-03-06.jpg",
+        imageAlt: "Founders discussing go-to-market ideas in a small working group",
+      },
+    ],
+    gtmSequence: [
+      "Find the right customer",
+      "Understand the buying trigger",
+      "Establish real differentiation",
+      "Compete in the right category",
+      "Position clearly",
+      "Communicate consistently",
+      "Prove the wedge",
+      "Then scale",
+    ],
+    founderStories: [
+      {
+        anchor: "gtm-blueprint-workshop",
+        founders: "Raj Badarinath, workshop facilitator",
+        company: "GTM Blueprint",
+        headline: "Bridging upstream strategy and downstream execution",
+        keywords: ["Go-to-market strategy", "Ideal customer profile", "Buyer readiness", "Differentiation", "Positioning"],
+        challenge:
+          "A finished product does not automatically create revenue. Founders still need clarity about who is most likely to buy, why the problem matters now, what makes the offer different, and which existing budget the product competes for.",
+        approach:
+          "The workshop organized those questions into a practical GTM blueprint. Participants connected customer definition, buyer signals, differentiation, category, and value communication instead of treating each as a separate marketing task.",
+        lesson:
+          "Go-to-market is not a promotion added after the product is built. It is a connected operating system that aligns the customer, problem, message, sales motion, and execution.",
+        image: "/event-gallery/2026-09-01/event-03-02.jpg",
+        imageAlt: "Raj Badarinath introducing the GTM Blueprint during the StartupA2Z workshop",
+        website: "https://hivekind.ai/",
+        founderProfiles: [],
+        storyLabel: "Workshop",
+        approachLabel: "What participants worked through",
+        takeawayLabel: "Workshop takeaway",
+      },
+    ],
+    communityPhotoLabel: "Workshop in action",
+    communityPhotoTitle: "Small-group discussions",
+    audiencePhotos: [
+      {
+        image: "/event-gallery/2026-09-01/event-03-06.jpg",
+        imageAlt: "Founders discussing go-to-market ideas in a small working group",
+      },
+      {
+        image: "/event-gallery/2026-09-01/event-03-07.jpg",
+        imageAlt: "A small-group discussion during the hands-on StartupA2Z workshop",
+      },
+    ],
+    keyLessons: [
+      "Diagnose the GTM system before adding more activity.",
+      "Define the customer, buying trigger, and anti-ICP before expanding the market.",
+      "Treat claims a competitor can also make as table stakes, not differentiation.",
+      "Align category, positioning, and messaging around one clear buyer story.",
+      "Prove a narrow, repeatable wedge before building the scale engine.",
+      "More activity applied to unclear positioning simply scales the confusion.",
+    ],
+    status: "published",
+  },
   {
     slug: "hacker-dojo-august-25-2026",
     eventSlug: "founders-pitch-mix-2026-08-25",

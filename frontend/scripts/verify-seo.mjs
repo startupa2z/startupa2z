@@ -71,20 +71,16 @@ requireText(eventSummariesHtml, "Founder stories from the room", "event summary 
 rejectText(eventSummariesHtml, 'content="noindex, nofollow"', "published event summary archive robots metadata");
 
 const sep1Html = readRoute(`/events/${sep1Slug}`);
-requireText(sep1Html, "<title>Bay Area Founder Networking &amp; GTM Workshop | Sep 1</title>", "September 1 event title");
+requireText(sep1Html, "<title>September 1 at Hacker Dojo: A Hands-On GTM Workshop for Founders | StartupA2Z.org</title>", "September 1 recap title");
 requireText(sep1Html, `href="${sep1Canonical}"`, "September 1 event canonical");
-requireText(sep1Html, "Bay Area Founder Networking &amp; Startup Workshop | Mountain View", "September 1 primary heading");
+requireText(sep1Html, "Diagnose the GTM decisions behind stalled revenue", "September 1 recap content");
 requireText(sep1Html, '"@type": "Event"', "September 1 Event schema type");
 requireText(sep1Html, '"startDate": "2026-09-01T17:00:00-07:00"', "September 1 Event start date");
 requireText(sep1Html, '"endDate": "2026-09-01T20:00:00-07:00"', "September 1 Event end date");
-requireText(sep1Html, '"@type": "PostalAddress"', "September 1 postal address");
-requireText(sep1Html, "https://startupa2z.org/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png", "September 1 absolute event image");
+requireText(sep1Html, "https://startupa2z.org/event-gallery/2026-09-01/event-03-recap-collage.jpg", "September 1 absolute event image");
+requireText(sep1Html, "View photo gallery", "September 1 gallery link");
+rejectText(sep1Html, 'content="noindex, nofollow"', "published recap robots metadata");
 rejectText(sep1Html, "Wednesday", "September 1 weekday");
-requireText(sep1Html, "https://luma.com/txup8dqa", "September 1 Luma registration destination");
-requireText(sep1Html, '"@type": "FAQPage"', "September 1 FAQ schema");
-requireText(sep1Html, '"@type": "BreadcrumbList"', "September 1 breadcrumb schema");
-requireText(sep1Html, '"isAccessibleForFree": true', "September 1 free event schema");
-requireText(sep1Html, "August 25: Founders Pitch &amp; Startup Networking", "September 1 related event link");
 rejectText(sep1Html, 'rel="canonical" href="https://startupa2z.org/"', "September 1 event canonical");
 
 const aug25Html = readRoute(`/events/${aug25Slug}`);
