@@ -602,6 +602,7 @@ export type DbEventRow = {
   price: string;
   featured: boolean;
   image_url: string | null;
+  lifecycle_status: "draft" | "published" | "cancelled" | "completed";
   created_at: string;
   updated_at: string;
 };
@@ -807,6 +808,7 @@ export type AdminEvent = {
   venue: string;
   featured: boolean;
   image_url: string | null;
+  lifecycle_status: "draft" | "published" | "cancelled" | "completed";
   created_at: string;
 };
 
@@ -832,6 +834,7 @@ export type EventMutationPayload = {
   speakers?: { name: string; role: string }[];
   image_url?: string | null;
   remove_image?: boolean;
+  lifecycle_status?: "draft" | "published" | "cancelled" | "completed";
 };
 
 export function fetchAdminSubmissions() {
@@ -1013,6 +1016,36 @@ export function deleteEventContent(id: string) {
   return adminRequest<{ ok: boolean }>(`/api/admin/content/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
+}
+
+export type AdminPlaybookRevision = {
+  revision: number;
+  title: string;
+  content: string;
+  created_at: string;
+};
+
+export type AdminPlaybook = {
+  key: string;
+  title: string;
+  content: string;
+  revision: number;
+  created_at: string;
+  updated_at: string;
+  revisions: AdminPlaybookRevision[];
+};
+
+export function fetchEventOperationsPlaybook() {
+  return adminRequest<{ ok: boolean; data: AdminPlaybook }>(
+    "/api/admin/playbooks/event-operations",
+  );
+}
+
+export function updateEventOperationsPlaybook(content: string) {
+  return adminRequest<{ ok: boolean; data: AdminPlaybook }>(
+    "/api/admin/playbooks/event-operations",
+    { method: "PUT", body: JSON.stringify({ content }) },
+  );
 }
 
 export async function uploadEventImage(file: File): Promise<string> {

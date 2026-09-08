@@ -28,6 +28,7 @@ async def list_events():
              ORDER BY CASE channel WHEN 'luma' THEN 0 ELSE 1 END
              LIMIT 1
            ) channels ON true
+           WHERE e.lifecycle_status IN ('published', 'completed')
            ORDER BY e.created_at DESC"""
     )
     return {"ok": True, "data": [_event_dict(r) for r in rows]}
@@ -47,9 +48,16 @@ async def get_event(slug: str):
              ORDER BY CASE channel WHEN 'luma' THEN 0 ELSE 1 END
              LIMIT 1
            ) channels ON true
-           WHERE e.slug = $1""",
+           WHERE e.slug = $1
+             AND e.lifecycle_status IN ('published', 'completed')""",
         slug,
     )
     if not row:
+        lifecycle_status = await pool.fetchval(
+            "SELECT lifecycle_status FROM events WHERE slug = $1",
+            slug,
+        )
+        if lifecycle_status == "cancelled":
+            raise HTTPException(410, "Event cancelled.")
         raise HTTPException(404, "Event not found.")
     return {"ok": True, "data": _event_dict(row)}

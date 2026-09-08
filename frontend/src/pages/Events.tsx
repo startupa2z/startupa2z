@@ -167,7 +167,7 @@ const Events = () => {
           <SectionHeading
             tag="Featured Event"
             title={featured.title}
-            description="Don't miss the biggest startup community event of the season."
+            description="A practical founder masterclass on lifecycle economics, fundraising metrics, and valuation realities from Seed through Series C."
           />
           <motion.div
             initial={{ opacity: 0, y: 20 }}

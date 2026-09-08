@@ -112,6 +112,44 @@ const eventSearchContent: Record<string, EventSearchContent> = {
       description: "Meet Bay Area founders, watch startup pitches, and hear direct community feedback.",
     },
   },
+  "founders-pitch-mix-2026-09-15": {
+    title: "Seed to Series C Valuation Masterclass | Sep 15",
+    description:
+      "Join StartupA2Z and Vivek on September 15, 2026, at Hacker Dojo for a founder masterclass on lifecycle economics, fundraising metrics, and valuation realities.",
+    audienceHeading: "Who should attend",
+    audience:
+      "This masterclass is for startup founders, finance leaders, operators, and investors who want to understand how fundraising expectations change from Seed through Series C and public-market readiness.",
+    valueHeading: "What founders will learn",
+    value:
+      "Learn when narrative and TAM stop being enough, how burn multiple and acquisition velocity give way to Rule of 40 and operating leverage, and why private venture multiples can collide with public-market valuation realities.",
+    faqs: [
+      {
+        question: "What is the September 15 StartupA2Z founder masterclass about?",
+        answer:
+          "Vivek will explain how investor expectations migrate across the business lifecycle—from TAM and narrative at Seed to unit economics, cash flow, Rule of 40, operating leverage, ROIC, and valuation discipline at later stages.",
+      },
+      {
+        question: "Who should attend the Seed to Series C masterclass?",
+        answer:
+          "The session is designed for founders, startup finance leaders, operators, and investors building or evaluating venture-backed companies across early and growth stages.",
+      },
+      {
+        question: "When and where is the StartupA2Z masterclass?",
+        answer:
+          "The event takes place Tuesday, September 15, 2026, from 5:00 PM to 8:00 PM at Hacker Dojo, 855 Maude Avenue, Mountain View, California.",
+      },
+      {
+        question: "How do I register?",
+        answer:
+          "Registration is free through the official Luma event page while space remains available.",
+      },
+    ],
+    related: {
+      slug: "founders-pitch-mix-2026-09-22",
+      label: "September 22: StartupA2Z Founder Event",
+      description: "Continue meeting Bay Area founders and operators at Hacker Dojo.",
+    },
+  },
 };
 
 const EventDetail = () => {

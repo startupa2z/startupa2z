@@ -20,7 +20,6 @@ const sep1Canonical = `https://startupa2z.org/events/${sep1Slug}`;
 const lumaEventRoutes = [
   "founders-pitch-mix-2026-08-25",
   sep1Slug,
-  "founders-pitch-mix-2026-09-08",
   "founders-pitch-mix-2026-09-15",
   "founders-pitch-mix-2026-09-22",
   "founders-pitch-mix-2026-09-29",
@@ -46,7 +45,7 @@ const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
   timeZone: "America/Los_Angeles",
 });
-for (const eventDate of ["2026-09-01", "2026-09-08", "2026-09-15", "2026-09-22", "2026-09-29"]) {
+for (const eventDate of ["2026-09-01", "2026-09-15", "2026-09-22", "2026-09-29"]) {
   const weekday = weekdayFormatter.format(new Date(`${eventDate}T17:00:00-07:00`));
   if (weekday !== "Tuesday") {
     throw new Error(`${eventDate} weekday: expected Tuesday, received ${weekday}`);
@@ -111,6 +110,14 @@ requireText(eventsHtml, "Startup Pitch Events", "events search guide");
 requireText(eventsHtml, "Silicon Valley Founder Events", "events search guide");
 requireText(eventsHtml, '"@type": "CollectionPage"', "events collection schema");
 requireText(eventsHtml, '"@type": "FAQPage"', "events FAQ schema");
+rejectText(eventsHtml, "founders-pitch-mix-2026-09-08", "cancelled September 8 event listing");
+
+const sep15Html = readRoute("/events/founders-pitch-mix-2026-09-15");
+requireText(sep15Html, "What Raises Your Seed Round Will Sink Your Series C", "September 15 masterclass title");
+requireText(sep15Html, "Business Lifecycle Economics", "September 15 masterclass description");
+requireText(sep15Html, "startupa2z-vivek-seed-to-series-c-luma-social-v1.png", "September 15 social image");
+requireText(sep15Html, '"startDate": "2026-09-15T17:00:00-07:00"', "September 15 Event start date");
+requireText(sep15Html, '"eventStatus": "https://schema.org/EventScheduled"', "September 15 scheduled event status");
 
 const robots = fs.readFileSync(path.join(dist, "robots.txt"), "utf8");
 requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");
@@ -118,6 +125,7 @@ requireText(robots, "Sitemap: https://startupa2z.org/sitemap.xml", "robots.txt")
 
 const sitemap = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
 requireText(sitemap, "https://startupa2z.org/resources/event-summaries", "event summary archive sitemap entry");
+rejectText(sitemap, "founders-pitch-mix-2026-09-08", "cancelled September 8 sitemap entry");
 for (const slug of lumaEventRoutes) {
   requireText(sitemap, `https://startupa2z.org/events/${slug}`, `${slug} sitemap entry`);
 }

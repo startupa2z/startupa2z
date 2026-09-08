@@ -55,6 +55,7 @@ import BusinessManagement from "@/components/admin/BusinessManagement";
 import MemberManagement from "@/components/admin/MemberManagement";
 import AllUsersManagement from "@/components/admin/AllUsersManagement";
 import SponsorPaymentManagement from "@/components/admin/SponsorPaymentManagement";
+import EventOperationsPlaybook from "@/components/admin/EventOperationsPlaybook";
 import SEO from "@/components/SEO";
 import {
   Dialog,
@@ -429,10 +430,10 @@ const AdminSubmissions = () => {
                 <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">StartupA2Z.org admin</p>
                 <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight">{adminSectionLabel(activeSection)}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Manage each event and continue directly into its campaign." : activeSection === "announcements" ? "Review the selected event's three message drafts and approve its local schedule." : "Manage this part of the StartupA2Z.org community."}
+                  {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Manage each event and continue directly into its campaign." : activeSection === "event-playbook" ? "Review and improve the operating prompt that guides every event from intake through verified release." : activeSection === "announcements" ? "Review the selected event's three message drafts and approve its local schedule." : "Manage this part of the StartupA2Z.org community."}
                 </p>
               </div>
-              {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "all-users" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "rsvps" && activeSection !== "payments" && activeSection !== "overview" && (
+              {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "all-users" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "event-playbook" && activeSection !== "rsvps" && activeSection !== "payments" && activeSection !== "overview" && (
                 <Badge variant="outline" className="w-fit">Visual template only</Badge>
               )}
             </section>
@@ -612,6 +613,10 @@ const AdminSubmissions = () => {
 
             <TabsContent value="announcements" className="mt-0">
               <PublishingWorkspace events={adminEvents} registrations={rsvps} demoEvents={campaignDemoEvents} setDemoEvents={setCampaignDemoEvents} requestedEventId={campaignEventId} onJourneyStepChange={setJourneyStep} onBackToEventManagement={() => { setCampaignEventId(null); setJourneyStep(1); setActiveSection("event-management"); }} onOpenEventPortfolio={() => { setCampaignEventId(null); setJourneyStep(1); setActiveSection("event-management"); }} />
+            </TabsContent>
+
+            <TabsContent value="event-playbook" className="mt-0">
+              <EventOperationsPlaybook />
             </TabsContent>
 
             {(["founders", "posts", "social", "connectors", "analytics", "settings"] as AdminSection[]).map((section) => (

@@ -134,35 +134,41 @@ test("sign in and apply to pitch open the correct authentication modes", async (
   await expect(page.getByRole("button", { name: "Sign up with email address" })).toBeVisible();
 });
 
-test("homepage promotes tomorrow's full founder workshop", async ({ page }) => {
+test("homepage promotes the September 15 founder finance masterclass", async ({ page }) => {
   await page.goto("/");
 
-  const banner = page.getByRole("complementary", { name: "Featured September 1 founder workshop" });
+  const banner = page.getByRole("complementary", { name: "Featured September 15 founder finance masterclass" });
   await expect(banner).toBeVisible();
-  await expect(banner).toContainText("Tomorrow at Hacker Dojo");
-  const artwork = banner.getByAltText("StartupA2Z founder networking and GTM workshop");
-  await expect(artwork).toHaveCSS("object-fit", "contain");
-  await expect(banner.getByRole("heading", { name: "Founder Networking & GTM Workshop" })).toBeVisible();
-  await expect(banner).toContainText("September 1 | 5:00-8:00 PM");
-  await expect(banner).toContainText("93 registered | 47 on the waitlist");
+  await expect(banner).toContainText("September 15 at Hacker Dojo");
+  const artwork = banner.getByAltText("StartupA2Z Seed to Series C founder finance masterclass with Vivek");
+  await expect(artwork).toHaveCSS("object-fit", "cover");
+  await expect(banner.getByRole("heading", { name: "What Raises Your Seed Round Will Sink Your Series C" })).toBeVisible();
+  await expect(banner).toContainText("September 15 | 5:00-8:00 PM");
+  await expect(banner).toContainText("Masterclass with Vivek");
   await expect(banner.getByRole("link", { name: "View event", exact: true })).toHaveAttribute(
     "href",
-    "/events/founder-networking-workshop-2026-09-01",
+    "/events/founders-pitch-mix-2026-09-15",
   );
-  await expect(banner.getByRole("link", { name: /Join waitlist/ })).toHaveAttribute(
+  await expect(banner.getByRole("link", { name: /Register free/ })).toHaveAttribute(
     "href",
-    /https:\/\/luma\.com\/txup8dqa/,
+    /https:\/\/luma\.com\/hmvkxmas/,
   );
 });
 
 test("event filtering and completed event detail work", async ({ page }) => {
   await page.goto("/events?view=past");
   await expect(page.getByRole("heading", { name: "Past Events" })).toBeVisible();
+  await expect(page.getByAltText("Bay Area Founder Networking & Startup Workshop | Mountain View cover"))
+    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
 
   await page.getByRole("link", { name: "Upcoming", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Upcoming Events" })).toBeVisible();
-  await expect(page.getByAltText("Bay Area Founder Networking & Startup Workshop | Mountain View event"))
-    .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
+  await expect(page.locator('a[href="/events/founders-pitch-mix-2026-09-08"]')).toHaveCount(0);
+  const september15Card = page.locator('a[href="/events/founders-pitch-mix-2026-09-15"]');
+  await expect(september15Card.locator("img").first()).toHaveAttribute(
+    "src",
+    "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v1.png?v=20260908",
+  );
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
     .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");
   const september22Card = page.locator('a[href="/events/founders-pitch-mix-2026-09-22"]');

@@ -26,7 +26,6 @@ const ROUTES = [
   '/events/startup-a-to-z-hacker-dojo-august-12',
   '/events/founders-pitch-mix-2026-08-25',
   '/events/founder-networking-workshop-2026-09-01',
-  '/events/founders-pitch-mix-2026-09-08',
   '/events/founders-pitch-mix-2026-09-15',
   '/events/founders-pitch-mix-2026-09-22',
   '/events/founders-pitch-mix-2026-09-29',

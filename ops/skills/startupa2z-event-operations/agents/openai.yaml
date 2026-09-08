@@ -1,0 +1,8 @@
+interface:
+  display_name: "StartupA2Z Event Operations"
+  short_description: "Run synchronized, approval-gated event releases"
+  brand_color: "#1B4B39"
+  default_prompt: "Use $startupa2z-event-operations to prepare and verify this StartupA2Z event workflow."
+
+policy:
+  allow_implicit_invocation: true

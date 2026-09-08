@@ -11,6 +11,8 @@ from database import close_pool, get_pool
 from all_users import ensure_all_users_schema
 from member_profile import ensure_member_profile_schema
 from home_stats import ensure_home_stats_schema
+from event_playbook import ensure_event_playbook_schema
+from event_lifecycle import ensure_event_lifecycle_schema
 from pitch_applications import ensure_pitch_application_schema
 from routers import all_users, audience, auth, businesses, contact, events, pitch_applications, rsvp, stats, stripe_router
 from routers import admin
@@ -22,6 +24,8 @@ async def lifespan(app: FastAPI):
     await ensure_member_profile_schema(pool)
     await ensure_all_users_schema(pool)
     await ensure_home_stats_schema(pool)
+    await ensure_event_lifecycle_schema(pool)
+    await ensure_event_playbook_schema(pool)
     await ensure_pitch_application_schema(pool)
     yield
     await close_pool()

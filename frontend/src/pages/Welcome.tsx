@@ -122,7 +122,7 @@ const EmbeddedPitchApplication = ({ user, preview }: { user: MemberUserView; pre
 
   useEffect(() => {
     if (preview) {
-      setEvents([{ id: "preview-event", slug: "founders-pitch-mix", title: "Founders Pitch & Mix", date: "September 8, 2026", time: "5:00 PM – 8:00 PM", venue: "Hacker Dojo", address: "", type: "Pitch", description: "", long_description: "", agenda: [], speakers: [], spots: 24, capacity: 30, price: "Free", featured: true, image_url: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }]);
+      setEvents([{ id: "preview-event", slug: "founders-pitch-mix-2026-09-15", title: "What Raises Your Seed Round Will Sink Your Series C", date: "September 15, 2026", time: "5:00 PM – 8:00 PM", venue: "Hacker Dojo", address: "", type: "Founder Finance Masterclass", description: "", long_description: "", agenda: [], speakers: [], spots: 0, capacity: 0, price: "Free", featured: true, image_url: "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v1.png?v=20260908", lifecycle_status: "published", created_at: new Date().toISOString(), updated_at: new Date().toISOString() }]);
       return;
     }
     let active = true;

@@ -3,6 +3,10 @@ import { fetchEventsFromApi, fetchEventBySlugFromApi } from "@/lib/api";
 const recurringPitchMixCover =
   "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827";
 
+// Defense in depth for known cancellations while older API/database versions
+// are still being upgraded to lifecycle_status.
+const hiddenEventSlugs = new Set(["founders-pitch-mix-2026-09-08"]);
+
 export type EventItem = {
   id?: string;
   slug: string;
@@ -24,6 +28,7 @@ export type EventItem = {
   startDateIso?: string | null;
   endDateIso?: string | null;
   registrationUrl?: string | null;
+  lifecycleStatus?: "draft" | "published" | "cancelled" | "completed";
 };
 
 const pitchMixLongDescription = (date: string) =>
@@ -41,8 +46,6 @@ const pitchMixAgenda = [
 
 const pitchMixEvents: EventItem[] = [
   ["founders-pitch-mix-2026-08-25", "August 25, 2026", "2026-08-25", "mm8nnyc1"],
-  ["founders-pitch-mix-2026-09-08", "September 8, 2026", "2026-09-08", "25odwnxl"],
-  ["founders-pitch-mix-2026-09-15", "September 15, 2026", "2026-09-15", "hmvkxmas"],
   ["founders-pitch-mix-2026-09-22", "September 22, 2026", "2026-09-22", "c7ebjedo"],
   ["founders-pitch-mix-2026-09-29", "September 29, 2026", "2026-09-29", "lxlrmvle"],
 ].map(([slug, date, isoDate, lumaSlug]) => ({
@@ -65,10 +68,47 @@ const pitchMixEvents: EventItem[] = [
     startDateIso: `${isoDate}T17:00:00-07:00`,
     endDateIso: `${isoDate}T20:00:00-07:00`,
     registrationUrl: `https://luma.com/${lumaSlug}?utm_source=startupa2z&utm_medium=website&utm_campaign=founders_pitch_mix`,
+    lifecycleStatus: "published",
   }));
+
+const september15Masterclass: EventItem = {
+  slug: "founders-pitch-mix-2026-09-15",
+  title: "What Raises Your Seed Round Will Sink Your Series C",
+  date: "September 15, 2026",
+  time: "5:00 PM - 8:00 PM",
+  venue: "Hacker Dojo, Mountain View",
+  address: "855 Maude Ave, Mountain View, CA 94043",
+  type: "Founder Finance Masterclass",
+  desc:
+    "A founder masterclass on how business lifecycle economics and valuation expectations change from Seed through Series C and public-market readiness.",
+  longDesc:
+    "A Masterclass on Business Lifecycle Economics & Valuation Realities. The playbook that secures your Seed round can actively derail your Series C, later growth rounds, and eventual public-market readiness. Join StartupA2Z and Vivek for a practical deep dive into how investor expectations evolve from TAM and narrative to unit economics, capital allocation, cash flow, Rule of 40, operating leverage, ROIC, and public-market valuation realities.",
+  agenda: [
+    { time: "5:00 PM", item: "Networking" },
+    { time: "5:30 PM", item: "Welcome and introduction by Satish" },
+    { time: "5:40 PM", item: "Masterclass with Vivek" },
+    { time: "7:20 PM", item: "Closing remarks" },
+    { time: "7:30 PM", item: "Networking" },
+  ],
+  speakers: [
+    { name: "Vivek", role: "Masterclass speaker" },
+    { name: "Satish Govindappa", role: "Host, StartupA2Z" },
+  ],
+  spots: 0,
+  capacity: 0,
+  price: "Free",
+  featured: true,
+  imageUrl: "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v1.png?v=20260908",
+  startDateIso: "2026-09-15T17:00:00-07:00",
+  endDateIso: "2026-09-15T20:00:00-07:00",
+  registrationUrl:
+    "https://luma.com/hmvkxmas?utm_source=startupa2z&utm_medium=website&utm_campaign=seed_to_series_c_masterclass",
+  lifecycleStatus: "published",
+};
 
 // Public fallbacks mirror Luma. The database supplies the live event set.
 export const seedEvents: EventItem[] = [
+  september15Masterclass,
   ...pitchMixEvents,
   {
     slug: "founder-networking-workshop-2026-09-01",
@@ -162,6 +202,7 @@ const mapRow = (r: {
   featured: boolean;
   image_url?: string | null;
   registration_url?: string | null;
+  lifecycle_status?: "draft" | "published" | "cancelled" | "completed";
 }): EventItem => {
   // Seeded copy mirrors Luma for prerendering and API-outage fallback. The
   // database supplies the live event set and operational values.
@@ -186,19 +227,25 @@ const mapRow = (r: {
     capacity: r.capacity,
     price: r.price,
     featured: r.featured,
-    imageUrl: usesCurrentEventCover
-      ? recurringPitchMixCover
-      : r.image_url || seedEvent?.imageUrl || null,
+    imageUrl: seedEvent?.imageUrl || (usesCurrentEventCover ? recurringPitchMixCover : r.image_url || null),
     startDateIso: seedEvent?.startDateIso ?? null,
     endDateIso: seedEvent?.endDateIso ?? null,
     registrationUrl: r.registration_url || seedEvent?.registrationUrl || null,
+    lifecycleStatus: r.lifecycle_status ?? seedEvent?.lifecycleStatus ?? "published",
   };
 };
 
 export const fetchAllEvents = async (): Promise<EventItem[]> => {
   try {
     const { data } = await fetchEventsFromApi();
-    const dbEvents = (data ?? []).map(mapRow);
+    const dbEvents = (data ?? [])
+      .map(mapRow)
+      .filter(
+        (event) =>
+          !hiddenEventSlugs.has(event.slug) &&
+          event.lifecycleStatus !== "cancelled" &&
+          event.lifecycleStatus !== "draft",
+      );
     return dbEvents.length > 0 ? dbEvents : seedEvents;
   } catch {
     return seedEvents;
@@ -206,13 +253,20 @@ export const fetchAllEvents = async (): Promise<EventItem[]> => {
 };
 
 export const fetchEventBySlug = async (slug: string): Promise<EventItem | undefined> => {
+  if (hiddenEventSlugs.has(slug)) return undefined;
+
   try {
     const { data } = await fetchEventBySlugFromApi(slug);
-    if (data) return mapRow(data);
+    if (data) {
+      const event = mapRow(data);
+      if (event.lifecycleStatus === "cancelled" || event.lifecycleStatus === "draft") return undefined;
+      return event;
+    }
   } catch {
     // fall through to seed
   }
   return seedEvents.find((e) => e.slug === slug);
 };
 
-export const getEventBySlug = (slug: string) => seedEvents.find((e) => e.slug === slug);
+export const getEventBySlug = (slug: string) =>
+  hiddenEventSlugs.has(slug) ? undefined : seedEvents.find((e) => e.slug === slug);

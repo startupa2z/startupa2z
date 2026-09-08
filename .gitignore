@@ -19,6 +19,7 @@ frontend/dist
 frontend/playwright-report
 frontend/test-results
 .vite
+.firecrawl/
 backend/node_modules
 backend/dist
 __pycache__/

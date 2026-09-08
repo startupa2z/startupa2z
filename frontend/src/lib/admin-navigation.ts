@@ -8,6 +8,7 @@ const labels: Record<AdminSection, string> = {
   founders: "Speakers",
   startups: "Businesses",
   "event-management": "Event management",
+  "event-playbook": "Event operations playbook",
   rsvps: "Registrations",
   payments: "Sponsorship payments",
   announcements: "Campaign and messages",

@@ -30,6 +30,7 @@ export type AdminSection =
   | "founders"
   | "startups"
   | "event-management"
+  | "event-playbook"
   | "rsvps"
   | "payments"
   | "announcements"
@@ -91,7 +92,7 @@ const AdminSidebar = ({
   onJourneyStepChange: (step: JourneyStep) => void;
 }) => {
   const navigation = groups(counts);
-  const eventLifecycleActive = active === "event-management" || active === "announcements";
+  const eventLifecycleActive = active === "event-management" || active === "event-playbook" || active === "announcements";
   const [communityOpen, setCommunityOpen] = useState(() => COMMUNITY_IDS.includes(active));
   const [eventLifecycleOpen, setEventLifecycleOpen] = useState(() => eventLifecycleActive);
   const journey = [
@@ -108,7 +109,7 @@ const AdminSidebar = ({
 
   useEffect(() => {
     if (COMMUNITY_IDS.includes(active)) setCommunityOpen(true);
-    if (active === "event-management" || active === "announcements") setEventLifecycleOpen(true);
+    if (active === "event-management" || active === "event-playbook" || active === "announcements") setEventLifecycleOpen(true);
   }, [active]);
 
   return (
@@ -138,9 +139,12 @@ const AdminSidebar = ({
 
           <div>
             <button type="button" onClick={() => setEventLifecycleOpen((open) => !open)} aria-expanded={eventLifecycleOpen} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${eventLifecycleActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
-              <CalendarDays className="h-4 w-4 shrink-0" /><span className="flex-1 text-left">Event Lifecycle</span><span className="text-[10px] font-normal text-muted-foreground">Step {journeyStep}</span><ChevronDown className={`h-4 w-4 transition-transform ${eventLifecycleOpen ? "rotate-180" : ""}`} />
+              <CalendarDays className="h-4 w-4 shrink-0" /><span className="flex-1 text-left">Event Lifecycle</span><span className="text-[10px] font-normal text-muted-foreground">{active === "event-playbook" ? "Playbook" : `Step ${journeyStep}`}</span><ChevronDown className={`h-4 w-4 transition-transform ${eventLifecycleOpen ? "rotate-180" : ""}`} />
             </button>
             {eventLifecycleOpen && <div className="ml-3 mt-1 space-y-1 border-l pl-2">
+              <button type="button" onClick={() => onChange("event-playbook")} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${active === "event-playbook" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                <MessageSquareText className="h-4 w-4 shrink-0" /><span className="flex-1 text-left font-medium">Operating playbook</span>
+              </button>
               {journey.map((item) => {
                 const Icon = item.icon;
                 const selected = journeyStep === item.step && (active === "event-management" || active === "announcements");
@@ -210,6 +214,7 @@ const AdminSidebar = ({
           ))}
         </select>
         <p className="mb-1 mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Event lifecycle</p>
+        <button type="button" onClick={() => onChange("event-playbook")} className={`mb-2 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs font-medium ${active === "event-playbook" ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}><MessageSquareText className="h-3.5 w-3.5" /> Operating playbook</button>
         <div className="grid grid-cols-5 gap-1" aria-label="Event lifecycle steps">
           {journey.map((item) => <button key={item.step} type="button" onClick={() => chooseJourneyStep(item.step, item.section)} className={`rounded-md border px-1 py-2 text-[10px] font-medium ${journeyStep === item.step ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}>Step {item.step}<span className="mt-0.5 block truncate">{item.label}</span></button>)}
         </div>

@@ -21,9 +21,11 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
 
 ChannelName = Literal["website", "luma", "eventbrite", "linkedin", "x"]
-ChannelStatus = Literal["draft", "ready", "scheduled", "published", "failed", "not_connected"]
+ChannelStatus = Literal["draft", "ready", "scheduled", "published", "cancelled", "failed", "not_connected"]
+EventLifecycleStatus = Literal["draft", "published", "cancelled", "completed"]
 ContentType = Literal["announcement", "reminder", "follow_up"]
 ContentStatus = Literal["draft", "in_review", "approved", "scheduled", "published"]
+EVENT_PLAYBOOK_KEY = "event-operations"
 
 
 def _slugify(s: str) -> str:
@@ -40,6 +42,24 @@ def _created_by(user: dict) -> uuid.UUID | None:
         return None
 
 
+async def _event_playbook_data(pool) -> dict:
+    playbook = await pool.fetchrow(
+        "SELECT key, title, content, revision, created_at, updated_at FROM admin_playbooks WHERE key = $1",
+        EVENT_PLAYBOOK_KEY,
+    )
+    if not playbook:
+        raise HTTPException(404, "Event operations playbook not found.")
+    revisions = await pool.fetch(
+        """SELECT revision, title, content, created_at
+             FROM admin_playbook_revisions
+            WHERE playbook_key = $1
+            ORDER BY revision DESC
+            LIMIT 25""",
+        EVENT_PLAYBOOK_KEY,
+    )
+    return {**dict(playbook), "revisions": [dict(row) for row in revisions]}
+
+
 # ——— Submissions ——————————————————————————————————————————————————————————————
 
 @router.get("/submissions")
@@ -47,6 +67,64 @@ async def list_submissions(user: dict = Depends(require_admin)):
     pool = await get_pool()
     rows = await pool.fetch("SELECT * FROM contact_submissions ORDER BY created_at DESC")
     return {"ok": True, "data": [dict(r) for r in rows]}
+
+
+# ——— Editable operating playbook ——————————————————————————————————————————
+
+class EventPlaybookUpdatePayload(BaseModel):
+    content: str = Field(min_length=50, max_length=50000)
+
+    @field_validator("content")
+    @classmethod
+    def normalize_content(cls, value: str) -> str:
+        if len(value.strip()) < 50:
+            raise ValueError("Playbook content must contain at least 50 meaningful characters.")
+        return value
+
+
+@router.get("/playbooks/event-operations")
+async def get_event_playbook(user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    return {"ok": True, "data": await _event_playbook_data(pool)}
+
+
+@router.put("/playbooks/event-operations")
+async def update_event_playbook(
+    body: EventPlaybookUpdatePayload,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            current = await conn.fetchrow(
+                "SELECT title, content, revision FROM admin_playbooks WHERE key = $1 FOR UPDATE",
+                EVENT_PLAYBOOK_KEY,
+            )
+            if not current:
+                raise HTTPException(404, "Event operations playbook not found.")
+            if current["content"] != body.content:
+                revision = current["revision"] + 1
+                editor_id = _created_by(user)
+                await conn.execute(
+                    """UPDATE admin_playbooks
+                          SET content = $1, revision = $2, updated_by = $3, updated_at = now()
+                        WHERE key = $4""",
+                    body.content,
+                    revision,
+                    editor_id,
+                    EVENT_PLAYBOOK_KEY,
+                )
+                await conn.execute(
+                    """INSERT INTO admin_playbook_revisions
+                         (playbook_key, revision, title, content, created_by)
+                       VALUES ($1, $2, $3, $4, $5)""",
+                    EVENT_PLAYBOOK_KEY,
+                    revision,
+                    current["title"],
+                    body.content,
+                    editor_id,
+                )
+    return {"ok": True, "data": await _event_playbook_data(pool)}
 
 
 # ——— Sponsorship payments ——————————————————————————————————————————————————
@@ -600,6 +678,7 @@ class EventUpdatePayload(BaseModel):
     speakers: list | None = None
     image_url: str | None = None
     remove_image: bool = False
+    lifecycle_status: EventLifecycleStatus | None = None
 
 
 @router.put("/events/{event_id}")
@@ -611,7 +690,7 @@ async def update_event(event_id: str, body: EventUpdatePayload, user: dict = Dep
 
     for field in ("title", "date", "time", "venue", "address", "type",
                   "description", "long_description", "spots", "capacity",
-                  "price", "featured"):
+                  "price", "featured", "lifecycle_status"):
         val = getattr(body, field)
         if val is not None:
             sets.append(f"{field} = ${i}")

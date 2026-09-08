@@ -319,6 +319,7 @@ CREATE TABLE events (
   price            TEXT        NOT NULL DEFAULT 'Free',
   featured         BOOLEAN     NOT NULL DEFAULT false,
   image_url        TEXT,
+  lifecycle_status TEXT        NOT NULL DEFAULT 'published' CHECK (lifecycle_status IN ('draft', 'published', 'cancelled', 'completed')),
   created_by       UUID        REFERENCES users(id),
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -370,7 +371,7 @@ CREATE TABLE event_channels (
   id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id          UUID        NOT NULL REFERENCES events(id) ON DELETE CASCADE,
   channel           TEXT        NOT NULL CHECK (channel IN ('website', 'luma', 'eventbrite', 'linkedin', 'x')),
-  status            TEXT        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'ready', 'scheduled', 'published', 'failed', 'not_connected')),
+  status            TEXT        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'ready', 'scheduled', 'published', 'cancelled', 'failed', 'not_connected')),
   external_url      TEXT,
   external_event_id TEXT,
   scheduled_at      TIMESTAMPTZ,
@@ -409,6 +410,32 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_event_content_updated_at
 BEFORE UPDATE ON event_content_items
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ─── Admin operating playbooks ————————————————————————————————————————————
+
+CREATE TABLE admin_playbooks (
+  key          TEXT        PRIMARY KEY,
+  title        TEXT        NOT NULL,
+  content      TEXT        NOT NULL,
+  revision     INTEGER     NOT NULL DEFAULT 1 CHECK (revision >= 1),
+  updated_by   UUID        REFERENCES users(id) ON DELETE SET NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE admin_playbook_revisions (
+  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  playbook_key TEXT        NOT NULL REFERENCES admin_playbooks(key) ON DELETE CASCADE,
+  revision     INTEGER     NOT NULL CHECK (revision >= 1),
+  title        TEXT        NOT NULL,
+  content      TEXT        NOT NULL,
+  created_by   UUID        REFERENCES users(id) ON DELETE SET NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (playbook_key, revision)
+);
+
+CREATE INDEX idx_admin_playbook_revisions_key_created
+  ON admin_playbook_revisions(playbook_key, created_at DESC);
 
 -- ─── Event RSVPs ─────────────────────────────────────────────────────────────
 
