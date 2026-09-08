@@ -141,7 +141,7 @@ test("homepage promotes the September 15 founder finance masterclass", async ({ 
   await expect(banner).toBeVisible();
   await expect(banner).toContainText("September 15 at Hacker Dojo");
   const artwork = banner.getByAltText("StartupA2Z Seed to Series C founder finance masterclass with Vivek");
-  await expect(artwork).toHaveCSS("object-fit", "cover");
+  await expect(artwork).toHaveCSS("object-fit", "contain");
   await expect(banner.getByRole("heading", { name: "What Raises Your Seed Round Will Sink Your Series C" })).toBeVisible();
   await expect(banner).toContainText("September 15 | 5:00-8:00 PM");
   await expect(banner).toContainText("Masterclass with Vivek");

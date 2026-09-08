@@ -28,9 +28,13 @@ const SpecialEventBanner = () => {
               <img
                 src={featuredMasterclass.imageUrl || ""}
                 alt="StartupA2Z Seed to Series C founder finance masterclass with Vivek"
-                className="absolute inset-0 h-full w-full scale-[1.025] object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                className="absolute inset-0 h-full w-full object-contain object-left transition-transform duration-500 group-hover:scale-[1.015]"
                 width={1680}
                 height={945}
+              />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-[hsl(226,73%,10%)]"
               />
             </Link>
 
