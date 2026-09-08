@@ -200,6 +200,15 @@ test("August 25 event opens the local evidence-backed founder recap", async ({ p
   await expect(page.getByText("Local draft", { exact: true })).not.toBeVisible();
   await expect(page.getByRole("heading", { name: /Freight AI, Vachi, and Quantum Security/ })).toBeVisible();
   await expect(page.getByAltText("Collage of the StartupA2Z founder presentations and audience pitches at Hacker Dojo on August 25, 2026")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pitch recordings", exact: true })).toHaveCount(0);
+  const pitchRecordings = page.locator("#founder-journeys video");
+  await expect(pitchRecordings).toHaveCount(5);
+  await expect(page.getByLabel("EnrouteAI presentation recording")).toHaveAttribute("preload", "none");
+  await expect(page.getByLabel("EnrouteAI presentation recording")).toHaveAttribute("poster", "/event-media/august-25-2026/neil-fernandes-enrouteai.jpg");
+  await expect(page.getByLabel("Vachi presentation recording")).toHaveAttribute("poster", "/event-media/august-25-2026/achal-pandey-vachi.jpg");
+  await expect(page.getByLabel("Quip Network presentation recording")).toHaveAttribute("poster", "/event-media/august-25-2026/ridham-bhagat-quip-network.jpg");
+  await expect(page.getByLabel("Vachi presentation recording")).toContainText("Your browser does not support embedded video.");
+  await expect(page.getByRole("link", { name: "Source: PresenterPrep" })).toHaveCount(5);
   const neilPlaybook = page.getByRole("link", { name: "Turning freight-pricing spreadsheet work into a repeatable workflow", exact: true });
   await expect(neilPlaybook).toHaveAttribute("href", "/resources/founder-playbooks/neil-fernandes-enrouteai");
   await expect(page.getByRole("link", { name: "EnrouteAI website" })).toHaveAttribute("href", "https://enrouteai.com/");

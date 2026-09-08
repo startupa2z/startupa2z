@@ -37,6 +37,16 @@ export type EventSummary = {
   galleryPath?: string;
   summary: string;
   program: string[];
+  recordings?: Array<{
+    anchor: string;
+    company: string;
+    presenter?: string;
+    description: string;
+    videoUrl: string;
+    posterUrl: string;
+    sourceUrl: string;
+    storyAnchor?: string;
+  }>;
   recapSections?: Array<{
     eyebrow: string;
     title: string;
@@ -214,6 +224,55 @@ export const eventSummaries: EventSummary[] = [
       "Live startup and product demonstrations",
       "Audience questions and direct founder feedback",
       "Bay Area founder and builder networking",
+    ],
+    recordings: [
+      {
+        anchor: "enrouteai",
+        company: "EnrouteAI",
+        presenter: "Neil Fernandes",
+        description: "Automating freight-pricing workflows while preserving the shipper's existing RFP format.",
+        videoUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_enrouteai/video.webm",
+        posterUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_enrouteai/poster.jpg",
+        sourceUrl: "https://presenterprep.com/partners/startupa2z/founders-pitch-mix-2026-08-25/enrouteai",
+        storyAnchor: "enrouteai",
+      },
+      {
+        anchor: "vachi",
+        company: "Vachi",
+        presenter: "Achal Pandey",
+        description: "A voice-first approach to turning scattered, unfinished ideas into actionable follow-through.",
+        videoUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_vachi/video.webm",
+        posterUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_vachi/poster.jpg",
+        sourceUrl: "https://presenterprep.com/partners/startupa2z/founders-pitch-mix-2026-08-25/vachi",
+        storyAnchor: "vachi",
+      },
+      {
+        anchor: "quip-network",
+        company: "Quip Network",
+        presenter: "Ridham Bhagat",
+        description: "Post-quantum protection for blockchain wallets through on-chain contract verification.",
+        videoUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_quip-network/video.webm",
+        posterUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_quip-network/poster.jpg",
+        sourceUrl: "https://presenterprep.com/partners/startupa2z/founders-pitch-mix-2026-08-25/quip-network",
+        storyAnchor: "quip-network",
+      },
+      {
+        anchor: "fraudfront",
+        company: "FraudFront",
+        presenter: "Alex Gong",
+        description: "Layered protection for older adults against online fraud, backed by behavioral monitoring and a trusted network.",
+        videoUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_fraudfront/video.webm",
+        posterUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_fraudfront/poster.jpg",
+        sourceUrl: "https://presenterprep.com/partners/startupa2z/founders-pitch-mix-2026-08-25/fraudfront",
+      },
+      {
+        anchor: "kalakar",
+        company: "Kalakar",
+        description: "A professional and commerce platform where artists can build profiles, collaborate, teach, and sell.",
+        videoUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_kalakar/video.webm",
+        posterUrl: "https://presenterprep.com/api/share-content/shl_a2z_founders-pitch-mix-2026-08-25_kalakar/poster.jpg",
+        sourceUrl: "https://presenterprep.com/partners/startupa2z/founders-pitch-mix-2026-08-25/kalakar",
+      },
     ],
     founderStories: [
       {

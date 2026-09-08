@@ -16,14 +16,42 @@ import {
 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
-import { FounderStory, getEventSummary } from "@/data/eventSummaries";
+import { EventSummary, FounderStory, getEventSummary } from "@/data/eventSummaries";
 import { FounderPlaybook, getFounderPlaybookByStory, getFounderPlaybookPath } from "@/data/founderPlaybooks";
 
 type EventSummaryDetailProps = {
   summarySlug?: string;
 };
 
-const FounderPlaybookPreview = ({ story, index, playbook }: { story: FounderStory; index: number; playbook: FounderPlaybook }) => {
+type EventRecording = NonNullable<EventSummary["recordings"]>[number];
+
+const RecordingPlayer = ({ recording, thumbnailUrl }: { recording: EventRecording; thumbnailUrl?: string }) => (
+  <div className="border-t border-primary/10 bg-[#f8f0e3] p-3 lg:border-l lg:border-t-0">
+    <div className="aspect-video overflow-hidden rounded-2xl border border-white/70 bg-primary shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+      <video
+        controls
+        playsInline
+        preload="none"
+        poster={thumbnailUrl ?? recording.posterUrl}
+        aria-label={`${recording.company} presentation recording`}
+        className="h-full w-full object-contain"
+      >
+        <source src={recording.videoUrl} type="video/mp4" />
+        Your browser does not support embedded video.
+      </video>
+    </div>
+    <a
+      href={recording.sourceUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1.5 flex items-center justify-end gap-1 text-[10px] font-bold uppercase tracking-[0.08em] text-primary/65 hover:text-secondary"
+    >
+      Source: PresenterPrep <ExternalLink className="h-3 w-3" />
+    </a>
+  </div>
+);
+
+const FounderPlaybookPreview = ({ story, index, playbook, recording }: { story: FounderStory; index: number; playbook: FounderPlaybook; recording?: EventRecording }) => {
   const playbookPath = getFounderPlaybookPath(playbook);
   const showWebsite = !story.founderProfiles.some((profile) => profile.url === story.website);
 
@@ -32,7 +60,7 @@ const FounderPlaybookPreview = ({ story, index, playbook }: { story: FounderStor
       id={`founder-${story.anchor}`}
       className="overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_40px_rgba(27,75,57,0.08)]"
     >
-      <div className="grid border-b border-primary/10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-stretch">
+      <div className={`grid border-b border-primary/10 lg:items-stretch ${recording ? "lg:grid-cols-[minmax(0,0.8fr)_minmax(420px,1.2fr)]" : "lg:grid-cols-[minmax(0,1fr)_280px]"}`}>
         <div className="flex flex-col justify-center p-6 sm:p-7 md:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary">
             {story.storyLabel ?? "Founder talk"} {String(index + 1).padStart(2, "0")} · {story.company}
@@ -79,15 +107,19 @@ const FounderPlaybookPreview = ({ story, index, playbook }: { story: FounderStor
             ))}
           </div>
         </div>
-        <Link to={playbookPath} aria-label={`Read ${story.headline}`} className="group border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0">
-          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
-            <img
-              src={story.image}
-              alt={story.imageAlt}
-              className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${story.anchor === "keyframe-ai" ? "scale-[1.35] object-[center_74%] group-hover:scale-[1.38]" : ""}`}
-            />
-          </div>
-        </Link>
+        {recording ? (
+          <RecordingPlayer recording={recording} thumbnailUrl={story.image} />
+        ) : (
+          <Link to={playbookPath} aria-label={`Read ${story.headline}`} className="group border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0">
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+              <img
+                src={story.image}
+                alt={story.imageAlt}
+                className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${story.anchor === "keyframe-ai" ? "scale-[1.35] object-[center_74%] group-hover:scale-[1.38]" : ""}`}
+              />
+            </div>
+          </Link>
+        )}
       </div>
       <div className="p-6 sm:p-7 md:p-8">
         <div className="grid gap-3 text-sm leading-6 md:grid-cols-2">
@@ -353,13 +385,15 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                   : "These stories are drawn from the presentations, session photos, and supporting public sources. They capture the problem each team brought into the room, the approach they demonstrated, and the lesson another builder can apply."}
               </p>
               <div className="mt-8 space-y-8">
-                {summary.founderStories.map((story, index) => story.anchor === "enrouteai" ? (
+                {summary.founderStories.map((story, index) => {
+                  const recording = summary.recordings?.find((item) => item.storyAnchor === story.anchor);
+                  return story.anchor === "enrouteai" ? (
                   <article
                     key={story.company}
                     id={`founder-${story.anchor}`}
                     className="overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_40px_rgba(27,75,57,0.08)]"
                   >
-                    <div className="grid border-b border-primary/10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-stretch">
+                    <div className={`grid border-b border-primary/10 lg:items-stretch ${recording ? "lg:grid-cols-[minmax(0,0.8fr)_minmax(420px,1.2fr)]" : "lg:grid-cols-[minmax(0,1fr)_280px]"}`}>
                       <div className="flex flex-col justify-center p-6 sm:p-7 md:p-8">
                         <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary">
                           Founder talk {String(index + 1).padStart(2, "0")} · {story.company}
@@ -395,19 +429,23 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                           </a>
                         </div>
                       </div>
-                      <Link
-                        to="/resources/founder-playbooks/neil-fernandes-enrouteai"
-                        aria-label={`Read ${story.headline}`}
-                        className="group border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0"
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
-                          <img
-                            src={story.image}
-                            alt={story.imageAlt}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                          />
-                        </div>
-                      </Link>
+                      {recording ? (
+                        <RecordingPlayer recording={recording} thumbnailUrl={story.image} />
+                      ) : (
+                        <Link
+                          to="/resources/founder-playbooks/neil-fernandes-enrouteai"
+                          aria-label={`Read ${story.headline}`}
+                          className="group border-t border-primary/10 bg-[#f8f0e3] p-4 sm:p-5 lg:border-l lg:border-t-0"
+                        >
+                          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 shadow-[0_10px_28px_rgba(27,75,57,0.14)]">
+                            <img
+                              src={story.image}
+                              alt={story.imageAlt}
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                            />
+                          </div>
+                        </Link>
+                      )}
                     </div>
                     <div className="p-6 sm:p-7 md:p-8">
                       <div className="grid gap-3 text-sm leading-6 md:grid-cols-2">
@@ -449,6 +487,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                     story={story}
                     index={index}
                     playbook={getFounderPlaybookByStory(summary.eventSlug, story.anchor)!}
+                    recording={recording}
                   />
                 ) : (
                   <article
@@ -546,7 +585,29 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                       </div>
                     </div>
                   </article>
-                ))}
+                  );
+                })}
+                {summary.recordings
+                  ?.filter((recording) => !recording.storyAnchor)
+                  .map((recording, index) => (
+                    <article
+                      key={recording.anchor}
+                      id={`founder-${recording.anchor}`}
+                      className="overflow-hidden rounded-3xl border-2 border-primary/15 bg-card shadow-[0_14px_40px_rgba(27,75,57,0.08)]"
+                    >
+                      <div className="grid lg:grid-cols-[minmax(0,0.8fr)_minmax(420px,1.2fr)] lg:items-stretch">
+                        <div className="flex flex-col justify-center p-6 sm:p-7 md:p-8">
+                          <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary">
+                            Founder pitch {String(summary.founderStories.length + index + 1).padStart(2, "0")} · {recording.company}
+                          </p>
+                          <h3 className="mt-3 font-heading text-2xl font-bold leading-tight text-primary">{recording.company}</h3>
+                          {recording.presenter && <p className="mt-2 font-semibold text-foreground">{recording.presenter}</p>}
+                          <p className="mt-4 leading-7 text-muted-foreground">{recording.description}</p>
+                        </div>
+                        <RecordingPlayer recording={recording} />
+                      </div>
+                    </article>
+                  ))}
               </div>
             </section>
 
