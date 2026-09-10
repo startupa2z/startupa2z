@@ -13,6 +13,7 @@ import {
   Ticket,
   ArrowLeft,
   Share2,
+  ExternalLink,
 } from "lucide-react";
 import { fetchEventBySlug, type EventItem } from "@/data/events";
 import eventsImg from "@/assets/events.jpg";
@@ -115,7 +116,7 @@ const eventSearchContent: Record<string, EventSearchContent> = {
   "founders-pitch-mix-2026-09-15": {
     title: "Seed to Series C Valuation Masterclass | Sep 15",
     description:
-      "Join StartupA2Z and Vivek on September 15, 2026, at Hacker Dojo for a founder masterclass on lifecycle economics, fundraising metrics, and valuation realities.",
+      "Join StartupA2Z and investor Vivek Somani on September 15, 2026, at Hacker Dojo for a founder masterclass on lifecycle economics, fundraising metrics, and valuation realities.",
     audienceHeading: "Who should attend",
     audience:
       "This masterclass is for startup founders, finance leaders, operators, and investors who want to understand how fundraising expectations change from Seed through Series C and public-market readiness.",
@@ -126,7 +127,7 @@ const eventSearchContent: Record<string, EventSearchContent> = {
       {
         question: "What is the September 15 StartupA2Z founder masterclass about?",
         answer:
-          "Vivek will explain how investor expectations migrate across the business lifecycle—from TAM and narrative at Seed to unit economics, cash flow, Rule of 40, operating leverage, ROIC, and valuation discipline at later stages.",
+          "Vivek Somani will explain how investor expectations migrate across the business lifecycle—from TAM and narrative at Seed to unit economics, cash flow, Rule of 40, operating leverage, ROIC, and valuation discipline at later stages.",
       },
       {
         question: "Who should attend the Seed to Series C masterclass?",
@@ -326,6 +327,13 @@ const EventDetail = () => {
                 "@type": "Person",
                 name: speaker.name,
                 description: speaker.role,
+                image: speaker.imageUrl
+                  ? speaker.imageUrl.startsWith("http")
+                    ? speaker.imageUrl
+                    : `https://startupa2z.org${speaker.imageUrl}`
+                  : undefined,
+                url: speaker.linkedinUrl,
+                sameAs: [speaker.linkedinUrl, speaker.websiteUrl, speaker.xUrl].filter(Boolean),
               })),
               offers: {
                 "@type": "Offer",
@@ -476,25 +484,60 @@ const EventDetail = () => {
                   <h2 className="font-heading text-2xl font-bold text-primary mb-4">
                     Speakers & hosts
                   </h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid gap-4">
                     {event.speakers.map((s, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border"
+                        className="flex items-start gap-4 rounded-xl border border-border bg-card p-4"
                       >
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white font-bold">
-                          {s.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                        <div>
+                        {s.imageUrl ? (
+                          <img
+                            src={s.imageUrl}
+                            alt={`${s.name}, speaker`}
+                            className="h-20 w-20 shrink-0 rounded-full border-2 border-secondary/30 object-cover"
+                            width={80}
+                            height={80}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary to-primary font-bold text-white">
+                            {s.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </div>
+                        )}
+                        <div className="min-w-0">
                           <div className="font-semibold text-primary">
                             {s.name}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {s.role}
                           </div>
+                          {s.bio && (
+                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                              {s.bio}
+                            </p>
+                          )}
+                          {(s.linkedinUrl || s.websiteUrl || s.xUrl) && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {[
+                                ["LinkedIn", s.linkedinUrl],
+                                ["OptionGig", s.websiteUrl],
+                                ["X", s.xUrl],
+                              ].map(([label, href]) => href && (
+                                <a
+                                  key={label}
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary"
+                                >
+                                  {label} <ExternalLink className="h-3 w-3" />
+                                </a>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

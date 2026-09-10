@@ -1,4 +1,4 @@
-EVENT_LIFECYCLE_MIGRATION_KEY = "20260908_event_lifecycle_and_sep15_masterclass"
+EVENT_LIFECYCLE_MIGRATION_KEY = "20260909_event_lifecycle_and_vivek_speaker"
 
 
 async def ensure_event_lifecycle_schema(pool) -> None:
@@ -58,10 +58,10 @@ async def ensure_event_lifecycle_schema(pool) -> None:
                       SET title = 'What Raises Your Seed Round Will Sink Your Series C',
                           type = 'Founder Finance Masterclass',
                           description = 'A founder masterclass on how business lifecycle economics and valuation expectations change from Seed through Series C and public-market readiness.',
-                          long_description = 'A Masterclass on Business Lifecycle Economics & Valuation Realities. The playbook that secures your Seed round can actively derail your Series C, later growth rounds, and eventual public-market readiness. Join StartupA2Z and Vivek for a practical deep dive into how investor expectations evolve from TAM and narrative to unit economics, capital allocation, cash flow, Rule of 40, operating leverage, ROIC, and public-market valuation realities.',
-                          agenda = '[{"time":"5:00 PM","item":"Networking"},{"time":"5:30 PM","item":"Welcome and introduction by Satish"},{"time":"5:40 PM","item":"Masterclass with Vivek"},{"time":"7:20 PM","item":"Closing remarks"},{"time":"7:30 PM","item":"Networking"}]'::jsonb,
-                          speakers = '[{"name":"Vivek","role":"Masterclass speaker"},{"name":"Satish Govindappa","role":"Host, StartupA2Z"}]'::jsonb,
-                          image_url = '/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v1.png?v=20260908',
+                          long_description = 'A Masterclass on Business Lifecycle Economics & Valuation Realities. The playbook that secures your Seed round can actively derail your Series C, later growth rounds, and eventual public-market readiness. Join StartupA2Z and investor Vivek Somani for a practical deep dive into how investor expectations evolve from TAM and narrative to unit economics, capital allocation, cash flow, Rule of 40, operating leverage, ROIC, and public-market valuation realities.',
+                          agenda = '[{"time":"5:00 PM","item":"Networking"},{"time":"5:30 PM","item":"Welcome and introduction by Satish"},{"time":"5:40 PM","item":"Masterclass with Vivek Somani"},{"time":"7:20 PM","item":"Closing remarks"},{"time":"7:30 PM","item":"Networking"}]'::jsonb,
+                          speakers = '[{"name":"Vivek Somani","role":"Investor and former customer-focused technology leader","bio":"Vivek brings an investor''s perspective to startup economics, capital efficiency, and valuation. He also shares practical investing education through OptionGig and hosts a Bay Area community for DIY investors.","imageUrl":"/speakers/vivek-somani-linkedin.jpg","linkedinUrl":"https://www.linkedin.com/in/meetviveksomani/","websiteUrl":"https://optiongig.com/","xUrl":"https://x.com/VivekChirps"},{"name":"Satish Govindappa","role":"Host, StartupA2Z"}]'::jsonb,
+                          image_url = '/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v2.png?v=20260909',
                           featured = true,
                           lifecycle_status = 'published',
                           updated_at = now()

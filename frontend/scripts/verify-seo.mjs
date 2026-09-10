@@ -115,7 +115,8 @@ rejectText(eventsHtml, "founders-pitch-mix-2026-09-08", "cancelled September 8 e
 const sep15Html = readRoute("/events/founders-pitch-mix-2026-09-15");
 requireText(sep15Html, "What Raises Your Seed Round Will Sink Your Series C", "September 15 masterclass title");
 requireText(sep15Html, "Business Lifecycle Economics", "September 15 masterclass description");
-requireText(sep15Html, "startupa2z-vivek-seed-to-series-c-luma-social-v1.png", "September 15 social image");
+requireText(sep15Html, "Vivek Somani", "September 15 speaker identity");
+requireText(sep15Html, "startupa2z-vivek-seed-to-series-c-luma-social-v2.png", "September 15 social image");
 requireText(sep15Html, '"startDate": "2026-09-15T17:00:00-07:00"', "September 15 Event start date");
 requireText(sep15Html, '"eventStatus": "https://schema.org/EventScheduled"', "September 15 scheduled event status");
 

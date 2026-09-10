@@ -140,11 +140,11 @@ test("homepage promotes the September 15 founder finance masterclass", async ({ 
   const banner = page.getByRole("complementary", { name: "Featured September 15 founder finance masterclass" });
   await expect(banner).toBeVisible();
   await expect(banner).toContainText("September 15 at Hacker Dojo");
-  const artwork = banner.getByAltText("StartupA2Z Seed to Series C founder finance masterclass with Vivek");
+  const artwork = banner.getByAltText("StartupA2Z Seed to Series C founder finance masterclass with Vivek Somani");
   await expect(artwork).toHaveCSS("object-fit", "contain");
   await expect(banner.getByRole("heading", { name: "What Raises Your Seed Round Will Sink Your Series C" })).toBeVisible();
   await expect(banner).toContainText("September 15 | 5:00-8:00 PM");
-  await expect(banner).toContainText("Masterclass with Vivek");
+  await expect(banner).toContainText("Masterclass with Vivek Somani");
   await expect(banner.getByRole("link", { name: "View event", exact: true })).toHaveAttribute(
     "href",
     "/events/founders-pitch-mix-2026-09-15",
@@ -167,7 +167,7 @@ test("event filtering and completed event detail work", async ({ page }) => {
   const september15Card = page.locator('a[href="/events/founders-pitch-mix-2026-09-15"]');
   await expect(september15Card.locator("img").first()).toHaveAttribute(
     "src",
-    "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v1.png?v=20260908",
+    "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v2.png?v=20260909",
   );
   await expect(page.getByAltText("Bay Area Founders Pitch & Startup Networking cover").first())
     .toHaveAttribute("src", "/event-covers/startupa2z-founders-pitch-mix-every-tuesday-safe.png?v=20260827");

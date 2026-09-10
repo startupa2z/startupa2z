@@ -27,7 +27,7 @@ const SpecialEventBanner = () => {
             >
               <img
                 src={featuredMasterclass.imageUrl || ""}
-                alt="StartupA2Z Seed to Series C founder finance masterclass with Vivek"
+                alt="StartupA2Z Seed to Series C founder finance masterclass with Vivek Somani"
                 className="absolute inset-0 h-full w-full object-contain object-left transition-transform duration-500 group-hover:scale-[1.015]"
                 width={1680}
                 height={945}
@@ -44,19 +44,19 @@ const SpecialEventBanner = () => {
                   <Users className="h-3.5 w-3.5" />
                   September 15 at Hacker Dojo
                 </div>
-                <h2 className="mt-1.5 font-heading text-xl font-extrabold leading-tight text-white sm:text-2xl">
+                <h2 className="mt-1 font-heading text-xl font-extrabold leading-tight text-white sm:text-2xl">
                   What Raises Your Seed Round Will Sink Your Series C
                 </h2>
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-white/75 sm:text-sm">
-                  <span className="inline-flex items-center gap-1.5">
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-sm font-medium text-white/75">
+                  <span className="inline-flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-secondary" />
                     September 15 | 5:00-8:00 PM
                   </span>
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-secondary" />
                     Hacker Dojo | Mountain View
                   </span>
-                  <span className="font-bold text-secondary">Masterclass with Vivek</span>
+                  <span className="font-bold text-secondary">Masterclass with Vivek Somani</span>
                 </div>
               </div>
 

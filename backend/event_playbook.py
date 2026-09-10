@@ -32,21 +32,24 @@ Confirm or explicitly mark unknown: event title, promise, audience, date, time, 
 - Copy must explain practical founder value, not merely repeat speaker terminology.
 - Luma, homepage, events listing, detail page, social preview, and structured data must agree.
 - An HTTP 200 is not sufficient verification; inspect rendered title, description, banner, speaker, agenda, registration link, and metadata.
+- Luma descriptions must use real rich-text paragraphs, emphasized section labels, descriptive linked speaker/profile bullets, one bullet per learning outcome, and one bullet per timed agenda item. Never save newline-only plain text when formatting must survive.
+- Before saving Luma, verify distinct paragraphs and real list markers in the editor. After saving, verify the public event page's rendered spacing, bullets, timings, links, cover, title, date, and venue.
 
 ## Current working event: September 15, 2026
 - Luma event: https://luma.com/hmvkxmas
 - StartupA2Z route: /events/founders-pitch-mix-2026-09-15
 - Date/time: Tuesday, September 15, 2026, 5:00 PM-8:00 PM Pacific
 - Venue: Hacker Dojo, 855 Maude Ave, Mountain View, CA 94043
-- Speaker: Vivek; full name, title/company, biography, and headshot are not yet confirmed.
+- Speaker: Vivek Somani; investor and former customer-focused technology leader. Public profiles: https://www.linkedin.com/in/meetviveksomani/ and https://x.com/VivekChirps. His work includes OptionGig and Optalyzer: https://optiongig.com/.
 - Confirmed topic: What raises your Seed round will sink your Series C.
 - Subtitle: A Masterclass on Business Lifecycle Economics & Valuation Realities.
 - Core sections: Lifecycle Shift; Metric Migration; Avoiding the Multiple Trap.
 - Open decision: whether founder pitches and audience pitches remain, and the final time allocation for the masterclass and Q&A.
-- Current state: Luma title, description, and agenda have been updated for the masterclass. The coordinated StartupA2Z website update is implemented locally and awaiting explicit deployment approval. The Luma banner remains a manual upload by Satz unless later verified otherwise.
+- Current state: Vivek's full identity, public headshot, links, and speaker copy are implemented in the StartupA2Z event package. The live Luma listing has the approved masterclass title, rich-text description, speaker links, learning outcomes, timed agenda, cover, date, and venue. The coordinated StartupA2Z website update is approved for deployment and requires rendered production verification.
 
 ## Learning log
 - 2026-09-08: A Luma cancellation is not enough by itself. Mark the event lifecycle as cancelled, mark its website/Luma channels cancelled, exclude it from public APIs and frontend fallbacks, and remove its prerender and sitemap routes. Keep a temporary slug denylist during schema rollout so an older API cannot resurrect the event.
+- 2026-09-09: Setting a Luma rich-text description as one plain value collapsed headings, spacing, links, and agenda items into a single public paragraph. Use semantic rich text with real paragraphs and lists, then verify the public event page before reporting completion.
 Add only verified, reusable lessons here. For each lesson, state the evidence, what decision it changes, and the date learned.
 """
 

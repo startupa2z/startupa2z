@@ -19,7 +19,15 @@ export type EventItem = {
   desc: string;
   longDesc: string;
   agenda: { time: string; item: string }[];
-  speakers: { name: string; role: string }[];
+  speakers: {
+    name: string;
+    role: string;
+    bio?: string;
+    imageUrl?: string;
+    linkedinUrl?: string;
+    websiteUrl?: string;
+    xUrl?: string;
+  }[];
   spots: number;
   capacity: number;
   price: string;
@@ -82,23 +90,31 @@ const september15Masterclass: EventItem = {
   desc:
     "A founder masterclass on how business lifecycle economics and valuation expectations change from Seed through Series C and public-market readiness.",
   longDesc:
-    "A Masterclass on Business Lifecycle Economics & Valuation Realities. The playbook that secures your Seed round can actively derail your Series C, later growth rounds, and eventual public-market readiness. Join StartupA2Z and Vivek for a practical deep dive into how investor expectations evolve from TAM and narrative to unit economics, capital allocation, cash flow, Rule of 40, operating leverage, ROIC, and public-market valuation realities.",
+    "A Masterclass on Business Lifecycle Economics & Valuation Realities. The playbook that secures your Seed round can actively derail your Series C, later growth rounds, and eventual public-market readiness. Join StartupA2Z and investor Vivek Somani for a practical deep dive into how investor expectations evolve from TAM and narrative to unit economics, capital allocation, cash flow, Rule of 40, operating leverage, ROIC, and public-market valuation realities.",
   agenda: [
     { time: "5:00 PM", item: "Networking" },
     { time: "5:30 PM", item: "Welcome and introduction by Satish" },
-    { time: "5:40 PM", item: "Masterclass with Vivek" },
+    { time: "5:40 PM", item: "Masterclass with Vivek Somani" },
     { time: "7:20 PM", item: "Closing remarks" },
     { time: "7:30 PM", item: "Networking" },
   ],
   speakers: [
-    { name: "Vivek", role: "Masterclass speaker" },
+    {
+      name: "Vivek Somani",
+      role: "Investor and former customer-focused technology leader",
+      bio: "Vivek brings an investor's perspective to startup economics, capital efficiency, and valuation. He also shares practical investing education through OptionGig and hosts a Bay Area community for DIY investors.",
+      imageUrl: "/speakers/vivek-somani-linkedin.jpg",
+      linkedinUrl: "https://www.linkedin.com/in/meetviveksomani/",
+      websiteUrl: "https://optiongig.com/",
+      xUrl: "https://x.com/VivekChirps",
+    },
     { name: "Satish Govindappa", role: "Host, StartupA2Z" },
   ],
   spots: 0,
   capacity: 0,
   price: "Free",
   featured: true,
-  imageUrl: "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v1.png?v=20260908",
+  imageUrl: "/event-covers/startupa2z-vivek-seed-to-series-c-luma-social-v2.png?v=20260909",
   startDateIso: "2026-09-15T17:00:00-07:00",
   endDateIso: "2026-09-15T20:00:00-07:00",
   registrationUrl:
@@ -181,7 +197,7 @@ export const seedEvents: EventItem[] = [
 export const events = seedEvents;
 
 type DbAgendaItem = { time: string; item: string };
-type DbSpeaker = { name: string; role: string };
+type DbSpeaker = EventItem["speakers"][number];
 
 const mapRow = (r: {
   id: string;

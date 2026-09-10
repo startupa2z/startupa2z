@@ -32,6 +32,19 @@ Produce one consistent event experience across every approved channel while pres
 - Present the local result and remaining decisions before requesting any external action.
 - After approved release, verify rendered live pages—not only HTTP status—and record only evidence-backed reusable lessons in the admin playbook as a new revision.
 
+## Luma formatting standard
+
+Whenever Satz asks to create or change a Luma event, treat presentation quality as part of the requested change—not as optional polish.
+
+- Use Luma's rich-text structure. Never replace a formatting-rich description with one plain-text value; newline-only text can collapse into a single paragraph on the public page.
+- Organize the About section into short paragraphs with clear emphasized section labels: event promise, speaker introduction, speaker links, what attendees will learn, agenda, and final CTA.
+- Put speaker/profile links in a real bulleted list with descriptive linked labels. Put every learning outcome in its own bullet.
+- Put every agenda item in its own bullet with the time range emphasized, followed by one concise activity label. Never combine multiple timings into one paragraph.
+- Prefer rich HTML paste or Luma's formatting controls when editing a rich-text field. Do not use a plain `setValue`/textarea replacement when headings, links, or lists must survive.
+- Before saving, verify that the editor exposes distinct paragraphs, real list containers/list markers, working links, and one agenda item per bullet.
+- After saving, open the public Luma event page and verify the rendered spacing, headings, bullets, timings, links, cover, title, date, and venue. Do not report completion from the editor state alone.
+- If Luma indicates that guests will receive an update, stop immediately before the final save and obtain separate action-time approval for the notification.
+
 ## Learning loop
 
 At the end of substantial event work, identify what failed, what saved time, and what should change next time. Add durable improvements to the admin playbook when the user has placed local playbook maintenance in scope. Keep one-off event facts in the current-event section and reusable rules in the learning log. Never convert an assumption into a permanent rule.
