@@ -151,6 +151,44 @@ const eventSearchContent: Record<string, EventSearchContent> = {
       description: "Continue meeting Bay Area founders and operators at Hacker Dojo.",
     },
   },
+  "founders-pitch-mix-2026-09-22": {
+    title: "The Wiz Story for Founders with Daniel Slayton | Sep 22",
+    description:
+      "Join StartupA2Z and Daniel Slayton on September 22, 2026, at Hacker Dojo for the Wiz story and a founder discussion on cloud security, product velocity, and enterprise growth.",
+    audienceHeading: "Who should attend",
+    audience:
+      "This session is for founders, CTOs, engineering leaders, security leaders, and technical operators who need to build trust and security without slowing product delivery.",
+    valueHeading: "What founders will learn",
+    value:
+      "Learn how the Wiz story connects cloud architecture, code-to-cloud security, engineering velocity, early security investment, and the enterprise trust required to accelerate larger sales.",
+    faqs: [
+      {
+        question: "What is the September 22 StartupA2Z special session about?",
+        answer:
+          "Daniel Slayton will share the Wiz story and lead a founder discussion on modern cloud architecture, building security into products from code to cloud, and turning security into an enterprise-growth advantage.",
+      },
+      {
+        question: "Who should attend The Wiz Story session?",
+        answer:
+          "The session is designed for startup founders, CTOs, heads of engineering, security leaders, and technical operators building cloud and AI products.",
+      },
+      {
+        question: "When and where is the StartupA2Z Wiz Story session?",
+        answer:
+          "The event takes place Tuesday, September 22, 2026, from 5:00 PM to 8:00 PM at Hacker Dojo, 855 Maude Avenue, Mountain View, California.",
+      },
+      {
+        question: "How do I register?",
+        answer:
+          "Registration is free through the official Luma event page while space remains available.",
+      },
+    ],
+    related: {
+      slug: "founders-pitch-mix-2026-09-29",
+      label: "September 29: Founders Pitch & Startup Networking",
+      description: "Continue with practical startup learning, founder pitches, feedback, and Bay Area networking.",
+    },
+  },
 };
 
 const EventDetail = () => {

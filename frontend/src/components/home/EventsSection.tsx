@@ -5,6 +5,12 @@ import { ArrowRight, CalendarDays, Clock3, MapPin } from "lucide-react";
 import { fetchAllEvents, type EventItem } from "@/data/events";
 import { Loader2 } from "lucide-react";
 
+const september22HomepageCover =
+  "/event-covers/startupa2z-daniel-slayton-wiz-story-september-22-2026-banner-v2.png?v=20260910";
+
+const getHomepageCover = (event: EventItem) =>
+  event.slug === "founders-pitch-mix-2026-09-22" ? september22HomepageCover : event.imageUrl;
+
 const EventsSection = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,11 +74,11 @@ const EventsSection = () => {
                   className="block aspect-[16/9] overflow-hidden border-b border-primary/10 bg-[#f8f0e3]"
                   aria-label={`${event.title} details`}
                 >
-                  {event.imageUrl ? (
+                  {getHomepageCover(event) ? (
                     <img
-                      src={event.imageUrl}
+                      src={getHomepageCover(event) || ""}
                       alt={`${event.title} cover`}
-                      className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
                       loading="lazy"
                     />
                   ) : (

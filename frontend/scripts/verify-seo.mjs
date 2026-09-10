@@ -120,6 +120,14 @@ requireText(sep15Html, "startupa2z-vivek-seed-to-series-c-luma-social-v2.png", "
 requireText(sep15Html, '"startDate": "2026-09-15T17:00:00-07:00"', "September 15 Event start date");
 requireText(sep15Html, '"eventStatus": "https://schema.org/EventScheduled"', "September 15 scheduled event status");
 
+const sep22Html = readRoute("/events/founders-pitch-mix-2026-09-22");
+requireText(sep22Html, "Special Session for Founders: The Wiz Story", "September 22 Wiz story title");
+requireText(sep22Html, "Daniel Slayton", "September 22 speaker identity");
+requireText(sep22Html, "daniel-slayton-wiz-story-september-22-2026-square-v2.png", "September 22 social image");
+requireText(sep22Html, '"startDate": "2026-09-22T17:00:00-07:00"', "September 22 Event start date");
+requireText(sep22Html, '"eventStatus": "https://schema.org/EventScheduled"', "September 22 scheduled event status");
+rejectText(sep22Html, "Kevin Cooke", "September 22 superseded speaker");
+
 const robots = fs.readFileSync(path.join(dist, "robots.txt"), "utf8");
 requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");
 requireText(robots, "Sitemap: https://startupa2z.org/sitemap.xml", "robots.txt");
