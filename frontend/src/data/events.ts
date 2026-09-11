@@ -55,12 +55,9 @@ const pitchMixAgenda = [
 const september22WizStoryAgenda = [
   { time: "5:00 PM", item: "Arrival and founder networking" },
   { time: "5:30 PM", item: "Welcome and introduction by Satish" },
-  { time: "5:40 PM", item: "The Wiz story and modern cloud architecture" },
-  { time: "6:00 PM", item: "Securing the cloud without slowing velocity" },
-  { time: "6:20 PM", item: "Injecting security directly into the product: code to cloud" },
-  { time: "6:40 PM", item: "Startup ROI and accelerating enterprise sales" },
-  { time: "6:55 PM", item: "Interactive founder discussion and open Q&A" },
-  { time: "7:10 PM", item: "Post-session networking" },
+  { time: "5:40 PM", item: "Daniel's background, the Wiz business story, and challenges along the journey" },
+  { time: "6:20 PM", item: "Partnership opportunities, partner-service demand, and founder discussion" },
+  { time: "7:00 PM", item: "Networking and one-to-one conversations" },
 ];
 
 const pitchMixEvents: EventItem[] = [
@@ -84,7 +81,7 @@ const pitchMixEvents: EventItem[] = [
       ? "A special StartupA2Z session with Daniel Slayton on the Wiz story, cloud and AI security, product security, and enterprise growth."
       : `A free Bay Area founder pitch and startup networking event at Hacker Dojo on ${date}.`,
     longDesc: isSeptember22WizStory
-      ? "StartupA2Z brings founders, CTOs, heads of engineering, and technical leaders together for a special session for founders: The Wiz Story. Daniel Slayton will share the company journey and lead an open discussion on modern cloud architecture, building security into the product from code to cloud, protecting engineering velocity, the ROI of early security investments, and how stronger security can accelerate enterprise sales."
+      ? "Too many founders build before validating a real requirement. Daniel Slayton will share his background, the Wiz business story, and the challenges encountered during the journey, followed by a focused discussion of partnership opportunities and the growing demand for security and cloud partner services."
       : pitchMixLongDescription(date),
     agenda: isSeptember22WizStory ? september22WizStoryAgenda : pitchMixAgenda,
     speakers: isSeptember22WizStory

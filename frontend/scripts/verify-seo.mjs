@@ -119,6 +119,14 @@ requireText(sep15Html, "Vivek Somani", "September 15 speaker identity");
 requireText(sep15Html, "startupa2z-vivek-seed-to-series-c-luma-social-v2.png", "September 15 social image");
 requireText(sep15Html, '"startDate": "2026-09-15T17:00:00-07:00"', "September 15 Event start date");
 requireText(sep15Html, '"eventStatus": "https://schema.org/EventScheduled"', "September 15 scheduled event status");
+requireText(sep15Html, "Why This Session Matters", "September 15 reusable event template");
+requireText(sep15Html, "The 100-Minute Masterclass", "September 15 session timing");
+requireText(sep15Html, "5:40–7:20 PM", "September 15 masterclass range");
+requireText(sep15Html, "startupa2z-homepage-2026-09-11.png", "September 15 StartupA2Z screenshot");
+requireText(sep15Html, "Previous StartupA2Z Sessions", "September 15 previous sessions");
+if (sep15Html.indexOf("Previous StartupA2Z Sessions") < sep15Html.indexOf("About StartupA2Z")) {
+  throw new Error("September 15 reusable event template: previous sessions must appear after About StartupA2Z");
+}
 
 const sep22Html = readRoute("/events/founders-pitch-mix-2026-09-22");
 requireText(sep22Html, "Special Session for Founders: The Wiz Story", "September 22 Wiz story title");
@@ -127,6 +135,15 @@ requireText(sep22Html, "daniel-slayton-wiz-story-september-22-2026-square-v2.png
 requireText(sep22Html, '"startDate": "2026-09-22T17:00:00-07:00"', "September 22 Event start date");
 requireText(sep22Html, '"eventStatus": "https://schema.org/EventScheduled"', "September 22 scheduled event status");
 rejectText(sep22Html, "Kevin Cooke", "September 22 superseded speaker");
+requireText(sep22Html, "Why This Session Matters", "September 22 reusable event template");
+requireText(sep22Html, "The 80-Minute Wiz Session", "September 22 session timing");
+requireText(sep22Html, "5:40–6:20 PM", "September 22 background range");
+requireText(sep22Html, "6:20–7:00 PM", "September 22 partnership range");
+requireText(sep22Html, "startupa2z-homepage-2026-09-11.png", "September 22 StartupA2Z screenshot");
+requireText(sep22Html, "Previous StartupA2Z Sessions", "September 22 previous sessions");
+if (sep22Html.indexOf("Previous StartupA2Z Sessions") < sep22Html.indexOf("About StartupA2Z")) {
+  throw new Error("September 22 reusable event template: previous sessions must appear after About StartupA2Z");
+}
 
 const robots = fs.readFileSync(path.join(dist, "robots.txt"), "utf8");
 requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");

@@ -35,6 +35,12 @@ Confirm or explicitly mark unknown: event title, promise, audience, date, time, 
 - Luma descriptions must use real rich-text paragraphs, emphasized section labels, descriptive linked speaker/profile bullets, one bullet per learning outcome, and one bullet per timed agenda item. Never save newline-only plain text when formatting must survive.
 - Before saving Luma, verify distinct paragraphs and real list markers in the editor. After saving, verify the public event page's rendered spacing, bullets, timings, links, cover, title, date, and venue.
 
+## Reusable event page template
+- Order sections as: Why This Session Matters; What You Will Gain; About the Speaker; Who Should Attend; timed session breakdown; Agenda; About StartupA2Z; Previous StartupA2Z Sessions.
+- Keep Previous StartupA2Z Sessions last. For each selected session, include a linked recap title, a concise summary of what speakers discussed, one practical takeaway, one vertically separated group photo with a caption, and a gallery link.
+- About StartupA2Z should use a current homepage screenshot and a direct website link.
+- Store the full reusable reference at `docs/startupa2z-event-page-template.md`.
+
 ## Current working event: September 15, 2026
 - Luma event: https://luma.com/hmvkxmas
 - StartupA2Z route: /events/founders-pitch-mix-2026-09-15

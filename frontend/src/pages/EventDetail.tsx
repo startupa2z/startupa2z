@@ -24,6 +24,7 @@ import { openAuthDialog } from "@/lib/auth-ui";
 import { profileCompletionUrl } from "@/lib/member-profile";
 import EventSummaryDetail from "@/pages/EventSummaryDetail";
 import { getEventSummaryByEventSlug } from "@/data/eventSummaries";
+import { eventPageContent, previousStartupA2ZSessions } from "@/data/eventPageContent";
 
 type EventSearchContent = {
   title: string;
@@ -270,6 +271,7 @@ const EventDetail = () => {
   if (eventSummary) return <EventSummaryDetail summarySlug={eventSummary.slug} />;
 
   const searchContent = eventSearchContent[event.slug];
+  const pageContent = eventPageContent[event.slug];
   const eventCanonical = `https://startupa2z.org/events/${event.slug}`;
   const absoluteImage = event.imageUrl
     ? event.imageUrl.startsWith("http")
@@ -466,16 +468,69 @@ const EventDetail = () => {
                 loading="lazy"
               />
 
-              <div>
+              {pageContent ? (
+                <div className="space-y-10">
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">Why This Session Matters</h2>
+                    <div className="space-y-4 text-muted-foreground leading-7">
+                      {pageContent.why.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">What You Will Gain</h2>
+                    <ul className="space-y-3">
+                      {pageContent.value.map((item) => (
+                        <li key={item.title} className="rounded-xl border border-border bg-card p-4 leading-7">
+                          <strong className="text-primary">{item.title}:</strong>{" "}
+                          <span className="text-muted-foreground">{item.description}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">{pageContent.speakerHeading}</h2>
+                    <div className="space-y-4 text-muted-foreground leading-7">
+                      {pageContent.speaker.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {pageContent.speakerLinks.map((link) => (
+                        <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary">
+                          {link.label} <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">Who Should Attend</h2>
+                    <p className="text-muted-foreground leading-7">{pageContent.audience}</p>
+                  </section>
+
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">{pageContent.sessionHeading}</h2>
+                    <p className="text-muted-foreground leading-7">{pageContent.sessionIntro}</p>
+                    <ol className="mt-4 space-y-3">
+                      {pageContent.sessionSegments.map((segment) => (
+                        <li key={`${segment.time}-${segment.title}`} className="rounded-xl border border-secondary/20 bg-secondary/5 p-4 leading-7">
+                          <strong className="text-primary">{segment.time} · {segment.title}:</strong>{" "}
+                          <span className="text-muted-foreground">{segment.description}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                </div>
+              ) : <div>
                 <h2 className="font-heading text-2xl font-bold text-primary mb-4">
                   About this event
                 </h2>
                 <p className="text-muted-foreground leading-relaxed text-base">
                   {event.longDesc}
                 </p>
-              </div>
+              </div>}
 
-              {searchContent && (
+              {searchContent && !pageContent && (
                 <div className="grid gap-6 sm:grid-cols-2">
                   <article className="rounded-2xl border border-border bg-card p-6">
                     <h2 className="font-heading text-xl font-bold text-primary">
@@ -517,7 +572,7 @@ const EventDetail = () => {
                 </div>
               )}
 
-              {event.speakers.length > 0 && (
+              {event.speakers.length > 0 && !pageContent && (
                 <div>
                   <h2 className="font-heading text-2xl font-bold text-primary mb-4">
                     Speakers & hosts
@@ -609,6 +664,42 @@ const EventDetail = () => {
                   </h2>
                   <p className="mt-2 leading-7 text-muted-foreground">{searchContent.related.description}</p>
                 </section>
+              )}
+
+              {pageContent && (
+                <>
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">About StartupA2Z</h2>
+                    <a href="https://startupa2z.org/" className="font-semibold text-secondary hover:underline">Visit StartupA2Z.org</a>
+                    <a href="https://startupa2z.org/" className="mt-4 block" aria-label="Visit the StartupA2Z homepage">
+                      <img
+                        src="/event-media/startupa2z-homepage-2026-09-11.png"
+                        alt="Current StartupA2Z homepage"
+                        className="w-full rounded-2xl border border-border shadow-[0_12px_34px_rgba(0,0,0,0.12)]"
+                        loading="lazy"
+                      />
+                    </a>
+                  </section>
+
+                  <section>
+                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">Previous StartupA2Z Sessions</h2>
+                    <p className="mb-6 text-muted-foreground leading-7">StartupA2Z has grown through practical sessions where founders learn, share openly, and help one another move forward.</p>
+                    <div className="space-y-10">
+                      {previousStartupA2ZSessions.map((session) => (
+                        <article key={session.recapUrl} className="space-y-4">
+                          <h3 className="font-heading text-xl font-bold text-primary">
+                            <Link to={session.recapUrl} className="hover:text-secondary hover:underline">{session.title}</Link>
+                          </h3>
+                          <p className="text-muted-foreground leading-7">{session.summary}</p>
+                          <p className="leading-7"><strong className="text-primary">Takeaway:</strong> <span className="text-muted-foreground">{session.takeaway}</span></p>
+                          <img src={session.image} alt={session.imageAlt} className="w-full rounded-2xl border border-border object-cover" loading="lazy" />
+                          <p className="text-sm italic text-muted-foreground">{session.caption}</p>
+                          <Link to={session.galleryUrl} className="font-semibold text-secondary hover:underline">View the full photo gallery</Link>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                </>
               )}
             </div>
 
