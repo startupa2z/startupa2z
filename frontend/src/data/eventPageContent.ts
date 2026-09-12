@@ -9,17 +9,6 @@ export type EventSessionSegment = {
   description: string;
 };
 
-export type PreviousSession = {
-  title: string;
-  recapUrl: string;
-  summary: string;
-  takeaway: string;
-  image: string;
-  imageAlt: string;
-  caption: string;
-  galleryUrl: string;
-};
-
 export type EventPageContent = {
   why: string[];
   value: Array<{ title: string; description: string }>;
@@ -31,45 +20,6 @@ export type EventPageContent = {
   sessionIntro: string;
   sessionSegments: EventSessionSegment[];
 };
-
-export const previousStartupA2ZSessions: PreviousSession[] = [
-  {
-    title: "August 12 · Founder Fundamentals and Product Demonstrations",
-    recapUrl: "/events/startup-a-to-z-hacker-dojo-august-12",
-    summary:
-      "Founders shared work across repeatable AI-video production, accessible hands-on computing, easier FPGA deployment, and continuous application security.",
-    takeaway:
-      "The strongest products remove a specific constraint, fit the user's real workflow, and make learning or feedback faster.",
-    image: "/event-gallery/2026-08-12/event-01-20.jpg",
-    imageAlt: "StartupA2Z August 12 founder session group photo",
-    caption: "Founders and builders at the August 12 StartupA2Z session at Hacker Dojo.",
-    galleryUrl: "/gallery/startup-a-to-z-hacker-dojo-august-12",
-  },
-  {
-    title: "August 25 · Founder Stories, Product Demos, and Direct Feedback",
-    recapUrl: "/events/founders-pitch-mix-2026-08-25",
-    summary:
-      "Founders spoke about freight-pricing automation, what traction does—and does not—prove, post-quantum wallet protection, and other real product journeys.",
-    takeaway:
-      "Build around a recurring customer problem, reduce adoption friction, and treat traction as evidence rather than automatic proof that the current direction is right.",
-    image: "/event-gallery/2026-08-25/event-02-01.jpg",
-    imageAlt: "StartupA2Z August 25 founder session group photo",
-    caption: "Founders, operators, and community members after the August 25 session.",
-    galleryUrl: "/gallery/founders-pitch-mix-2026-08-25",
-  },
-  {
-    title: "September 1 · Hands-On Go-to-Market Workshop",
-    recapUrl: "/events/founder-networking-workshop-2026-09-01",
-    summary:
-      "Raj Badarinath guided founders through ideal customers, buying signals, differentiation, category, positioning, messaging, and the path from product to repeatable revenue.",
-    takeaway:
-      "Diagnose the GTM system first, prove a focused customer wedge, and only then scale activity.",
-    image: "/event-gallery/2026-09-01/event-03-01.jpg",
-    imageAlt: "StartupA2Z September 1 go-to-market session group photo",
-    caption: "StartupA2Z founders and builders at the September 1 GTM workshop.",
-    galleryUrl: "/gallery/founder-networking-workshop-2026-09-01",
-  },
-];
 
 export const eventPageContent: Record<string, EventPageContent> = {
   "founders-pitch-mix-2026-09-22": {

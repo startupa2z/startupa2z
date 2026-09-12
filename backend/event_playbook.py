@@ -36,9 +36,9 @@ Confirm or explicitly mark unknown: event title, promise, audience, date, time, 
 - Before saving Luma, verify distinct paragraphs and real list markers in the editor. After saving, verify the public event page's rendered spacing, bullets, timings, links, cover, title, date, and venue.
 
 ## Reusable event page template
-- Order sections as: Why This Session Matters; What You Will Gain; About the Speaker; Who Should Attend; timed session breakdown; Agenda; About StartupA2Z; Previous StartupA2Z Sessions.
-- Keep Previous StartupA2Z Sessions last. For each selected session, include a linked recap title, a concise summary of what speakers discussed, one practical takeaway, one vertically separated group photo with a caption, and a gallery link.
-- About StartupA2Z should use a current homepage screenshot and a direct website link.
+- On the StartupA2Z website, order sections as: Why This Session Matters; What You Will Gain; About the Speaker; Who Should Attend; timed session breakdown; Agenda. Stop there so the page stays focused on the current event and registration CTA.
+- Never add an About StartupA2Z section, a screenshot of the website, or previous-session recaps to a StartupA2Z website event page; those elements duplicate the host website.
+- On Luma only, follow the core sections with About StartupA2Z and Previous StartupA2Z Sessions. Keep previous sessions last and include a linked recap title, concise summary, one practical takeaway, one vertically separated group photo with a caption, and a gallery link for each selected session.
 - Store the full reusable reference at `docs/startupa2z-event-page-template.md`.
 
 ## Current working event: September 15, 2026

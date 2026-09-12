@@ -122,11 +122,9 @@ requireText(sep15Html, '"eventStatus": "https://schema.org/EventScheduled"', "Se
 requireText(sep15Html, "Why This Session Matters", "September 15 reusable event template");
 requireText(sep15Html, "The 100-Minute Masterclass", "September 15 session timing");
 requireText(sep15Html, "5:40–7:20 PM", "September 15 masterclass range");
-requireText(sep15Html, "startupa2z-homepage-2026-09-11.png", "September 15 StartupA2Z screenshot");
-requireText(sep15Html, "Previous StartupA2Z Sessions", "September 15 previous sessions");
-if (sep15Html.indexOf("Previous StartupA2Z Sessions") < sep15Html.indexOf("About StartupA2Z")) {
-  throw new Error("September 15 reusable event template: previous sessions must appear after About StartupA2Z");
-}
+rejectText(sep15Html, "About StartupA2Z", "September 15 avoids self-promotional duplication");
+rejectText(sep15Html, "Previous StartupA2Z Sessions", "September 15 keeps focus on the current event");
+rejectText(sep15Html, "startupa2z-homepage-2026-09-11.png", "September 15 avoids linking the website to itself");
 
 const sep22Html = readRoute("/events/founders-pitch-mix-2026-09-22");
 requireText(sep22Html, "Special Session for Founders: The Wiz Story", "September 22 Wiz story title");
@@ -139,11 +137,9 @@ requireText(sep22Html, "Why This Session Matters", "September 22 reusable event 
 requireText(sep22Html, "The 80-Minute Wiz Session", "September 22 session timing");
 requireText(sep22Html, "5:40–6:20 PM", "September 22 background range");
 requireText(sep22Html, "6:20–7:00 PM", "September 22 partnership range");
-requireText(sep22Html, "startupa2z-homepage-2026-09-11.png", "September 22 StartupA2Z screenshot");
-requireText(sep22Html, "Previous StartupA2Z Sessions", "September 22 previous sessions");
-if (sep22Html.indexOf("Previous StartupA2Z Sessions") < sep22Html.indexOf("About StartupA2Z")) {
-  throw new Error("September 22 reusable event template: previous sessions must appear after About StartupA2Z");
-}
+rejectText(sep22Html, "About StartupA2Z", "September 22 avoids self-promotional duplication");
+rejectText(sep22Html, "Previous StartupA2Z Sessions", "September 22 keeps focus on the current event");
+rejectText(sep22Html, "startupa2z-homepage-2026-09-11.png", "September 22 avoids linking the website to itself");
 
 const robots = fs.readFileSync(path.join(dist, "robots.txt"), "utf8");
 requireText(robots, "User-agent: OAI-SearchBot", "robots.txt");

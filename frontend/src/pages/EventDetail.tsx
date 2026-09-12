@@ -24,7 +24,7 @@ import { openAuthDialog } from "@/lib/auth-ui";
 import { profileCompletionUrl } from "@/lib/member-profile";
 import EventSummaryDetail from "@/pages/EventSummaryDetail";
 import { getEventSummaryByEventSlug } from "@/data/eventSummaries";
-import { eventPageContent, previousStartupA2ZSessions } from "@/data/eventPageContent";
+import { eventPageContent } from "@/data/eventPageContent";
 
 type EventSearchContent = {
   title: string;
@@ -666,41 +666,6 @@ const EventDetail = () => {
                 </section>
               )}
 
-              {pageContent && (
-                <>
-                  <section>
-                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">About StartupA2Z</h2>
-                    <a href="https://startupa2z.org/" className="font-semibold text-secondary hover:underline">Visit StartupA2Z.org</a>
-                    <a href="https://startupa2z.org/" className="mt-4 block" aria-label="Visit the StartupA2Z homepage">
-                      <img
-                        src="/event-media/startupa2z-homepage-2026-09-11.png"
-                        alt="Current StartupA2Z homepage"
-                        className="w-full rounded-2xl border border-border shadow-[0_12px_34px_rgba(0,0,0,0.12)]"
-                        loading="lazy"
-                      />
-                    </a>
-                  </section>
-
-                  <section>
-                    <h2 className="font-heading text-2xl font-bold text-primary mb-4">Previous StartupA2Z Sessions</h2>
-                    <p className="mb-6 text-muted-foreground leading-7">StartupA2Z has grown through practical sessions where founders learn, share openly, and help one another move forward.</p>
-                    <div className="space-y-10">
-                      {previousStartupA2ZSessions.map((session) => (
-                        <article key={session.recapUrl} className="space-y-4">
-                          <h3 className="font-heading text-xl font-bold text-primary">
-                            <Link to={session.recapUrl} className="hover:text-secondary hover:underline">{session.title}</Link>
-                          </h3>
-                          <p className="text-muted-foreground leading-7">{session.summary}</p>
-                          <p className="leading-7"><strong className="text-primary">Takeaway:</strong> <span className="text-muted-foreground">{session.takeaway}</span></p>
-                          <img src={session.image} alt={session.imageAlt} className="w-full rounded-2xl border border-border object-cover" loading="lazy" />
-                          <p className="text-sm italic text-muted-foreground">{session.caption}</p>
-                          <Link to={session.galleryUrl} className="font-semibold text-secondary hover:underline">View the full photo gallery</Link>
-                        </article>
-                      ))}
-                    </div>
-                  </section>
-                </>
-              )}
             </div>
 
             {/* Sidebar */}
