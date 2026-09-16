@@ -51,6 +51,7 @@ const ROUTES = [
   '/gallery/startup-a-to-z-hacker-dojo-august-12',
   '/gallery/founders-pitch-mix-2026-08-25',
   '/gallery/founder-networking-workshop-2026-09-01',
+  '/gallery/founders-pitch-mix-2026-09-15',
   '/contact',
   '/sponsorship',
 ]

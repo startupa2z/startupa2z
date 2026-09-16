@@ -170,7 +170,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
   const canonical = `https://startupa2z.org/events/${summary.eventSlug}`;
   const absoluteCoverImage = new URL(summary.coverImage, "https://startupa2z.org").toString();
   const primarySectionAnchor = summary.recapSections?.length ? "workshop-recap" : "founder-journeys";
-  const primarySectionLabel = summary.recapSections?.length ? "Read workshop recap" : "Stories & demos";
+  const primarySectionLabel = summary.recapSections?.length ? `Read ${(summary.recapLabel ?? "Workshop recap").toLowerCase()}` : "Stories & demos";
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -209,6 +209,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
         image: absoluteCoverImage,
         datePublished: summary.startDateIso.slice(0, 10),
         mainEntityOfPage: canonical,
+        citation: summary.source?.url,
         publisher: {
           "@type": "Organization",
           name: "StartupA2Z.org",
@@ -239,7 +240,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
       />
 
       <section
-        className="gradient-hero-solid text-white"
+        className="gradient-hero-solid px-4 text-white"
         style={{ paddingTop: "calc(64px + clamp(2rem, 5vw, 4rem))" }}
       >
         <div className="container-narrow pb-[clamp(3rem,6vw,5rem)]">
@@ -303,12 +304,12 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
 
             {summary.recapSections && summary.recapSections.length > 0 && (
               <section id="workshop-recap" className="scroll-mt-24">
-                <p className="label-overline mb-3">Workshop recap</p>
+                <p className="label-overline mb-3">{summary.recapLabel ?? "Workshop recap"}</p>
                 <h2 className="max-w-3xl font-heading text-3xl font-bold text-primary md:text-4xl">
-                  Diagnose before trying to scale
+                  {summary.recapHeading ?? "Diagnose before trying to scale"}
                 </h2>
                 <p className="mt-4 max-w-3xl text-lg leading-8 text-muted-foreground">
-                  The workshop followed the GTM decisions in the order founders need to make them. The photographs below move with that story, from the framework in the room to the discussions around the tables.
+                  {summary.recapIntro ?? "The workshop followed the GTM decisions in the order founders need to make them. The photographs below move with that story, from the framework in the room to the discussions around the tables."}
                 </p>
 
                 <div className="mt-10 space-y-10">
@@ -322,6 +323,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                           <img
                             src={section.image}
                             alt={section.imageAlt}
+                            loading="lazy"
                             className="h-full w-full object-cover"
                           />
                         </div>
@@ -339,6 +341,11 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                         <div className="mt-5 space-y-4 text-base leading-7 text-muted-foreground">
                           {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                         </div>
+                        {section.sourceTime && summary.source && (
+                          <a href={summary.source.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline">
+                            Transcript: {section.sourceTime} <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
                         {section.bullets && (
                           <ul className="mt-5 space-y-2">
                             {section.bullets.map((bullet) => (
@@ -376,7 +383,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
               </section>
             )}
 
-            <section id="founder-journeys" className="scroll-mt-24">
+            {(summary.founderStories.length > 0 || summary.recordings?.length) ? <section id="founder-journeys" className="scroll-mt-24">
               <p className="label-overline mb-3">{summary.recapSections ? "Workshop framework" : "The StartupA2Z difference"}</p>
               <h2 className="font-heading text-3xl font-bold text-primary">{summary.recapSections ? "The GTM Blueprint" : "Founder stories and product demos"}</h2>
               <p className="mt-4 max-w-3xl leading-7 text-muted-foreground">
@@ -611,6 +618,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
               </div>
             </section>
 
+            : null}
             {summary.audiencePhotos && summary.audiencePhotos.length > 0 && (
               <section id="audience-pitches" className="scroll-mt-24">
                 <p className="label-overline mb-3">{summary.communityPhotoLabel ?? "Community stage"}</p>
@@ -654,26 +662,26 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
             <nav aria-label="Event summary sections" className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">Explore this event</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Jump to a section or open a speaker profile.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{summary.founderStories.length > 0 ? "Jump to a section or open a speaker profile." : "Jump to a section or explore the event gallery."}</p>
               <div className="mt-5 grid gap-2">
                 <a href="#event-overview" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <BookOpen className="h-4 w-4" /> Event overview
                 </a>
                 {summary.recapSections && (
                   <a href="#workshop-recap" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
-                    <BookOpen className="h-4 w-4" /> Workshop recap
+                    <BookOpen className="h-4 w-4" /> {summary.recapLabel ?? "Workshop recap"}
                   </a>
                 )}
-                <a href="#founder-journeys" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
+                {summary.founderStories.length > 0 && <a href="#founder-journeys" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <Users className="h-4 w-4" /> {summary.recapSections ? "GTM Blueprint" : "Stories & demos"}
-                </a>
+                </a>}
                 <a href="#founder-lessons" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary hover:text-secondary">
                   <Lightbulb className="h-4 w-4" /> Key lessons
                 </a>
               </div>
             </nav>
 
-            <section aria-labelledby="founder-profile-links" className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
+            {summary.founderStories.length > 0 && <section aria-labelledby="founder-profile-links" className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
               <h2 id="founder-profile-links" className="font-heading text-xl font-bold text-primary">Speakers and teams</h2>
               <div className="mt-4 space-y-3">
                 {summary.founderStories.map((story) => (
@@ -707,18 +715,25 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
                   </article>
                 ))}
               </div>
-            </section>
+            </section>}
 
-            <div className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
+            {summary.source ? <section className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-secondary">Session recording</p>
+              <h2 className="mt-3 font-heading text-xl font-bold text-primary">{summary.source.presenter}</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{summary.source.note}</p>
+              <a href={summary.source.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">{summary.source.label}<ExternalLink className="h-4 w-4 shrink-0" /></a>
+            </section> : <div className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
               <BookOpen className="h-7 w-7 text-secondary" />
               <h2 className="mt-4 font-heading text-xl font-bold text-primary">Evidence-backed recap</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 Speaker names, roles, and company descriptions were checked against session photos and public company or speaker sources. Checked-in attendance remains unpublished until verified.
               </p>
-            </div>
+            </div>}
             <div className="rounded-3xl border border-border bg-surface-1 p-6">
+              {!summary.source && <>
               <div className="flex items-center gap-3"><Users className="h-5 w-5 text-secondary" /><span className="font-bold text-primary">Attendance</span></div>
               <p className="mt-2 text-sm text-muted-foreground">Use checked-in attendance only.</p>
+              </>}
               <div className="mt-5 flex items-center gap-3"><MapPin className="h-5 w-5 text-secondary" /><span className="font-bold text-primary">Location</span></div>
               <p className="mt-2 text-sm text-muted-foreground">{summary.address}</p>
             </div>

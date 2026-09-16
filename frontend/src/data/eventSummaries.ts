@@ -1,3 +1,5 @@
+import { september15Gallery } from "./september15Gallery";
+
 export type FounderStory = {
   anchor: string;
   founders: string;
@@ -37,6 +39,10 @@ export type EventSummary = {
   galleryPath?: string;
   summary: string;
   program: string[];
+  recapHeading?: string;
+  recapIntro?: string;
+  recapLabel?: string;
+  source?: { url: string; label: string; presenter: string; note: string };
   recordings?: Array<{
     anchor: string;
     company: string;
@@ -55,6 +61,7 @@ export type EventSummary = {
     bullets?: string[];
     image: string;
     imageAlt: string;
+    sourceTime?: string;
   }>;
   gtmSequence?: string[];
   founderStories: FounderStory[];
@@ -69,6 +76,90 @@ export type EventSummary = {
 };
 
 export const eventSummaries: EventSummary[] = [
+  {
+    slug: "hacker-dojo-september-15-2026",
+    eventSlug: september15Gallery.slug,
+    title: "September 15 at Hacker Dojo: From Startup Story to Business Fundamentals",
+    eventTitle: september15Gallery.title,
+    date: september15Gallery.date,
+    startDateIso: "2026-09-15T17:00:00-07:00",
+    endDateIso: "2026-09-15T20:00:00-07:00",
+    venue: "Hacker Dojo, Mountain View",
+    address: "855 Maude Ave, Mountain View, CA 94043",
+    coverImage: september15Gallery.photos[0].src,
+    coverImageAlt: september15Gallery.photos[0].alt,
+    galleryPath: september15Gallery.galleryPath,
+    summary: "What Raises Your Seed Round Will Sink Your Series C was the premise of Vivek Somani’s September 15 masterclass. Through Business Lifecycle Economics and audience questions, he explored how a company’s story, operating metrics, funding choices, and leadership must evolve together. The session focused on fundamentals rather than founder pitches.",
+    program: [
+      "Map the business lifecycle from idea to growth and maturity",
+      "Understand the shift from narrative to measurable performance",
+      "Discuss capital choices, bootstrapping, and investor expectations",
+      "Apply the framework to public-company examples and audience questions",
+    ],
+    recapLabel: "Masterclass recap",
+    recapHeading: "The business changes. The founder’s decisions must change too.",
+    recapIntro: "Vivek’s framework connected four decisions: how to explain the opportunity, which numbers to track, what capital to raise, and how to lead. These are the main lessons from the session.",
+    source: {
+      url: "https://videotobe.com/play/collection/wsp_usr_meera_datey_gmail_com/avd_startupa2z_sep_15_2026_vivek_somani_mp4_qa08",
+      label: "Watch the recording & read the transcript",
+      presenter: "Vivek Somani",
+      note: "Based on the session transcript, with timestamps for each topic. Lessons are paraphrased; automated transcription may contain errors.",
+    },
+    recapSections: [
+      {
+        eyebrow: "Know your stage",
+        title: "A compelling story needs increasing proof",
+        paragraphs: [
+          "Vivek described a progression from an idea to a product, a working business model, and scalable growth. Early conversations emphasize the problem and market opportunity; later ones need evidence that customers adopt, pay for, and keep using the product.",
+          "He cautioned against treating funding-round labels as rigid boundaries. The underlying business matters more than the letter attached to its latest raise.",
+        ],
+        sourceTime: "20:57–28:16 · 37:34–45:25 · 1:07:04",
+        image: september15Gallery.photos[0].thumbnail,
+        imageAlt: september15Gallery.photos[0].alt,
+      },
+      {
+        eyebrow: "Measure the business",
+        title: "Growth needs retention and unit economics",
+        paragraphs: [
+          "As a company scales, Vivek shifted the discussion toward customer acquisition cost, lifetime value, retention, and unit economics. More sales alone do not resolve a loss on each transaction.",
+          "As businesses mature, margins, cash generation, and returns on invested capital become more prominent. His point was to understand these measures early, then use the ones that explain the company’s current stage.",
+        ],
+        sourceTime: "44:53–50:40",
+        image: september15Gallery.photos[1].thumbnail,
+        imageAlt: september15Gallery.photos[1].alt,
+      },
+      {
+        eyebrow: "Choose capital deliberately",
+        title: "Funding should fit the company you want to build",
+        paragraphs: [
+          "Audience questions explored bootstrapping, control, and external investment. Vivek framed the choice around the opportunity and the founder’s goals: outside capital can accelerate growth, but also brings expectations and constraints.",
+          "He discussed both underfunding a promising business and raising more than it needs. On debt, he emphasized the obligation to service payments even when future revenue is uncertain.",
+        ],
+        sourceTime: "49:16–55:23 · 1:04:08–1:06:06",
+        image: september15Gallery.photos[2].thumbnail,
+        imageAlt: september15Gallery.photos[2].alt,
+      },
+      {
+        eyebrow: "Evolve the leadership",
+        title: "Build, scale, and defend require different strengths",
+        paragraphs: [
+          "The discussion moved from a founder’s vision to building an organization and defending a mature business. Leadership responsibilities and specialist hires change as the company grows.",
+          "In the closing company exercise, Vivek asked participants to look beyond age or public-listing status. Growth, profitability, capital discipline, balance-sheet strength, and competitive advantages help explain how a business actually behaves.",
+        ],
+        sourceTime: "55:23–1:03:15 · 1:10:41–1:36:12",
+        image: september15Gallery.photos[3].thumbnail,
+        imageAlt: september15Gallery.photos[3].alt,
+      },
+    ],
+    founderStories: [],
+    keyLessons: [
+      "Match the fundraising narrative to the evidence the business can support.",
+      "Understand retention and unit economics before relying on scale.",
+      "Choose investors and capital that fit the growth plan.",
+      "Adapt leadership as the company’s needs change.",
+    ],
+    status: "published",
+  },
   {
     slug: "hacker-dojo-september-1-2026",
     eventSlug: "founder-networking-workshop-2026-09-01",

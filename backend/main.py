@@ -16,10 +16,12 @@ from event_lifecycle import ensure_event_lifecycle_schema
 from pitch_applications import ensure_pitch_application_schema
 from routers import all_users, audience, auth, businesses, contact, events, pitch_applications, rsvp, stats, stripe_router
 from routers import admin
+from gallery_media import install_gallery_media
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    install_gallery_media()
     pool = await get_pool()
     await ensure_member_profile_schema(pool)
     await ensure_all_users_schema(pool)

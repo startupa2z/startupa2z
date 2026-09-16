@@ -79,6 +79,10 @@ test("header groups expose the expected destinations", async ({ page }) => {
 test("homepage gallery moves between dated events and opens the selected gallery", async ({ page }) => {
   await page.goto("/");
 
+  await expect(page.getByRole("link", { name: "Open gallery for September 15, 2026" })).toBeVisible();
+  await page.getByRole("button", { name: "Previous gallery: September 1, 2026" }).click();
+  await page.getByRole("button", { name: "Previous gallery: August 25, 2026" }).click();
+
   const august25Gallery = page.getByRole("link", { name: "Open gallery for August 25, 2026" });
   await expect(august25Gallery).toBeVisible();
   await expect(august25Gallery).toHaveAttribute("href", "/gallery/founders-pitch-mix-2026-08-25");

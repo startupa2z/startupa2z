@@ -7,6 +7,7 @@ import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
 import { fetchHomeStats, type HomeStats } from "@/lib/api";
 import SpecialEventBanner from "./SpecialEventBanner";
+import { september15Gallery } from "@/data/september15Gallery";
 
 const socialLinks = [
   { href: "https://luma.com/startupa2z", icon: CalendarDays, label: "Luma" },
@@ -24,6 +25,13 @@ const emptyStats: HomeStats = {
 };
 
 const galleryEvents = [
+  {
+    date: september15Gallery.date,
+    image: september15Gallery.photos[0].thumbnail,
+    href: september15Gallery.galleryPath,
+    alt: september15Gallery.photos[0].alt,
+    photoCount: september15Gallery.photos.length,
+  },
   {
     date: "September 1, 2026",
     image: "/event-gallery/2026-09-01/event-03-01.jpg",

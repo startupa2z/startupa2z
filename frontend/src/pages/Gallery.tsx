@@ -16,11 +16,13 @@ import {
 import CTABanner from "@/components/CTABanner";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
+import { september15Gallery } from "@/data/september15Gallery";
 
 interface GalleryPhoto {
   id: number;
   src: string;
   alt: string;
+  thumbnail?: string;
 }
 
 interface GalleryEvent {
@@ -39,6 +41,7 @@ interface GalleryEvent {
   galleryPath: string;
   description: string;
   photos: GalleryPhoto[];
+  hasRecap?: boolean;
 }
 
 const AUGUST_12_PHOTO_COUNT = 20;
@@ -146,7 +149,7 @@ const SEPTEMBER_1_EVENT: GalleryEvent = {
   photos: SEPTEMBER_1_PHOTOS,
 };
 
-const EVENTS = [SEPTEMBER_1_EVENT, AUGUST_25_EVENT, AUGUST_12_EVENT];
+const EVENTS: GalleryEvent[] = [september15Gallery, SEPTEMBER_1_EVENT, AUGUST_25_EVENT, AUGUST_12_EVENT];
 
 const GalleryLanding = () => (
   <PageLayout>
@@ -203,7 +206,7 @@ const GalleryLanding = () => (
                 className="group grid overflow-hidden rounded-[2rem] border border-black/[0.08] bg-white shadow-[0_22px_65px_rgba(20,45,35,0.09)] lg:grid-cols-[1.08fr_0.92fr]"
               >
                 <Link to={event.galleryPath} className="relative min-h-72 overflow-hidden bg-muted lg:min-h-[430px]">
-                  <img src={featuredPhoto.src} alt={featuredPhoto.alt} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" />
+                  <img src={featuredPhoto.thumbnail || featuredPhoto.src} alt={featuredPhoto.alt} loading={index === 0 ? "eager" : "lazy"} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md">
                     <Images className="h-4 w-4 text-secondary" /> {event.photos.length} photos
@@ -314,13 +317,13 @@ const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
     <PageLayout>
       <SEO
         title={`${event.title} Photo Gallery | StartupA2Z.org`}
-        description="Explore photos from StartupA2Z founder gatherings, pitch nights, startup demonstrations, and community events in the Bay Area."
+        description={event.description}
         canonical={`https://startupa2z.org${event.galleryPath}`}
         ogImage={`https://startupa2z.org${featuredPhoto.src}`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ImageGallery",
-          name: "StartupA2Z Event Gallery",
+          name: `${event.title} — ${event.date} Photo Gallery`,
           url: `https://startupa2z.org${event.galleryPath}`,
           datePublished: event.isoDate,
           associatedMedia: photos.map((photo) => ({
@@ -398,10 +401,10 @@ const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
                   </div>
                   <Link
                     to={event.recapPath}
-                    aria-label={`Read the ${event.date} event recap from the gallery hero image`}
+                    aria-label={event.hasRecap === false ? `View the ${event.date} event details` : `Read the ${event.date} event recap from the gallery hero image`}
                     className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-extrabold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-white hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
-                    Read event recap <ArrowUpRight className="h-4 w-4" />
+                    {event.hasRecap === false ? "View event details" : "Read event recap"} <ArrowUpRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
@@ -449,12 +452,12 @@ const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
 
               <Link
                 to={event.recapPath}
-                aria-label={`Read the ${event.date} event recap with founder stories, demos, and lessons`}
+                aria-label={event.hasRecap === false ? `View the ${event.date} session and speaker details` : `Read the ${event.date} event recap with founder stories, demos, and lessons`}
                 className="group flex w-full min-w-0 items-center justify-between gap-4 rounded-2xl bg-secondary px-5 py-4 text-white shadow-[0_12px_28px_rgba(232,137,26,0.28)] transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_16px_36px_rgba(27,75,57,0.24)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:w-[290px]"
               >
                 <span>
-                  <span className="block text-base font-extrabold">Read event recap</span>
-                  <span className="mt-1 block text-xs font-medium text-white/80">Founder stories, demos &amp; lessons</span>
+                  <span className="block text-base font-extrabold">{event.hasRecap === false ? "View event details" : "Read event recap"}</span>
+                  <span className="mt-1 block text-xs font-medium text-white/80">{event.hasRecap === false ? "Session topic & speaker information" : "Founder stories, demos & lessons"}</span>
                 </span>
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/15 transition-transform group-hover:translate-x-1">
                   <ArrowUpRight className="h-5 w-5" />
@@ -490,7 +493,7 @@ const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
                     aria-label={`Open photo ${index + 1} of ${photos.length}`}
                   >
                     <img
-                      src={photo.src}
+                      src={photo.thumbnail || photo.src}
                       alt={photo.alt}
                       loading={index < 5 ? "eager" : "lazy"}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035] group-hover:brightness-90"
@@ -621,7 +624,7 @@ const GalleryEventDetail = ({ event }: { event: GalleryEvent }) => {
                     aria-label={`View photo ${index + 1}`}
                     aria-current={index === lightboxIndex ? "true" : undefined}
                   >
-                    <img src={photo.src} alt="" className="h-full w-full object-cover" />
+                    <img src={photo.thumbnail || photo.src} alt="" className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
