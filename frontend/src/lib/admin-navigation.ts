@@ -3,6 +3,7 @@ import type { AdminSection } from "@/components/admin/AdminSidebar";
 const labels: Record<AdminSection, string> = {
   overview: "Overview",
   submissions: "Enquiries",
+  "pitch-applications": "Pitch applications",
   members: "Members",
   "all-users": "All Users",
   founders: "Speakers",

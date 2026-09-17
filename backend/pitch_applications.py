@@ -21,6 +21,11 @@ async def ensure_pitch_application_schema(pool) -> None:
                        ask_text TEXT,
                        offer_text TEXT,
                        milestone TEXT,
+                       traction TEXT,
+                       pitch_deck_url TEXT,
+                       support_needs JSONB NOT NULL DEFAULT '[]'::jsonb,
+                       support_timeline TEXT,
+                       paid_support_interest TEXT,
                        consent_to_review BOOLEAN NOT NULL DEFAULT false,
                        status TEXT NOT NULL DEFAULT 'draft' CHECK (
                            status IN ('draft', 'submitted', 'under_review', 'approved', 'declined', 'withdrawn')
@@ -29,6 +34,17 @@ async def ensure_pitch_application_schema(pool) -> None:
                        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
                        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
                    )"""
+            )
+            await connection.execute(
+                """ALTER TABLE pitch_applications
+                       ADD COLUMN IF NOT EXISTS traction TEXT,
+                       ADD COLUMN IF NOT EXISTS pitch_deck_url TEXT,
+                       ADD COLUMN IF NOT EXISTS support_needs JSONB NOT NULL DEFAULT '[]'::jsonb,
+                       ADD COLUMN IF NOT EXISTS support_timeline TEXT,
+                       ADD COLUMN IF NOT EXISTS paid_support_interest TEXT,
+                       ADD COLUMN IF NOT EXISTS admin_notes TEXT,
+                       ADD COLUMN IF NOT EXISTS reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL,
+                       ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ"""
             )
             await connection.execute(
                 """CREATE INDEX IF NOT EXISTS idx_pitch_applications_user_updated

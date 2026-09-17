@@ -33,29 +33,18 @@ test("real local OTP member completes and submits a pitch application", async ({
   await page.getByRole("button", { name: "Save and continue" }).click();
   await expect(page).toHaveURL(/\/welcome\?intent=pitch$/);
 
-  await page.getByText("Select an upcoming event").click();
+  await page.getByText("Choose an upcoming event").click();
   await page.getByRole("option").first().click();
-  await page.getByLabel("Startup name *").fill("Integration Test Labs");
+  await page.getByLabel("Startup name").fill("Integration Test Labs");
   await page.getByLabel("Website").fill("https://example.com");
-  await page.getByLabel("What does the startup do? *").fill("We validate the complete local pitch application integration path.");
-  await page.getByLabel("Proposed talk title").fill("A real end-to-end integration test");
+  await page.getByLabel("What does your startup do, and who is it for?").fill("We validate the complete local pitch application integration path.");
   await page.getByRole("button", { name: /Continue/ }).click();
 
-  await page.getByLabel("What problem did you identify? *").fill("The pitch workflow needed verification across the actual browser, API, email, and database.");
-  await page.getByLabel("What did you build and validate? *").fill("We built a guided application flow with autosaved drafts and verified submissions.");
-  await page.getByLabel("What made monetization difficult? *").fill("The original process required too much manual follow-up and inconsistent information.");
-  await page.getByLabel("What was the breakthrough? *").fill("A member-first form connected the full journey and removed repeated data entry.");
-  await page.getByRole("button", { name: /Continue/ }).click();
-
-  const lessons = page.getByPlaceholder(/One practical lesson/);
-  await lessons.nth(0).fill("Test the real integration");
-  await lessons.nth(1).fill("Save progress early");
-  await lessons.nth(2).fill("Prevent duplicates");
-  await page.getByLabel("Your ask *").fill("Review this test application");
-  await page.getByLabel("Your offer *").fill("A verified founder intake workflow");
-  await page.getByLabel("Current stage and next milestone").fill("Local end-to-end verification complete");
-  await page.getByRole("button", { name: /Continue/ }).click();
-  await page.getByText(/I confirm that StartupA2Z.org may review/).click();
+  await page.getByLabel("Pitch title").fill("A real end-to-end integration test");
+  await page.getByLabel("What problem are you solving?").fill("The pitch workflow needed verification across the actual browser, API, email, and database.");
+  await page.getByLabel("How does your product solve it?").fill("We built a guided application flow with autosaved drafts and verified submissions.");
+  await page.getByLabel("What evidence tells you this is working?").fill("The member and admin browser flows pass end to end.");
+  await page.getByLabel("What would you like from the audience?").fill("Review this test application");
   await page.getByRole("button", { name: "Submit pitch application" }).click();
 
   await expect(page.getByRole("heading", { name: "Pitch application submitted" })).toBeVisible();
@@ -80,10 +69,9 @@ test("real local OTP member completes and submits a pitch application", async ({
       solution: "We built a guided application flow with autosaved drafts and verified submissions.",
       monetization_challenge: "The original process required too much manual follow-up and inconsistent information.",
       breakthrough: "A member-first form connected the full journey and removed repeated data entry.",
-      lessons: ["Test the real integration", "Save progress early", "Prevent duplicates"],
+      lessons: [],
       ask_text: "Review this test application",
-      offer_text: "A verified founder intake workflow",
-      milestone: "Local end-to-end verification complete",
+      traction: "The member and admin browser flows pass end to end.",
       consent_to_review: true,
     },
   });

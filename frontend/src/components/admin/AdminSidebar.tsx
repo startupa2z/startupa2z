@@ -19,12 +19,14 @@ import {
   Globe2,
   ChevronDown,
   Rows3,
+  Presentation,
 } from "lucide-react";
 import type { JourneyStep } from "./campaign-demo";
 
 export type AdminSection =
   | "overview"
   | "submissions"
+  | "pitch-applications"
   | "members"
   | "all-users"
   | "founders"
@@ -47,10 +49,10 @@ type NavItem = {
   count?: number;
 };
 
-const COMMUNITY_IDS: AdminSection[] = ["startups", "members", "all-users", "founders", "submissions"];
+const COMMUNITY_IDS: AdminSection[] = ["startups", "members", "all-users", "founders", "pitch-applications", "submissions"];
 
 const groups = (
-  counts: { submissions: number; events: number; rsvps: number },
+  counts: { submissions: number; events: number; rsvps: number; pitchApplications: number },
 ): { label: string; items: NavItem[] }[] => [
   {
     label: "Workspace",
@@ -63,6 +65,7 @@ const groups = (
       { id: "members", label: "Members", icon: Users },
       { id: "all-users", label: "All Users", icon: UserRoundSearch },
       { id: "founders", label: "Speakers", icon: UserRoundSearch },
+      { id: "pitch-applications", label: "Pitch applications", icon: Presentation, count: counts.pitchApplications },
       { id: "submissions", label: "Enquiries", icon: Inbox, count: counts.submissions },
     ],
   },
@@ -87,7 +90,7 @@ const AdminSidebar = ({
 }: {
   active: AdminSection;
   onChange: (section: AdminSection) => void;
-  counts: { submissions: number; events: number; rsvps: number };
+  counts: { submissions: number; events: number; rsvps: number; pitchApplications: number };
   journeyStep: JourneyStep;
   onJourneyStepChange: (step: JourneyStep) => void;
 }) => {

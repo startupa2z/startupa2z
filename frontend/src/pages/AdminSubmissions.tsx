@@ -6,6 +6,7 @@ import {
   type AdminSubmission,
   type AdminRSVP,
   type AdminEvent,
+  type AdminPitchApplication,
   fetchAdminSubmissions,
   fetchAdminRsvps,
   fetchAdminEventById,
@@ -13,6 +14,7 @@ import {
   deleteAdminRsvp,
   updateAdminRsvpAttendance,
   deleteAdminEvent,
+  fetchAdminPitchApplications,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +58,7 @@ import MemberManagement from "@/components/admin/MemberManagement";
 import AllUsersManagement from "@/components/admin/AllUsersManagement";
 import SponsorPaymentManagement from "@/components/admin/SponsorPaymentManagement";
 import EventOperationsPlaybook from "@/components/admin/EventOperationsPlaybook";
+import PitchApplicationManagement from "@/components/admin/PitchApplicationManagement";
 import SEO from "@/components/SEO";
 import {
   Dialog,
@@ -103,6 +106,8 @@ const AdminSubmissions = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [rsvps, setRsvps] = useState<AdminRSVP[]>([]);
   const [rsvpsLoading, setRsvpsLoading] = useState(false);
+  const [pitchApplications, setPitchApplications] = useState<AdminPitchApplication[]>([]);
+  const [pitchApplicationsLoading, setPitchApplicationsLoading] = useState(false);
   const [rsvpSearch, setRsvpSearch] = useState("");
   const [rsvpEventFilter, setRsvpEventFilter] = useState<string>("all");
   const [attendeesOpen, setAttendeesOpen] = useState(false);
@@ -194,6 +199,22 @@ const AdminSubmissions = () => {
       });
     } finally {
       setRsvpsLoading(false);
+    }
+  };
+
+  const fetchPitchApplicationQueue = async () => {
+    setPitchApplicationsLoading(true);
+    try {
+      const { data } = await fetchAdminPitchApplications();
+      setPitchApplications(data ?? []);
+    } catch (err) {
+      toast({
+        title: "Failed to load pitch applications",
+        description: err instanceof ApiError ? err.message : "Unknown error.",
+        variant: "destructive",
+      });
+    } finally {
+      setPitchApplicationsLoading(false);
     }
   };
 
@@ -290,6 +311,7 @@ const AdminSubmissions = () => {
     fetchSubmissions();
     fetchEvents();
     fetchRSVPs();
+    fetchPitchApplicationQueue();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -419,7 +441,7 @@ const AdminSubmissions = () => {
           <AdminSidebar
             active={activeSection}
             onChange={setActiveSection}
-            counts={{ submissions: rows.length, events: adminEvents.length, rsvps: rsvps.length }}
+            counts={{ submissions: rows.length, events: adminEvents.length, rsvps: rsvps.length, pitchApplications: pitchApplications.filter((application) => application.status === "submitted").length }}
             journeyStep={journeyStep}
             onJourneyStepChange={setJourneyStep}
           />
@@ -433,7 +455,7 @@ const AdminSubmissions = () => {
                   {activeSection === "overview" ? "Everything that needs attention, in one place." : activeSection === "event-management" ? "Manage each event and continue directly into its campaign." : activeSection === "event-playbook" ? "Review and improve the operating prompt that guides every event from intake through verified release." : activeSection === "announcements" ? "Review the selected event's three message drafts and approve its local schedule." : "Manage this part of the StartupA2Z.org community."}
                 </p>
               </div>
-              {activeSection !== "submissions" && activeSection !== "members" && activeSection !== "all-users" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "event-playbook" && activeSection !== "rsvps" && activeSection !== "payments" && activeSection !== "overview" && (
+              {activeSection !== "submissions" && activeSection !== "pitch-applications" && activeSection !== "members" && activeSection !== "all-users" && activeSection !== "startups" && activeSection !== "event-management" && activeSection !== "event-playbook" && activeSection !== "rsvps" && activeSection !== "payments" && activeSection !== "overview" && (
                 <Badge variant="outline" className="w-fit">Visual template only</Badge>
               )}
             </section>
@@ -515,6 +537,10 @@ const AdminSubmissions = () => {
 
             <TabsContent value="startups" className="mt-0">
               <BusinessManagement />
+            </TabsContent>
+
+            <TabsContent value="pitch-applications" className="mt-0">
+              <PitchApplicationManagement applications={pitchApplications} setApplications={setPitchApplications} loading={pitchApplicationsLoading} onRefresh={fetchPitchApplicationQueue} />
             </TabsContent>
 
             <TabsContent value="members" className="mt-0">

@@ -61,6 +61,21 @@ class AdminDevLoginRequest(BaseModel):
     password: str
 
 
+@router.get("/methods")
+async def authentication_methods():
+    return {
+        "ok": True,
+        "data": {
+            "email": True,
+            "linkedin": bool(
+                settings.linkedin_client_id
+                and settings.linkedin_client_secret
+                and settings.linkedin_redirect_uri
+            ),
+        },
+    }
+
+
 @router.get("/me")
 async def get_member_profile(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("sub")
@@ -241,12 +256,17 @@ async def verify_otp(body: VerifyOtpRequest):
     if not record:
         raise HTTPException(400, "Invalid or expired OTP.")
 
-    await pool.execute("UPDATE otp_tokens SET used = true WHERE id = $1", record["id"])
-
     user = await pool.fetchrow(f"{MEMBER_SELECT} WHERE u.email = $1", email)
     if not user:
         if record["mode"] == "signin":
             raise HTTPException(400, "No account found with this email. Please sign up first.")
+
+    # Consume the code only after the requested authentication path is valid.
+    # A sign-in attempt for an unknown account must not turn a correct code into
+    # an "invalid code" error if the member needs to retry or change modes.
+    await pool.execute("UPDATE otp_tokens SET used = true WHERE id = $1", record["id"])
+
+    if not user:
         identity = await pool.fetchrow("INSERT INTO users (email) VALUES ($1) RETURNING id", email)
         user = await fetch_member_profile(pool, identity["id"])
 

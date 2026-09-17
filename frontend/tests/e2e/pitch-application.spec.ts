@@ -56,6 +56,11 @@ const application = (overrides: Record<string, unknown> = {}) => ({
   ask_text: "Introductions to design partners",
   offer_text: "Product validation lessons",
   milestone: "Convert three pilots into annual customers",
+  traction: "Three active customer pilots",
+  pitch_deck_url: "https://example.com/deck",
+  support_needs: ["customers", "gtm", "staffing"],
+  support_timeline: "right_now",
+  paid_support_interest: "actively_looking",
   consent_to_review: false,
   status: "draft",
   submitted_at: null,
@@ -81,7 +86,7 @@ async function mockBase(page: Page, current: ReturnType<typeof application> | nu
 }
 
 async function chooseEvent(page: Page) {
-  await page.getByText("Select an upcoming event").click();
+  await page.getByText("Choose an upcoming event").click();
   await page.getByRole("option", { name: /Future Founder Pitch/ }).click();
 }
 
@@ -101,67 +106,59 @@ test("member completes the pitch application from draft through submission", asy
 
   await page.goto("/welcome?intent=pitch");
   await chooseEvent(page);
-  await page.getByLabel("Startup name *").fill("Example Labs");
+  await page.getByLabel("Startup name").fill("Example Labs");
   await page.getByLabel("Website").fill("https://example.com");
-  await page.getByLabel("What does the startup do? *").fill("We solve a meaningful founder problem with a validated product.");
-  await page.getByLabel("Proposed talk title").fill("From founder problem to traction");
+  await page.getByLabel("What does your startup do, and who is it for?").fill("We solve a meaningful founder problem with a validated product.");
+  await page.getByRole("button", { name: "Customers", exact: true }).click();
+  await page.getByRole("button", { name: "Go-to-market (GTM)", exact: true }).click();
+  await page.getByRole("button", { name: "Hiring or staffing", exact: true }).click();
+  await page.getByLabel("How soon would you like help?").click();
+  await page.getByRole("option", { name: "Right now", exact: true }).click();
+  await page.getByLabel("Would you like StartupA2Z to connect you with trusted paid help?").click();
+  await page.getByRole("option", { name: "Yes, I am actively looking", exact: true }).click();
   await page.getByRole("button", { name: /Continue/ }).click();
   await expect(page.getByText("Draft saved")).toBeVisible();
 
-  await page.getByLabel("What problem did you identify? *").fill("Customers struggled with a fragmented workflow that wasted time every day.");
-  await page.getByLabel("What did you build and validate? *").fill("We built one focused workflow and validated it through customer pilots.");
-  await page.getByLabel("What made monetization difficult? *").fill("Early users liked the product but resisted our original pricing model.");
-  await page.getByLabel("What was the breakthrough? *").fill("We narrowed the buyer and changed packaging based on paid pilot evidence.");
-  await page.getByRole("button", { name: /Continue/ }).click();
-
-  const lessons = page.getByPlaceholder(/One practical lesson/);
-  await lessons.nth(0).fill("Validate the buyer");
-  await lessons.nth(1).fill("Test pricing early");
-  await lessons.nth(2).fill("Measure paid behavior");
-  await page.getByLabel("Your ask *").fill("Introductions to design partners");
-  await page.getByLabel("Your offer *").fill("Product validation lessons");
-  await page.getByLabel("Current stage and next milestone").fill("Convert three pilots into annual customers");
-  await page.getByRole("button", { name: /Continue/ }).click();
-
-  await page.getByText(/I confirm that StartupA2Z.org may review/).click();
+  await page.getByLabel("Pitch title").fill("From founder problem to traction");
+  await page.getByLabel("What problem are you solving?").fill("Customers struggled with a fragmented workflow that wasted time every day.");
+  await page.getByLabel("How does your product solve it?").fill("We built one focused workflow and validated it through customer pilots.");
+  await page.getByLabel("What evidence tells you this is working?").fill("Three active customer pilots");
+  await page.getByLabel("What would you like from the audience?").fill("Introductions to design partners");
+  await page.getByLabel("Pitch deck or demo link").fill("https://example.com/deck");
   await page.getByRole("button", { name: "Submit pitch application" }).click();
   await expect(page.getByRole("heading", { name: "Pitch application submitted" })).toBeVisible();
   await expect(page.getByText("submitted", { exact: true })).toBeVisible();
-  expect(draftPayloads).toHaveLength(3);
-  expect(draftPayloads[1]).toMatchObject({ id: draftId, problem: expect.stringContaining("fragmented workflow") });
+  expect(draftPayloads).toHaveLength(1);
+  expect(draftPayloads[0]).toMatchObject({ support_needs: ["customers", "gtm", "staffing"], support_timeline: "right_now", paid_support_interest: "actively_looking" });
   expect(submittedPayload).toMatchObject({ id: draftId, event_id: eventId, consent_to_review: true });
 });
 
-test("pitch form blocks incomplete and malformed entries before saving", async ({ page }) => {
+test("pitch form allows sparse answers and only blocks malformed links", async ({ page }) => {
   await mockBase(page);
   let draftCalls = 0;
   await page.route("**/api/pitch-applications/draft", async (route) => {
     draftCalls += 1;
     await route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, data: application() }) });
   });
+  await page.route("**/api/pitch-applications/submit", (route) => route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, data: application({ status: "submitted", submitted_at: now }) }) }));
   await page.goto("/welcome?intent=pitch");
-  await page.getByRole("button", { name: /Continue/ }).click();
-  await expect(page.getByRole("alert")).toHaveText("Select an event.");
-  await chooseEvent(page);
-  await page.getByLabel("Startup name *").fill("X");
-  await page.getByLabel("What does the startup do? *").fill("too short");
-  await page.getByRole("button", { name: /Continue/ }).click();
-  await expect(page.getByRole("alert")).toHaveText("Enter your startup name.");
-  await page.getByLabel("Startup name *").fill("Example Labs");
-  await page.getByLabel("What does the startup do? *").fill("A sufficiently complete description of this startup.");
   await page.getByLabel("Website").fill("example.com");
   await page.getByRole("button", { name: /Continue/ }).click();
   await expect(page.getByRole("alert")).toContainText("complete website URL");
   expect(draftCalls).toBe(0);
+  await page.getByLabel("Website").fill("");
+  await page.getByRole("button", { name: /Continue/ }).click();
+  await page.getByRole("button", { name: "Submit pitch application" }).click();
+  await expect(page.getByRole("heading", { name: "Pitch application submitted" })).toBeVisible();
 });
 
 test("saved draft resumes with all prior answers", async ({ page }) => {
   await mockBase(page, application());
   await page.goto("/welcome?intent=pitch");
   await expect(page.getByText(/Future Founder Pitch/).first()).toBeVisible();
-  await expect(page.getByLabel("Startup name *")).toHaveValue("Example Labs");
+  await expect(page.getByLabel("Startup name")).toHaveValue("Example Labs");
   await expect(page.getByLabel("Website")).toHaveValue("https://example.com");
-  await expect(page.getByLabel("What does the startup do? *")).toContainText("meaningful founder problem");
+  await expect(page.getByLabel("What does your startup do, and who is it for?")).toContainText("meaningful founder problem");
 });
 
 test("duplicate submission error remains visible and does not show false success", async ({ page }) => {
@@ -169,8 +166,7 @@ test("duplicate submission error remains visible and does not show false success
   await page.route("**/api/pitch-applications/draft", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, data: application() }) }));
   await page.route("**/api/pitch-applications/submit", (route) => route.fulfill({ status: 409, contentType: "application/json", body: JSON.stringify({ detail: "You already submitted a pitch application for this event." }) }));
   await page.goto("/welcome?intent=pitch");
-  for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: /Continue/ }).click();
-  await page.getByText(/I confirm that StartupA2Z.org may review/).click();
+  await page.getByRole("button", { name: /Continue/ }).click();
   await page.getByRole("button", { name: "Submit pitch application" }).click();
   await expect(page.getByRole("alert")).toHaveText("You already submitted a pitch application for this event.");
   await expect(page.getByRole("heading", { name: "Pitch application submitted" })).toHaveCount(0);

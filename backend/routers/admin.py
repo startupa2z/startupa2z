@@ -26,6 +26,7 @@ EventLifecycleStatus = Literal["draft", "published", "cancelled", "completed"]
 ContentType = Literal["announcement", "reminder", "follow_up"]
 ContentStatus = Literal["draft", "in_review", "approved", "scheduled", "published"]
 EVENT_PLAYBOOK_KEY = "event-operations"
+PitchApplicationStatus = Literal["submitted", "under_review", "approved", "declined"]
 
 
 def _slugify(s: str) -> str:
@@ -67,6 +68,83 @@ async def list_submissions(user: dict = Depends(require_admin)):
     pool = await get_pool()
     rows = await pool.fetch("SELECT * FROM contact_submissions ORDER BY created_at DESC")
     return {"ok": True, "data": [dict(r) for r in rows]}
+
+
+# ——— Pitch applications —————————————————————————————————————————————————————
+
+def _pitch_application_data(row) -> dict:
+    data = dict(row)
+    if isinstance(data.get("lessons"), str):
+        data["lessons"] = json.loads(data["lessons"])
+    if isinstance(data.get("support_needs"), str):
+        data["support_needs"] = json.loads(data["support_needs"])
+    for field in ("id", "user_id", "event_id", "reviewed_by"):
+        if data.get(field) is not None:
+            data[field] = str(data[field])
+    for field in ("submitted_at", "reviewed_at", "created_at", "updated_at"):
+        if data.get(field) is not None:
+            data[field] = data[field].isoformat()
+    return data
+
+
+class PitchApplicationReviewPayload(BaseModel):
+    status: PitchApplicationStatus
+    admin_notes: str | None = Field(default=None, max_length=4000)
+
+    @field_validator("admin_notes", mode="before")
+    @classmethod
+    def clean_notes(cls, value):
+        if value is None:
+            return None
+        cleaned = str(value).strip()
+        return cleaned or None
+
+
+@router.get("/pitch-applications")
+async def list_pitch_applications(user: dict = Depends(require_admin)):
+    pool = await get_pool()
+    rows = await pool.fetch(
+        """SELECT pa.*, u.email, mp.full_name, mp.company, mp.job_title
+             FROM pitch_applications pa
+             JOIN users u ON u.id = pa.user_id
+        LEFT JOIN member_profiles mp ON mp.user_id = pa.user_id
+            WHERE pa.status <> 'draft'
+            ORDER BY pa.submitted_at DESC NULLS LAST, pa.updated_at DESC"""
+    )
+    return {"ok": True, "data": [_pitch_application_data(row) for row in rows]}
+
+
+@router.patch("/pitch-applications/{application_id}")
+async def review_pitch_application(
+    application_id: uuid.UUID,
+    body: PitchApplicationReviewPayload,
+    user: dict = Depends(require_admin),
+):
+    pool = await get_pool()
+    reviewer_id = _created_by(user)
+    row = await pool.fetchrow(
+        """UPDATE pitch_applications
+              SET status = $1,
+                  admin_notes = $2,
+                  reviewed_by = $3,
+                  reviewed_at = now()
+            WHERE id = $4 AND status <> 'draft'
+        RETURNING *""",
+        body.status,
+        body.admin_notes,
+        reviewer_id,
+        application_id,
+    )
+    if not row:
+        raise HTTPException(404, "Pitch application not found.")
+    member = await pool.fetchrow(
+        """SELECT u.email, mp.full_name, mp.company, mp.job_title
+             FROM users u
+        LEFT JOIN member_profiles mp ON mp.user_id = u.id
+            WHERE u.id = $1""",
+        row["user_id"],
+    )
+    return {"ok": True, "data": _pitch_application_data({**dict(row), **dict(member)})}
 
 
 # ——— Editable operating playbook ——————————————————————————————————————————

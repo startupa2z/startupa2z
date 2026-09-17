@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ApiError, fetchCurrentPitchApplication, fetchEventsFromApi, fetchMemberProfile, fetchPitchApplications, savePitchApplicationDraft, submitPitchApplication, type DbEventRow, type MemberProfile, type PitchApplication, type PitchApplicationDraftPayload } from "@/lib/api";
+import { ApiError, fetchCurrentPitchApplication, fetchEventsFromApi, fetchMemberProfile, fetchPitchApplications, savePitchApplicationDraft, submitPitchApplication, type DbEventRow, type MemberProfile, type PaidSupportInterest, type PitchApplication, type PitchApplicationDraftPayload, type PitchSupportNeed, type PitchSupportTimeline } from "@/lib/api";
 import { clearToken, getToken, isMemberAuthenticated } from "@/lib/auth";
 
 type MemberSection = "overview" | "profile" | "events" | "pitch" | "talk" | "startup" | "exchange";
@@ -51,7 +51,21 @@ const PrototypeForm = () => {
 
 const AskOfferCard = ({ type }: { type: "ask" | "offer" }) => <><div className={`flex h-10 w-10 items-center justify-center rounded-full ${type === "ask" ? "bg-secondary/10 text-secondary" : "bg-primary/10 text-primary"}`}><Handshake className="h-5 w-5" /></div><h3 className="mt-4 font-heading text-xl font-bold">My {type}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{type === "ask" ? "Customers, introductions, talent, capital or feedback you need." : "Expertise, introductions, mentoring or resources you can contribute."}</p><Textarea className="mt-4" placeholder={type === "ask" ? "I am looking for…" : "I can help with…"} /><Button disabled variant={type === "ask" ? "default" : "outline"} className="mt-4 rounded-full">Save {type}</Button></>;
 
-const pitchSteps = ["Event & startup", "Founder story", "Lessons, ask & offer", "Review"];
+const pitchSteps = ["About your startup", "Your pitch"];
+
+const supportNeedOptions: Array<{ value: PitchSupportNeed; label: string }> = [
+  { value: "funding", label: "Funding" },
+  { value: "customers", label: "Customers" },
+  { value: "gtm", label: "Go-to-market (GTM)" },
+  { value: "staffing", label: "Hiring or staffing" },
+  { value: "ai_development", label: "AI development" },
+  { value: "soc2_compliance", label: "SOC 2 and compliance" },
+  { value: "legal", label: "Legal" },
+  { value: "cloud_cybersecurity", label: "Cloud and cybersecurity" },
+  { value: "product_development", label: "Product development" },
+  { value: "partnerships", label: "Partnerships" },
+  { value: "mentors_advisors", label: "Mentors or advisors" },
+];
 
 type PitchFormState = {
   id: string | null;
@@ -68,6 +82,11 @@ type PitchFormState = {
   ask_text: string;
   offer_text: string;
   milestone: string;
+  traction: string;
+  pitch_deck_url: string;
+  support_needs: PitchSupportNeed[];
+  support_timeline: PitchSupportTimeline | "";
+  paid_support_interest: PaidSupportInterest | "";
   consent_to_review: boolean;
 };
 
@@ -86,6 +105,11 @@ const emptyPitchForm = (company = ""): PitchFormState => ({
   ask_text: "",
   offer_text: "",
   milestone: "",
+  traction: "",
+  pitch_deck_url: "",
+  support_needs: [],
+  support_timeline: "",
+  paid_support_interest: "",
   consent_to_review: false,
 });
 
@@ -104,6 +128,11 @@ const pitchFormFromApplication = (application: PitchApplication, company = ""): 
   ask_text: application.ask_text ?? "",
   offer_text: application.offer_text ?? "",
   milestone: application.milestone ?? "",
+  traction: application.traction ?? "",
+  pitch_deck_url: application.pitch_deck_url ?? "",
+  support_needs: application.support_needs ?? [],
+  support_timeline: application.support_timeline ?? "",
+  paid_support_interest: application.paid_support_interest ?? "",
   consent_to_review: application.consent_to_review,
 });
 
@@ -148,6 +177,22 @@ const EmbeddedPitchApplication = ({ user, preview }: { user: MemberUserView; pre
     setSavedMessage("");
   };
 
+  const toggleSupportNeed = (need: PitchSupportNeed) => {
+    setForm((current) => {
+      const supportNeeds = current.support_needs.includes(need)
+        ? current.support_needs.filter((item) => item !== need)
+        : [...current.support_needs, need];
+      return {
+        ...current,
+        support_needs: supportNeeds,
+        support_timeline: supportNeeds.length ? current.support_timeline : "",
+        paid_support_interest: supportNeeds.length ? current.paid_support_interest : "",
+      };
+    });
+    setError("");
+    setSavedMessage("");
+  };
+
   const draftPayload = (): PitchApplicationDraftPayload => ({
     id: form.id,
     event_id: form.event_id || null,
@@ -163,21 +208,16 @@ const EmbeddedPitchApplication = ({ user, preview }: { user: MemberUserView; pre
     ask_text: form.ask_text,
     offer_text: form.offer_text,
     milestone: form.milestone,
+    traction: form.traction,
+    pitch_deck_url: form.pitch_deck_url || null,
+    support_needs: form.support_needs,
+    support_timeline: form.support_timeline || null,
+    paid_support_interest: form.paid_support_interest || null,
   });
 
-  const validateStep = (currentStep: number) => {
-    if (currentStep === 0) {
-      if (!form.event_id) return "Select an event.";
-      if (form.startup_name.trim().length < 2) return "Enter your startup name.";
-      if (form.startup_summary.trim().length < 20) return "Describe your startup in at least 20 characters.";
-      if (form.startup_website && !/^https?:\/\//i.test(form.startup_website)) return "Enter a complete website URL beginning with http:// or https://.";
-    }
-    if (currentStep === 1 && [form.problem, form.solution, form.monetization_challenge, form.breakthrough].some((value) => value.trim().length < 20)) return "Complete each founder-story answer with at least 20 characters.";
-    if (currentStep === 2) {
-      if (form.lessons.some((value) => value.trim().length < 3)) return "Provide all three practical founder lessons.";
-      if (form.ask_text.trim().length < 3 || form.offer_text.trim().length < 3) return "Complete both your ask and your offer.";
-    }
-    if (currentStep === 3 && !form.consent_to_review) return "Confirm that StartupA2Z.org may review your application.";
+  const validateStep = () => {
+    if (form.startup_website && !/^https?:\/\//i.test(form.startup_website)) return "Enter a complete website URL beginning with http:// or https://.";
+    if (form.pitch_deck_url && !/^https?:\/\//i.test(form.pitch_deck_url)) return "Enter a complete pitch deck URL beginning with http:// or https://.";
     return "";
   };
 
@@ -202,13 +242,13 @@ const EmbeddedPitchApplication = ({ user, preview }: { user: MemberUserView; pre
   };
 
   const continueToNextStep = async () => {
-    const message = validateStep(step);
+    const message = validateStep();
     if (message) { setError(message); return; }
-    if (await saveDraft()) setStep((value) => Math.min(3, value + 1));
+    if (await saveDraft()) setStep(1);
   };
 
   const submit = async () => {
-    const message = validateStep(3);
+    const message = validateStep();
     if (message) { setError(message); return; }
     if (preview) { setError("Sign in through the real member flow to submit an application."); return; }
     setSubmitting(true);
@@ -216,16 +256,6 @@ const EmbeddedPitchApplication = ({ user, preview }: { user: MemberUserView; pre
     try {
       const response = await submitPitchApplication({
         ...draftPayload(),
-        event_id: form.event_id,
-        startup_name: form.startup_name.trim(),
-        startup_summary: form.startup_summary.trim(),
-        problem: form.problem.trim(),
-        solution: form.solution.trim(),
-        monetization_challenge: form.monetization_challenge.trim(),
-        breakthrough: form.breakthrough.trim(),
-        lessons: form.lessons.map((value) => value.trim()) as [string, string, string],
-        ask_text: form.ask_text.trim(),
-        offer_text: form.offer_text.trim(),
         consent_to_review: true,
       });
       setSubmitted(response.data);
@@ -238,19 +268,17 @@ const EmbeddedPitchApplication = ({ user, preview }: { user: MemberUserView; pre
   };
 
   if (loading) return <Card><CardContent className="flex min-h-64 items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-primary" /></CardContent></Card>;
-  if (submitted) return <Card><CardContent className="p-7"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"><Check className="h-6 w-6" /></div><h2 className="mt-5 font-heading text-2xl font-bold">Pitch application submitted</h2><p className="mt-2 text-muted-foreground">Your application for {submitted.event_title} is now waiting for review.</p><div className="mt-5 rounded-xl border bg-muted/30 p-4"><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</p><p className="mt-1 font-semibold capitalize">{submitted.status.replaceAll("_", " ")}</p></div></CardContent></Card>;
+  if (submitted) return <Card><CardContent className="p-7"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"><Check className="h-6 w-6" /></div><h2 className="mt-5 font-heading text-2xl font-bold">Pitch application submitted</h2><p className="mt-2 text-muted-foreground">Your application{submitted.event_title ? ` for ${submitted.event_title}` : ""} is now waiting for review.</p><div className="mt-5 rounded-xl border bg-muted/30 p-4"><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</p><p className="mt-1 font-semibold capitalize">{submitted.status.replaceAll("_", " ")}</p></div></CardContent></Card>;
 
   return <div className="space-y-4">
     <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="font-heading text-2xl font-bold">Pitch your startup</h2><p className="mt-1 text-sm text-muted-foreground">Continue saves your progress automatically.</p></div>{savedMessage && <span className="text-xs font-medium text-primary">{savedMessage}</span>}</div>
     {applications.some((application) => application.status !== "draft") && <div className="rounded-xl border bg-card p-3 text-sm"><span className="font-medium">Previous application:</span> {applications.find((application) => application.status !== "draft")?.event_title} · <span className="capitalize">{applications.find((application) => application.status !== "draft")?.status.replaceAll("_", " ")}</span></div>}
-    <ol className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">{pitchSteps.map((label, index) => <li key={label} className={`rounded-xl border px-3 py-2.5 ${index === step ? "border-primary bg-primary text-primary-foreground" : index < step ? "border-primary/30 bg-primary/5" : "bg-card"}`}><div className="flex items-center gap-2"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${index === step ? "bg-white/20" : "bg-muted"}`}>{index < step ? <Check className="h-3.5 w-3.5" /> : index + 1}</span><span className="text-xs font-semibold">{label}</span></div></li>)}</ol>
+    <ol className="grid gap-2 sm:grid-cols-2">{pitchSteps.map((label, index) => <li key={label} className={`rounded-xl border px-3 py-2.5 ${index === step ? "border-primary bg-primary text-primary-foreground" : index < step ? "border-primary/30 bg-primary/5" : "bg-card"}`}><div className="flex items-center gap-2"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${index === step ? "bg-white/20" : "bg-muted"}`}>{index < step ? <Check className="h-3.5 w-3.5" /> : index + 1}</span><span className="text-xs font-semibold">{label}</span></div></li>)}</ol>
     <Card className="shadow-sm"><CardContent className="p-5 md:p-6">
-      {step === 0 && <div className="space-y-5"><div><h3 className="font-heading text-xl font-bold">Choose the opportunity</h3><p className="mt-1 text-sm text-muted-foreground">Your member profile supplies your name and contact information.</p></div><div><Label>Event *</Label><Select value={form.event_id} onValueChange={(value) => update("event_id", value)}><SelectTrigger className={fieldClass}><SelectValue placeholder={events.length ? "Select an upcoming event" : "No upcoming events available"} /></SelectTrigger><SelectContent>{events.map((event) => <SelectItem key={event.id} value={event.id}>{event.title} · {event.date}</SelectItem>)}</SelectContent></Select></div><div className="grid gap-4 md:grid-cols-2"><div><Label htmlFor="embedded-startup-name">Startup name *</Label><Input id="embedded-startup-name" className={fieldClass} value={form.startup_name} onChange={(event) => update("startup_name", event.target.value)} placeholder="Keyframe.art" /></div><div><Label htmlFor="embedded-startup-url">Website</Label><Input id="embedded-startup-url" className={fieldClass} value={form.startup_website} onChange={(event) => update("startup_website", event.target.value)} placeholder="https://" /></div></div><div><Label htmlFor="embedded-one-line">What does the startup do? *</Label><Textarea id="embedded-one-line" className={fieldClass} value={form.startup_summary} onChange={(event) => update("startup_summary", event.target.value)} placeholder="Explain the customer, problem and solution in two sentences." /></div><div><Label htmlFor="embedded-talk-title">Proposed talk title</Label><Input id="embedded-talk-title" className={fieldClass} value={form.talk_title} onChange={(event) => update("talk_title", event.target.value)} placeholder="From problem to paying customers" /></div></div>}
-      {step === 1 && <div className="space-y-5"><div><h3 className="font-heading text-xl font-bold">The founder story</h3><p className="mt-1 text-sm text-muted-foreground">Share specific decisions and failed assumptions, not a polished product pitch.</p></div>{[["problem","What problem did you identify?","Who experiences it, and why were existing solutions insufficient?"],["solution","What did you build and validate?","What evidence showed that people needed the solution?"],["monetization_challenge","What made monetization difficult?","Which customer, pricing, positioning or sales assumptions proved incorrect?"],["breakthrough","What was the breakthrough?","What change, experiment or decision helped the company move forward?"]].map(([field,label,placeholder]) => <div key={field}><Label htmlFor={`embedded-${field}`}>{label} *</Label><Textarea id={`embedded-${field}`} className={`${fieldClass} min-h-24`} value={form[field as keyof Pick<PitchFormState,"problem" | "solution" | "monetization_challenge" | "breakthrough">]} onChange={(event) => update(field as "problem" | "solution" | "monetization_challenge" | "breakthrough", event.target.value)} placeholder={placeholder} /></div>)}</div>}
-      {step === 2 && <div className="space-y-5"><div><h3 className="font-heading text-xl font-bold">Lessons, ask and offer</h3></div><div><Label>Three founder lessons *</Label><div className="mt-2 space-y-2">{form.lessons.map((lesson, index) => <Input key={index} value={lesson} onChange={(event) => { const lessons = [...form.lessons] as [string,string,string]; lessons[index] = event.target.value; update("lessons", lessons); }} placeholder={`${index + 1}. One practical lesson`} />)}</div></div><div className="grid gap-4 md:grid-cols-2"><div><Label htmlFor="embedded-ask">Your ask *</Label><Textarea id="embedded-ask" className={`${fieldClass} min-h-24`} value={form.ask_text} onChange={(event) => update("ask_text", event.target.value)} placeholder="Customers, introductions, talent or feedback you need." /></div><div><Label htmlFor="embedded-offer">Your offer *</Label><Textarea id="embedded-offer" className={`${fieldClass} min-h-24`} value={form.offer_text} onChange={(event) => update("offer_text", event.target.value)} placeholder="Knowledge, introductions or support you can give." /></div></div><div><Label htmlFor="embedded-milestone">Current stage and next milestone</Label><Textarea id="embedded-milestone" className={fieldClass} value={form.milestone} onChange={(event) => update("milestone", event.target.value)} /></div></div>}
-      {step === 3 && <div className="space-y-5"><div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Check className="h-5 w-5" /></div><div><h3 className="font-heading text-xl font-bold">Review your application</h3><p className="mt-1 text-sm text-muted-foreground">Confirm the event and key information before submitting.</p></div><div className="space-y-3 rounded-xl border bg-muted/30 p-4 text-sm"><div><span className="text-muted-foreground">Event:</span> <span className="font-medium">{events.find((event) => event.id === form.event_id)?.title ?? "Not selected"}</span></div><div><span className="text-muted-foreground">Startup:</span> <span className="font-medium">{form.startup_name}</span></div><div><span className="text-muted-foreground">Talk:</span> <span className="font-medium">{form.talk_title || "Title to be finalized"}</span></div></div><label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4 text-sm"><input type="checkbox" className="mt-1 h-4 w-4" checked={form.consent_to_review} onChange={(event) => update("consent_to_review", event.target.checked)} /><span>I confirm that StartupA2Z.org may review this application and contact me about the selected event.</span></label><Button onClick={submit} disabled={submitting || preview} className="rounded-full px-6">{submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : "Submit pitch application"}</Button>{preview && <p className="text-xs text-muted-foreground">Sign in through the member flow to submit.</p>}</div>}
+      {step === 0 && <div className="space-y-5"><div><h3 className="font-heading text-xl font-bold">Tell us the basics</h3><p className="mt-1 text-sm text-muted-foreground">Short, direct answers are best. You can submit what you have and we can follow up.</p></div><div><Label>Event</Label><Select value={form.event_id} onValueChange={(value) => update("event_id", value === "general" ? "" : value)}><SelectTrigger className={fieldClass}><SelectValue placeholder={events.length ? "Choose an upcoming event" : "General pitch application"} /></SelectTrigger><SelectContent><SelectItem value="general">General pitch application</SelectItem>{events.map((event) => <SelectItem key={event.id} value={event.id}>{event.title} · {event.date}</SelectItem>)}</SelectContent></Select></div><div className="grid gap-4 md:grid-cols-2"><div><Label htmlFor="embedded-startup-name">Startup name</Label><Input id="embedded-startup-name" className={fieldClass} value={form.startup_name} onChange={(event) => update("startup_name", event.target.value)} placeholder="Your startup" /></div><div><Label htmlFor="embedded-startup-url">Website</Label><Input id="embedded-startup-url" className={fieldClass} value={form.startup_website} onChange={(event) => update("startup_website", event.target.value)} placeholder="https://" /></div></div><div><Label htmlFor="embedded-one-line">What does your startup do, and who is it for?</Label><Textarea id="embedded-one-line" className={`${fieldClass} min-h-24`} value={form.startup_summary} onChange={(event) => update("startup_summary", event.target.value)} placeholder="One or two clear sentences are enough." maxLength={500} /></div><fieldset><legend className="text-sm font-medium">What are you looking for right now?</legend><p className="mt-1 text-xs text-muted-foreground">Select all that apply. This helps us prioritize useful support and introductions.</p><div className="mt-3 flex flex-wrap gap-2">{supportNeedOptions.map((option) => { const selected = form.support_needs.includes(option.value); return <button key={option.value} type="button" aria-pressed={selected} onClick={() => toggleSupportNeed(option.value)} className={`rounded-full border px-3 py-2 text-sm font-medium transition-colors ${selected ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:border-primary/50 hover:bg-primary/5"}`}>{option.label}</button>; })}</div></fieldset>{form.support_needs.length > 0 && <div className="grid gap-5 md:grid-cols-2"><div><Label htmlFor="embedded-support-timeline">How soon would you like help?</Label><Select value={form.support_timeline} onValueChange={(value) => update("support_timeline", value as PitchSupportTimeline)}><SelectTrigger id="embedded-support-timeline" className={fieldClass}><SelectValue placeholder="Choose a timeframe" /></SelectTrigger><SelectContent><SelectItem value="right_now">Right now</SelectItem><SelectItem value="next_3_months">Within 3 months</SelectItem><SelectItem value="exploring">Exploring for later</SelectItem></SelectContent></Select></div><div><Label htmlFor="embedded-paid-support">Would you like StartupA2Z to connect you with trusted paid help?</Label><Select value={form.paid_support_interest} onValueChange={(value) => update("paid_support_interest", value as PaidSupportInterest)}><SelectTrigger id="embedded-paid-support" className={fieldClass}><SelectValue placeholder="Choose one" /></SelectTrigger><SelectContent><SelectItem value="actively_looking">Yes, I am actively looking</SelectItem><SelectItem value="open_to_options">Maybe, show me options</SelectItem><SelectItem value="not_now">Not right now</SelectItem></SelectContent></Select></div></div>}</div>}
+      {step === 1 && <div className="space-y-5"><div><h3 className="font-heading text-xl font-bold">Help us understand your pitch</h3><p className="mt-1 text-sm text-muted-foreground">Focus on what the audience should understand, believe, or help with.</p></div><div><Label htmlFor="embedded-talk-title">Pitch title</Label><Input id="embedded-talk-title" className={fieldClass} value={form.talk_title} onChange={(event) => update("talk_title", event.target.value)} placeholder="A working title is fine" /></div><div className="grid gap-5 md:grid-cols-2"><div><Label htmlFor="embedded-problem">What problem are you solving?</Label><Textarea id="embedded-problem" className={`${fieldClass} min-h-28`} value={form.problem} onChange={(event) => update("problem", event.target.value)} placeholder="Who has this problem, and what happens today?" /></div><div><Label htmlFor="embedded-solution">How does your product solve it?</Label><Textarea id="embedded-solution" className={`${fieldClass} min-h-28`} value={form.solution} onChange={(event) => update("solution", event.target.value)} placeholder="Explain the product in plain language." /></div></div><div><Label htmlFor="embedded-traction">What evidence tells you this is working?</Label><Textarea id="embedded-traction" className={fieldClass} value={form.traction} onChange={(event) => update("traction", event.target.value)} placeholder="Customers, pilots, users, revenue, waitlist, partnerships, or learning so far." /></div><div><Label htmlFor="embedded-ask">What would you like from the audience?</Label><Textarea id="embedded-ask" className={fieldClass} value={form.ask_text} onChange={(event) => update("ask_text", event.target.value)} placeholder="Feedback, introductions, customers, partners, talent, or funding." /></div><div><Label htmlFor="embedded-deck">Pitch deck or demo link</Label><Input id="embedded-deck" className={fieldClass} value={form.pitch_deck_url} onChange={(event) => update("pitch_deck_url", event.target.value)} placeholder="https://" /></div><div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">By submitting, you allow StartupA2Z.org to review this application and contact you about pitching opportunities.</div><Button onClick={submit} disabled={submitting || preview} className="rounded-full px-6">{submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : "Submit pitch application"}</Button>{preview && <p className="text-xs text-muted-foreground">Sign in through the member flow to submit.</p>}</div>}
       {error && <p role="alert" className="mt-5 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <div className="mt-6 flex items-center justify-between border-t pt-4"><Button variant="ghost" disabled={step === 0 || saving || submitting} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="h-4 w-4" /> Back</Button>{step < 3 && <Button onClick={continueToNextStep} disabled={saving}>{saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <>Continue <ArrowRight className="h-4 w-4" /></>}</Button>}</div>
+      <div className="mt-6 flex items-center justify-between border-t pt-4"><Button variant="ghost" disabled={step === 0 || saving || submitting} onClick={() => setStep(0)}><ArrowLeft className="h-4 w-4" /> Back</Button>{step === 0 && <Button onClick={continueToNextStep} disabled={saving}>{saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <>Continue <ArrowRight className="h-4 w-4" /></>}</Button>}</div>
     </CardContent></Card>
   </div>;
 };

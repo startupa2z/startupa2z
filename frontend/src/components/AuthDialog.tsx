@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Linkedin, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { setToken } from "@/lib/auth";
-import { ApiError, exchangeLinkedInCode, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
+import { ApiError, exchangeLinkedInCode, fetchAuthenticationMethods, getLinkedInOAuthUrl, sendOtp, verifyOtp } from "@/lib/api";
 import { assignTopLevel } from "@/lib/navigation";
 import { profileCompletionUrl } from "@/lib/member-profile";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ type AuthDialogProps = {
 
 const inputClass = "h-11 rounded-xl";
 const ctaClass = "h-11 w-full rounded-full bg-secondary font-semibold text-secondary-foreground hover:bg-secondary/90";
+const isLocalPreview = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
 
 const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo = "/welcome", initialMode = "signin", initialEmail = "" }: AuthDialogProps) => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [linkedinAvailable, setLinkedinAvailable] = useState(false);
   const handledLinkedInCallback = useRef(false);
 
   useEffect(() => {
@@ -86,6 +88,9 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
       setMode(initialMode);
       setEmail(initialEmail);
       setStep(initialEmail ? "email" : "choice");
+      void fetchAuthenticationMethods()
+        .then(({ data }) => setLinkedinAvailable(data.linkedin))
+        .catch(() => setLinkedinAvailable(false));
     } else {
       setStep("choice");
       setLoading(false);
@@ -143,7 +148,18 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
       setOpen(false);
       navigate(user.profile_complete ? redirectTo : profileCompletionUrl(redirectTo));
     } catch (error) {
-      toast({ title: "Invalid code", description: error instanceof ApiError ? error.message : "Please try again.", variant: "destructive" });
+      const message = error instanceof ApiError ? error.message : "Please try again.";
+      const accountMissing = message.startsWith("No account found");
+      toast({
+        title: accountMissing ? "Account not found" : "Code not accepted",
+        description: accountMissing ? "This email does not have a local account yet. Please sign up first." : message,
+        variant: "destructive",
+      });
+      if (accountMissing) {
+        setMode("signup");
+        setStep("email");
+        setOtp("");
+      }
     } finally {
       setLoading(false);
     }
@@ -157,7 +173,7 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
           <div className="mb-2 flex justify-center sm:justify-start"><img src="/icon-only-transparent.webp" alt="" className="h-10 w-10" aria-hidden /></div>
           <DialogTitle className="font-heading text-2xl text-primary">{step === "otp" ? "Verify your email" : mode === "signin" ? "Sign in" : "Create your account"}</DialogTitle>
           <DialogDescription>
-            {step === "choice" && (mode === "signin" ? "Welcome back. Choose how you want to sign in." : "Join the StartupA2Z.org community using LinkedIn or email.")}
+            {step === "choice" && (linkedinAvailable ? (mode === "signin" ? "Welcome back. Choose how you want to sign in." : "Join the StartupA2Z.org community using LinkedIn or email.") : (mode === "signin" ? "Welcome back. Sign in using your email address." : "Join the StartupA2Z.org community using your email address."))}
             {step === "email" && (mode === "signin" ? "Enter the email address connected to your account." : "Create your membership using your email address.")}
             {step === "otp" && `Enter the 6-digit code sent to ${email}.`}
           </DialogDescription>
@@ -172,10 +188,10 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
 
         {step === "choice" && (
           <div className="space-y-4 pt-2">
-            <Button type="button" className="h-12 w-full rounded-full bg-[#0A66C2] text-white hover:bg-[#0958a8]" onClick={handleLinkedIn} disabled={loading}>
+            {linkedinAvailable && <Button type="button" className="h-12 w-full rounded-full bg-[#0A66C2] text-white hover:bg-[#0958a8]" onClick={handleLinkedIn} disabled={loading}>
               <Linkedin className="mr-2 h-5 w-5" /> {loading ? "Connecting..." : `${mode === "signin" ? "Sign in" : "Sign up"} with LinkedIn`}
-            </Button>
-            <div className="flex items-center gap-3"><Separator className="flex-1" /><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">or</span><Separator className="flex-1" /></div>
+            </Button>}
+            {linkedinAvailable && <div className="flex items-center gap-3"><Separator className="flex-1" /><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">or</span><Separator className="flex-1" /></div>}
             <Button type="button" variant="outline" className="h-12 w-full rounded-full" onClick={() => setStep("email")}>
               <Mail className="mr-2 h-5 w-5" /> {mode === "signin" ? "Sign in with email address" : "Sign up with email address"}
             </Button>
@@ -196,6 +212,10 @@ const AuthDialog = ({ children, open: controlledOpen, onOpenChange, redirectTo =
         {step === "otp" && (
           <div className="space-y-5 pt-2">
             <div className="flex justify-center"><InputOTP maxLength={6} value={otp} onChange={setOtp}><InputOTPGroup>{[0, 1, 2, 3, 4, 5].map((index) => <InputOTPSlot key={index} index={index} />)}</InputOTPGroup></InputOTP></div>
+            <p className="text-center text-xs text-muted-foreground">
+              Only the most recently requested code works.
+              {isLocalPreview ? <> Local emails are available in <a href="http://127.0.0.1:8025" target="_blank" rel="noreferrer" className="font-semibold text-primary underline-offset-4 hover:underline">Mailpit</a>.</> : null}
+            </p>
             <Button type="button" className={ctaClass} disabled={loading || otp.length < 6} onClick={handleVerify}>{loading ? "Verifying..." : mode === "signin" ? "Verify and sign in" : "Verify and sign up"}</Button>
             <Button type="button" variant="ghost" className="w-full" onClick={() => { setStep("email"); setOtp(""); }}><ArrowLeft className="mr-2 h-4 w-4" /> Change email</Button>
           </div>

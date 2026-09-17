@@ -67,6 +67,34 @@ test("email signup continues into the shared prefilled profile form", async ({ p
   });
 });
 
+test("unknown email sign-in redirects clearly into sign-up without calling the code invalid", async ({ page }) => {
+  await page.route("**/api/auth/otp/send", async (route) => {
+    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true, message: "sent" }) });
+  });
+  await page.route("**/api/auth/otp/verify", async (route) => {
+    await route.fulfill({
+      status: 400,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "No account found with this email. Please sign up first." }),
+    });
+  });
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sign In", exact: true }).click();
+  await page.getByRole("button", { name: "Sign in with email address" }).click();
+  await page.getByLabel("Email address *").fill("new-member@example.com");
+  await page.getByRole("button", { name: "Send verification code" }).click();
+  await expect(page.getByText("Only the most recently requested code works.")).toBeVisible();
+  await page.locator("[data-input-otp]").fill("123456");
+  await page.getByRole("button", { name: "Verify and sign in" }).click();
+
+  await expect(page.getByText("Account not found", { exact: true })).toBeVisible();
+  await expect(page.getByText("This email does not have a local account yet. Please sign up first.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Send verification code" })).toBeVisible();
+  await expect(page.getByText("Invalid code", { exact: true })).toHaveCount(0);
+});
+
 test("LinkedIn OIDC identity prefills available fields without inventing employment data", async ({ page }) => {
   const linkedinUser = { ...incompleteUser, full_name: "LinkedIn Member", linkedin_connected: true };
   await page.route("**/api/auth/oauth/linkedin/exchange", async (route) => {

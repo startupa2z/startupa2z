@@ -152,6 +152,10 @@ export function getLinkedInOAuthUrl(redirectTo?: string) {
   });
 }
 
+export function fetchAuthenticationMethods() {
+  return apiRequest<{ ok: boolean; data: { email: boolean; linkedin: boolean } }>("/api/auth/methods");
+}
+
 export function exchangeLinkedInCode(code: string) {
   return apiRequest<{
     ok: boolean;
@@ -201,6 +205,9 @@ export function updateMemberProfile(payload: {
 // ——— Member pitch applications ———
 
 export type PitchApplicationStatus = "draft" | "submitted" | "under_review" | "approved" | "declined" | "withdrawn";
+export type PitchSupportNeed = "funding" | "customers" | "gtm" | "staffing" | "ai_development" | "soc2_compliance" | "legal" | "cloud_cybersecurity" | "product_development" | "partnerships" | "mentors_advisors";
+export type PitchSupportTimeline = "right_now" | "next_3_months" | "exploring";
+export type PaidSupportInterest = "actively_looking" | "open_to_options" | "not_now";
 
 export type PitchApplication = {
   id: string;
@@ -220,6 +227,11 @@ export type PitchApplication = {
   ask_text: string | null;
   offer_text: string | null;
   milestone: string | null;
+  traction: string | null;
+  pitch_deck_url: string | null;
+  support_needs: PitchSupportNeed[];
+  support_timeline: PitchSupportTimeline | null;
+  paid_support_interest: PaidSupportInterest | null;
   consent_to_review: boolean;
   status: PitchApplicationStatus;
   submitted_at: string | null;
@@ -242,21 +254,14 @@ export type PitchApplicationDraftPayload = {
   ask_text?: string | null;
   offer_text?: string | null;
   milestone?: string | null;
+  traction?: string | null;
+  pitch_deck_url?: string | null;
+  support_needs?: PitchSupportNeed[];
+  support_timeline?: PitchSupportTimeline | null;
+  paid_support_interest?: PaidSupportInterest | null;
 };
 
-export type PitchApplicationSubmissionPayload = PitchApplicationDraftPayload & {
-  event_id: string;
-  startup_name: string;
-  startup_summary: string;
-  problem: string;
-  solution: string;
-  monetization_challenge: string;
-  breakthrough: string;
-  lessons: [string, string, string];
-  ask_text: string;
-  offer_text: string;
-  consent_to_review: true;
-};
+export type PitchApplicationSubmissionPayload = PitchApplicationDraftPayload & { consent_to_review?: boolean };
 
 function memberRequest<T>(path: string, options: RequestInit = {}) {
   const token = getToken();
@@ -289,6 +294,30 @@ export function submitPitchApplication(payload: PitchApplicationSubmissionPayloa
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export type AdminPitchApplication = PitchApplication & {
+  email: string;
+  full_name: string | null;
+  company: string | null;
+  job_title: string | null;
+  admin_notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+};
+
+export function fetchAdminPitchApplications() {
+  return adminRequest<{ ok: boolean; data: AdminPitchApplication[] }>("/api/admin/pitch-applications");
+}
+
+export function updateAdminPitchApplication(
+  id: string,
+  payload: { status: Exclude<PitchApplicationStatus, "draft" | "withdrawn">; admin_notes?: string | null },
+) {
+  return adminRequest<{ ok: boolean; data: AdminPitchApplication }>(
+    `/api/admin/pitch-applications/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+  );
 }
 
 // ——— Contact ———
