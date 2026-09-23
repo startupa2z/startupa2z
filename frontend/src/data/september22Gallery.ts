@@ -1,0 +1,38 @@
+const base = "/static/images/events/2026-09-22";
+
+export const september22Gallery = {
+  slug: "founders-pitch-mix-2026-09-22",
+  number: "05",
+  title: "Special Session for Founders: The Wiz Story",
+  shortTitle: "The Wiz Story & Product Pitches",
+  date: "September 22, 2026",
+  isoDate: "2026-09-22",
+  month: "SEP",
+  day: "22",
+  year: "2026",
+  venue: "Hacker Dojo",
+  city: "Mountain View, California",
+  recapPath: "/events/founders-pitch-mix-2026-09-22",
+  galleryPath: "/gallery/founders-pitch-mix-2026-09-22",
+  hasRecap: true,
+  description: "The StartupA2Z community gathered for a special founder session on the Wiz story, customer demand, partnership opportunities, and an evening of live product pitches.",
+  photos: [
+    "StartupA2Z founders, speakers, and community members together after the September 22 event at Hacker Dojo",
+    "Sidhdharth Sivasubramanian sharing founder lessons during the September 22 Founder Spotlight",
+    "Founders listening to the special StartupA2Z session at Hacker Dojo",
+    "Sidhdharth Sivasubramanian discussing the different asks of early-stage and mid-market customers",
+    "A wide view of the September 22 audience and speaker at Hacker Dojo",
+    "StartupA2Z attendees listening beside Hacker Dojo’s founder mural",
+    "Daniel Slayton and Andy beginning their session on the Wiz story",
+    "Daniel Slayton and Andy presenting to the StartupA2Z audience",
+    "The Wiz story session continuing on the Hacker Dojo stage",
+    "Bogdan Barchuk presenting the Insomnia cybersecurity platform",
+    "Sharan preparing a product demonstration for the automotive industry",
+    "Michael delivering the final community pitch of the September 22 event",
+  ].map((alt, index) => ({
+    id: index + 1,
+    src: `${base}/event-05-${String(index + 1).padStart(2, "0")}-v1.jpg`,
+    thumbnail: `${base}/event-05-${String(index + 1).padStart(2, "0")}-v1-thumb.jpg`,
+    alt,
+  })),
+};

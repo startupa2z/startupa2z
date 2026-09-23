@@ -45,6 +45,7 @@ const staticRoutes = [
   "/gallery/founders-pitch-mix-2026-08-25",
   "/gallery/founder-networking-workshop-2026-09-01",
   "/gallery/founders-pitch-mix-2026-09-15",
+  "/gallery/founders-pitch-mix-2026-09-22",
   "/sponsorship",
   "/startups",
 ];

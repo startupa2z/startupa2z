@@ -17,6 +17,7 @@ import CTABanner from "@/components/CTABanner";
 import PageLayout from "@/components/PageLayout";
 import SEO from "@/components/SEO";
 import { september15Gallery } from "@/data/september15Gallery";
+import { september22Gallery } from "@/data/september22Gallery";
 
 interface GalleryPhoto {
   id: number;
@@ -149,7 +150,7 @@ const SEPTEMBER_1_EVENT: GalleryEvent = {
   photos: SEPTEMBER_1_PHOTOS,
 };
 
-const EVENTS: GalleryEvent[] = [september15Gallery, SEPTEMBER_1_EVENT, AUGUST_25_EVENT, AUGUST_12_EVENT];
+const EVENTS: GalleryEvent[] = [september22Gallery, september15Gallery, SEPTEMBER_1_EVENT, AUGUST_25_EVENT, AUGUST_12_EVENT];
 
 const GalleryLanding = () => (
   <PageLayout>

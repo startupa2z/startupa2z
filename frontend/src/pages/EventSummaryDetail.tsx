@@ -717,6 +717,28 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
               </div>
             </section>}
 
+            {summary.featuredLinks && summary.featuredLinks.length > 0 && (
+              <section aria-labelledby="featured-event-links" className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
+                <h2 id="featured-event-links" className="font-heading text-xl font-bold text-primary">Featured people and products</h2>
+                <div className="mt-4 space-y-3">
+                  {summary.featuredLinks.map((item) => (
+                    <a
+                      key={item.url}
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block rounded-2xl border bg-surface-1 p-4 transition-colors hover:border-secondary"
+                    >
+                      <span className="inline-flex items-center gap-2 font-bold text-primary">
+                        {item.label} <ExternalLink className="h-4 w-4" />
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-muted-foreground">{item.description}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {summary.source ? <section className="rounded-3xl border-2 border-primary/15 bg-card p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-widest text-secondary">Session recording</p>
               <h2 className="mt-3 font-heading text-xl font-bold text-primary">{summary.source.presenter}</h2>

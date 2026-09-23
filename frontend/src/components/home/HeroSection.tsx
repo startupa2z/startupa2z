@@ -8,6 +8,7 @@ import heroBg from "@/assets/hero-bg.jpg";
 import { fetchHomeStats, type HomeStats } from "@/lib/api";
 import SpecialEventBanner from "./SpecialEventBanner";
 import { september15Gallery } from "@/data/september15Gallery";
+import { september22Gallery } from "@/data/september22Gallery";
 
 const socialLinks = [
   { href: "https://luma.com/startupa2z", icon: CalendarDays, label: "Luma" },
@@ -25,6 +26,13 @@ const emptyStats: HomeStats = {
 };
 
 const galleryEvents = [
+  {
+    date: september22Gallery.date,
+    image: september22Gallery.photos[0].thumbnail,
+    href: september22Gallery.galleryPath,
+    alt: september22Gallery.photos[0].alt,
+    photoCount: september22Gallery.photos.length,
+  },
   {
     date: september15Gallery.date,
     image: september15Gallery.photos[0].thumbnail,

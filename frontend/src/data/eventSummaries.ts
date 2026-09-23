@@ -1,4 +1,5 @@
 import { september15Gallery } from "./september15Gallery";
+import { september22Gallery } from "./september22Gallery";
 
 export type FounderStory = {
   anchor: string;
@@ -71,11 +72,124 @@ export type EventSummary = {
     image: string;
     imageAlt: string;
   }>;
+  featuredLinks?: Array<{
+    label: string;
+    description: string;
+    url: string;
+  }>;
   keyLessons: string[];
   status: "draft" | "published";
 };
 
 export const eventSummaries: EventSummary[] = [
+  {
+    slug: "hacker-dojo-september-22-2026",
+    eventSlug: september22Gallery.slug,
+    title: "September 22 at Hacker Dojo: The Wiz Story and Product Pitches",
+    eventTitle: september22Gallery.title,
+    date: september22Gallery.date,
+    startDateIso: "2026-09-22T17:00:00-07:00",
+    endDateIso: "2026-09-22T20:00:00-07:00",
+    venue: "Hacker Dojo, Mountain View",
+    address: "855 Maude Ave, Mountain View, CA 94043",
+    coverImage: september22Gallery.photos[0].src,
+    coverImageAlt: september22Gallery.photos[0].alt,
+    galleryPath: september22Gallery.galleryPath,
+    summary: "StartupA2Z’s September 22 event opened with a Founder Spotlight from MeetStream AI co-founder and CEO Sidhdharth Sivasubramanian, followed by Daniel Slayton and Andy on the Wiz story. Bogdan Barchuk then presented Insomnia, Sharan introduced an automotive-industry product, and Michael closed the speaker sequence. The photographs capture each session, the engaged audience, and the community that stayed through the closing group photo.",
+    program: [
+      "Founder Spotlight with Sidhdharth Sivasubramanian of MeetStream AI",
+      "The Wiz story with Daniel Slayton and Andy",
+      "Insomnia product session with founder Bogdan Barchuk",
+      "Automotive product session with Sharan and a closing pitch from Michael",
+    ],
+    recapLabel: "Event recap",
+    recapHeading: "Five sessions moved from founder lessons to company stories and live products.",
+    recapIntro: "This corrected recap follows the actual order of the evening. It combines details supplied after the event with the photographs from the room and public speaker or product pages; where a company or product name remains unknown, the copy stays deliberately limited.",
+    recapSections: [
+      {
+        eyebrow: "Founder Spotlight · Sidhdharth Sivasubramanian",
+        title: "Qualify the customer before spending founder time",
+        paragraphs: [
+          "Sidhdharth Sivasubramanian, co-founder and CEO of MeetStream AI, opened the evening with a Founder Spotlight on the challenges and experience behind his journey.",
+          "One practical lesson was to avoid spending too much time on a prospect who has no real need, no budget, or no authority to make a decision. He also described building more than 45 AI agents to support marketing—an example of applying automation inside the company rather than discussing it only as a product idea.",
+        ],
+        image: september22Gallery.photos[1].thumbnail,
+        imageAlt: september22Gallery.photos[1].alt,
+      },
+      {
+        eyebrow: "The Wiz story · Daniel Slayton and Andy",
+        title: "Company-building lessons and partnership opportunities",
+        paragraphs: [
+          "Daniel Slayton and Andy led the next session on the Wiz story, including challenges and lessons from the company journey.",
+          "The conversation also covered partnership opportunities and demand for security and cloud partner services, giving founders another way to think about entering enterprise ecosystems beyond selling a standalone product.",
+        ],
+        image: september22Gallery.photos[6].thumbnail,
+        imageAlt: september22Gallery.photos[6].alt,
+      },
+      {
+        eyebrow: "Product session · Bogdan Barchuk",
+        title: "Insomnia brings security testing into one platform",
+        paragraphs: [
+          "Bogdan Barchuk, founder and principal engineer behind Insomnia, presented the security platform he leads. Insomnia combines vulnerability scanning, SAST and SCA analysis, offensive-security tooling, reporting, and developer-workflow integrations.",
+          "The presentation made the product tangible for the room: a working security platform, its coverage, and the engineering scope behind bringing multiple security workflows together.",
+        ],
+        image: september22Gallery.photos[9].thumbnail,
+        imageAlt: september22Gallery.photos[9].alt,
+      },
+      {
+        eyebrow: "Product session · Sharan",
+        title: "A product built for the automotive industry",
+        paragraphs: [
+          "Sharan followed with a product built for the automotive industry. He used the live session to introduce the concept and walk the audience through what he had built.",
+          "The current event record does not yet include the product name or a public company link, so this recap leaves those details open rather than guessing.",
+        ],
+        image: september22Gallery.photos[10].thumbnail,
+        imageAlt: september22Gallery.photos[10].alt,
+      },
+      {
+        eyebrow: "Closing pitch · Michael",
+        title: "One final founder story from the community stage",
+        paragraphs: [
+          "Michael delivered the last pitch of the evening, extending the program from the featured sessions into another founder-led contribution.",
+          "His product and company details have not yet been verified. The photograph documents the closing pitch while the recap avoids attaching an unsupported name or claim to it.",
+        ],
+        image: september22Gallery.photos[11].thumbnail,
+        imageAlt: september22Gallery.photos[11].alt,
+      },
+    ],
+    founderStories: [],
+    communityPhotoLabel: "September 22 community",
+    communityPhotoTitle: "Founders, speakers, and builders at Hacker Dojo",
+    audiencePhotos: [
+      { image: september22Gallery.photos[0].src, imageAlt: september22Gallery.photos[0].alt },
+      { image: september22Gallery.photos[2].src, imageAlt: september22Gallery.photos[2].alt },
+      { image: september22Gallery.photos[5].src, imageAlt: september22Gallery.photos[5].alt },
+    ],
+    featuredLinks: [
+      {
+        label: "Sidhdharth Sivasubramanian",
+        description: "Co-founder and CEO, MeetStream AI",
+        url: "https://www.linkedin.com/in/sidhdharthsivasubramanian/",
+      },
+      {
+        label: "Daniel Slayton",
+        description: "Wiz story session",
+        url: "https://www.linkedin.com/in/daniel-slayton/",
+      },
+      {
+        label: "Insomnia by Bogdan Barchuk",
+        description: "Security platform and product information",
+        url: "https://insom.ai/en/about",
+      },
+    ],
+    keyLessons: [
+      "Qualify a prospect’s need, budget, and authority before investing substantial founder time.",
+      "Use AI agents and automation to expand operating capacity inside the company.",
+      "Partnership ecosystems can create a route to enterprise demand alongside direct product sales.",
+      "Live demonstrations make a founder’s product story concrete enough for useful feedback.",
+    ],
+    status: "published",
+  },
   {
     slug: "hacker-dojo-september-15-2026",
     eventSlug: september15Gallery.slug,
