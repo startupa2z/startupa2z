@@ -7,6 +7,7 @@ import { fetchAllEvents, type EventItem } from "@/data/events";
 import heroBg from "@/assets/hero-bg.jpg";
 import { fetchHomeStats, type HomeStats } from "@/lib/api";
 import SpecialEventBanner from "./SpecialEventBanner";
+import CybersecuritySummitBanner from "./CybersecuritySummitBanner";
 import { september15Gallery } from "@/data/september15Gallery";
 import { september22Gallery } from "@/data/september22Gallery";
 
@@ -116,6 +117,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 gradient-hero" />
 
       <SpecialEventBanner />
+      <CybersecuritySummitBanner />
 
       <div className="relative z-10 mt-[clamp(2.5rem,5vw,4.5rem)] container-narrow px-[clamp(1.5rem,5vw,3rem)] w-full">
         <div className="grid items-stretch gap-[clamp(2.5rem,4vw,4rem)] lg:grid-cols-[minmax(0,1fr)_minmax(420px,500px)]">
