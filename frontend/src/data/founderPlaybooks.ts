@@ -372,8 +372,8 @@ export const founderPlaybooks: FounderPlaybook[] = [
     ],
   },
   {
-    slug: "digvijay-goswami-sidharth-raja-keyframe-ai",
-    label: "Digvijay Goswami & Sidharth Raja · Keyframe AI",
+    slug: "sidharth-raja-keyframe-ai",
+    label: "Sidharth Raja · Keyframe AI",
     eventSlug: "startup-a-to-z-hacker-dojo-august-12",
     storyAnchor: "keyframe-ai",
     problemHeading: "What creative-production problem did Keyframe AI address?",

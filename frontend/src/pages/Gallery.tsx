@@ -45,8 +45,10 @@ interface GalleryEvent {
   hasRecap?: boolean;
 }
 
-const AUGUST_12_PHOTO_COUNT = 20;
-const AUGUST_12_DISPLAY_ORDER = [20, ...Array.from({ length: 19 }, (_, index) => index + 1)];
+const AUGUST_12_EXCLUDED_PHOTO_NUMBERS = new Set([7, 8, 9]);
+const AUGUST_12_DISPLAY_ORDER = [20, ...Array.from({ length: 19 }, (_, index) => index + 1)]
+  .filter((photoNumber) => !AUGUST_12_EXCLUDED_PHOTO_NUMBERS.has(photoNumber));
+const AUGUST_12_PHOTO_COUNT = AUGUST_12_DISPLAY_ORDER.length;
 const AUGUST_12_PHOTOS: GalleryPhoto[] = AUGUST_12_DISPLAY_ORDER.map((photoNumber, index) => ({
   id: photoNumber,
   src: `/event-gallery/2026-08-12/event-01-${String(photoNumber).padStart(2, "0")}.jpg`,

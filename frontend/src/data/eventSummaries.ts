@@ -597,26 +597,21 @@ export const eventSummaries: EventSummary[] = [
     founderStories: [
       {
         anchor: "keyframe-ai",
-        founders: "Digvijay Goswami and Sidharth Raja",
+        founders: "Sidharth Raja",
         company: "Keyframe AI",
         headline: "Moving AI video from impressive clips to repeatable production",
         keywords: ["AI video", "Creative workflow", "Visual consistency", "Repeatable production"],
         challenge:
           "AI-generated video can be fast and visually striking, but characters, scenes, movement, and creative direction often become inconsistent across a complete story.",
         approach:
-          "The Keyframe AI co-founders demonstrated a connected workflow for scripting, visual generation, editing, and iteration, including an unexpected rocket-launch result that made the experimentation challenge memorable.",
+          "Sidharth Raja demonstrated a connected workflow for scripting, visual generation, editing, and iteration, including an unexpected rocket-launch result that made the experimentation challenge memorable.",
         lesson:
           "The durable value is not one impressive clip. It is whether a creative team can repeatedly turn an idea into a coherent, production-ready story while preserving control.",
-        image: "/event-media/august-12-2026/keyframe-ai-founders.jpg",
-        imageAlt: "Keyframe AI founders Sidharth Raja and Digvijay Goswami presenting at Hacker Dojo",
+        image: "/event-gallery/2026-08-12/event-01-06.jpg",
+        imageAlt: "The StartupA2Z audience viewing Sidharth Raja's Keyframe AI presentation at Hacker Dojo",
         website: "https://www.keyframe.art/",
         directoryPath: "/startups/keyframe",
         founderProfiles: [
-          {
-            name: "Digvijay Goswami",
-            url: "/founders/digvijay-goswami",
-            internal: true,
-          },
           {
             name: "Sidharth Raja",
             url: "/founders/sidharth-raja",

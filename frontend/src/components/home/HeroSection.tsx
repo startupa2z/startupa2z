@@ -60,7 +60,7 @@ const galleryEvents = [
     image: "/event-gallery/2026-08-12/event-01-20.jpg",
     href: "/gallery/startup-a-to-z-hacker-dojo-august-12",
     alt: "StartupA2Z founders and community members together at Hacker Dojo after the August 12 event",
-    photoCount: 20,
+    photoCount: 17,
   },
 ];
 

@@ -5,8 +5,18 @@ import SEO from "@/components/SEO";
 import { getEventSummaryByEventSlug } from "@/data/eventSummaries";
 import { getFounderPlaybook } from "@/data/founderPlaybooks";
 
+const legacyPlaybookRedirects: Record<string, string> = {
+  "digvijay-goswami-sidharth-raja-keyframe-ai": "sidharth-raja-keyframe-ai",
+};
+
 const FounderPlaybookDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const redirectSlug = slug ? legacyPlaybookRedirects[slug] : undefined;
+
+  if (redirectSlug) {
+    return <Navigate to={`/resources/founder-playbooks/${redirectSlug}`} replace />;
+  }
+
   const playbook = getFounderPlaybook(slug || "");
   const event = playbook ? getEventSummaryByEventSlug(playbook.eventSlug) : undefined;
   const story = event?.founderStories.find((item) => item.anchor === playbook?.storyAnchor);

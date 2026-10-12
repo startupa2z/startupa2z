@@ -71,11 +71,10 @@ export const staticBusinessProfiles: Record<string, BusinessListing> = {
     offer_text: "Practical AI-video workflow lessons\nCreative-production prototyping insights\nPeer feedback for founders building media tools",
     channels: [{ label: "Website", url: "https://www.keyframe.art/" }],
     founders: [
-      { id: "static-digvijay", slug: "digvijay-goswami", name: "Digvijay Goswami", role: "Founder & CEO", directory_visible: true },
-      { id: "static-sidharth", slug: "sidharth-raja", name: "Sidharth Raja", role: "Co-Founder", directory_visible: true },
+      { id: "static-sidharth", slug: "sidharth-raja", name: "Sidharth Raja", role: "Founder", directory_visible: true },
     ],
     media: [
-      { id: "static-keyframe-photo", media_type: "image", url: "/event-media/august-12-2026/keyframe-ai-founders.jpg", caption: "The keyframe.art team presenting its AI-video workflow at Hacker Dojo", display_order: 0 },
+      { id: "static-keyframe-photo", media_type: "image", url: "/event-gallery/2026-08-12/event-01-06.jpg", caption: "Sidharth Raja's Keyframe AI presentation at Hacker Dojo", display_order: 0 },
     ],
     created_at: "",
   },
@@ -149,7 +148,7 @@ export const featuredBusinesses = Object.values(staticBusinessProfiles);
 export const companyPlaybookLinks: Record<string, string> = {
   enrouteai: "/resources/founder-playbooks/neil-fernandes-enrouteai",
   vachi: "/resources/founder-playbooks/achal-pandey-vachi",
-  keyframe: "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai",
+  keyframe: "/resources/founder-playbooks/sidharth-raja-keyframe-ai",
   "one-dollar-computer": "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer",
   configai: "/resources/founder-playbooks/ayush-kumar-configai",
   purplelens: "/resources/founder-playbooks/divakar-prayaga-purplelens",

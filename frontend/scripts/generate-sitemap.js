@@ -28,7 +28,7 @@ const staticRoutes = [
   "/resources/founder-playbooks/neil-fernandes-enrouteai",
   "/resources/founder-playbooks/achal-pandey-vachi",
   "/resources/founder-playbooks/ridham-bhagat-quip-network",
-  "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai",
+  "/resources/founder-playbooks/sidharth-raja-keyframe-ai",
   "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer",
   "/resources/founder-playbooks/ayush-kumar-configai",
   "/resources/founder-playbooks/divakar-prayaga-purplelens",

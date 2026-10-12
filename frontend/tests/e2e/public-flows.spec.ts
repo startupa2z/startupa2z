@@ -4,7 +4,7 @@ const founderPlaybookRoutes = [
   "/resources/founder-playbooks/neil-fernandes-enrouteai",
   "/resources/founder-playbooks/achal-pandey-vachi",
   "/resources/founder-playbooks/ridham-bhagat-quip-network",
-  "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai",
+  "/resources/founder-playbooks/sidharth-raja-keyframe-ai",
   "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer",
   "/resources/founder-playbooks/ayush-kumar-configai",
   "/resources/founder-playbooks/divakar-prayaga-purplelens",
@@ -219,7 +219,9 @@ test("event filtering and completed event detail work", async ({ page }) => {
   await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
   await expect(page.getByText("Completed event", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /August 12 at Hacker Dojo/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Moving AI video from impressive clips to repeatable production", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai");
+  await expect(page.getByRole("link", { name: "Sidharth Raja", exact: true })).toBeVisible();
+  await expect(page.getByText("Digvijay Goswami", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Moving AI video from impressive clips to repeatable production", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/sidharth-raja-keyframe-ai");
   await expect(page.getByRole("link", { name: "Making hands-on computing accessible for more children", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/claudio-olmedo-one-dollar-computer");
   await expect(page.getByRole("link", { name: "Reducing the expertise barrier between AI models and FPGAs", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/ayush-kumar-configai");
   await expect(page.getByRole("link", { name: "Treating application security as a continuous engineering capability", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/divakar-prayaga-purplelens");
@@ -476,7 +478,30 @@ test("startup cards open dedicated internal profiles", async ({ page }) => {
   await expect(page.getByText("Our ask", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Our story", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "keyframe.art website" })).toHaveAttribute("href", "https://www.keyframe.art/");
-  await expect(page.getByRole("link", { name: "Open Playbook" })).toHaveAttribute("href", "/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai");
+  await expect(page.getByRole("link", { name: "Open Playbook" })).toHaveAttribute("href", "/resources/founder-playbooks/sidharth-raja-keyframe-ai");
+});
+
+test("August 12 Keyframe story identifies only Sidharth Raja", async ({ page }) => {
+  await page.goto("/events/startup-a-to-z-hacker-dojo-august-12");
+  await expect(page.getByRole("link", { name: "Sidharth Raja", exact: true })).toBeVisible();
+  await expect(page.getByText("Digvijay Goswami", { exact: true })).toHaveCount(0);
+  await expect(page.getByAltText("The StartupA2Z audience viewing Sidharth Raja's Keyframe AI presentation at Hacker Dojo")).toHaveAttribute("src", "/event-gallery/2026-08-12/event-01-06.jpg");
+  await expect(page.getByRole("link", { name: "Moving AI video from impressive clips to repeatable production", exact: true })).toHaveAttribute("href", "/resources/founder-playbooks/sidharth-raja-keyframe-ai");
+});
+
+test("August 12 gallery removes the three Digvijay photos", async ({ page }) => {
+  await page.goto("/gallery/startup-a-to-z-hacker-dojo-august-12");
+  await expect(page.getByRole("button", { name: /Open photo \d+ of 17/ })).toHaveCount(17);
+  await expect(page.locator('img[src="/event-gallery/2026-08-12/event-01-07.jpg"]')).toHaveCount(0);
+  await expect(page.locator('img[src="/event-gallery/2026-08-12/event-01-08.jpg"]')).toHaveCount(0);
+  await expect(page.locator('img[src="/event-gallery/2026-08-12/event-01-09.jpg"]')).toHaveCount(0);
+});
+
+test("legacy Keyframe playbook URL redirects to Sidharth Raja's playbook", async ({ page }) => {
+  await page.goto("/resources/founder-playbooks/digvijay-goswami-sidharth-raja-keyframe-ai");
+  await expect(page).toHaveURL(/\/resources\/founder-playbooks\/sidharth-raja-keyframe-ai$/);
+  await expect(page.getByText("Sidharth Raja · Keyframe AI", { exact: true })).toBeVisible();
+  await expect(page.getByText("Digvijay Goswami", { exact: true })).toHaveCount(0);
 });
 
 test("startup directory opens company profiles independently from founder playbooks", async ({ page }) => {
