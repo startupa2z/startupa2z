@@ -154,6 +154,7 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const summary = getEventSummary(summarySlug || slug || "");
+  const openedFromResources = new URLSearchParams(location.search).get("from") === "resources";
 
   useEffect(() => {
     if (!summary || !location.hash) return;
@@ -245,10 +246,10 @@ const EventSummaryDetail = ({ summarySlug }: EventSummaryDetailProps) => {
       >
         <div className="container-narrow pb-[clamp(3rem,6vw,5rem)]">
           <Link
-            to="/events?view=past"
+            to={openedFromResources ? "/resources" : "/events?view=past"}
             className="mb-7 inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white"
           >
-            <ArrowLeft className="h-4 w-4" /> Past events
+            <ArrowLeft className="h-4 w-4" /> {openedFromResources ? "Back to Explore resources" : "Past events"}
           </Link>
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-secondary">

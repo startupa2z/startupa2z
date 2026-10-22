@@ -36,12 +36,6 @@ const navItems: NavItem[] = [
   {
     to: "/resources",
     label: "Resources",
-    children: [
-      { to: "/resources/founder-playbooks", label: "Founder’s Playbook" },
-      { to: "/resources/case-studies", label: "Case Studies" },
-      { to: "/gallery", label: "Gallery" },
-      { to: "/resources/event-summaries", label: "Past Events Summary" },
-    ],
   },
   {
     to: "/about",
@@ -100,6 +94,7 @@ const Navbar = () => {
   const isActive = (item: NavItem) =>
     Boolean(
       (item.to && location.pathname === item.to) ||
+        (item.to === "/resources" && location.pathname.startsWith("/resources/")) ||
         item.children?.some((child) => location.pathname === child.to.split("?")[0]),
     );
 

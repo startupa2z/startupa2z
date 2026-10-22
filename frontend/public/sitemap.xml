@@ -79,6 +79,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://startupa2z.org/resources/insights</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-questions-founders-should-ask</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://startupa2z.org/resources/event-summaries</loc>
     <lastmod>2026-08-26T23:37:01.164Z</lastmod>
     <changefreq>weekly</changefreq>
@@ -227,5 +239,89 @@
     <lastmod>2026-08-26T23:37:01.164Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/lessons</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/financial-systems-for-founders</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/preparing-for-series-a</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/sell-and-scale-with-government</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/sovereign-ai-data-context-control</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/google-for-startups-wiz</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/founders-night-meetstream-prefactor</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/potato-meter-brand-building</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/built-by-community-reddit</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/build-ai-agents-with-auth0</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/agents-and-apis</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/auth0-buyer-pitch</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://startupa2z.org/resources/insights/sf-tech-week-2026/can-your-agents-actually-ship</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

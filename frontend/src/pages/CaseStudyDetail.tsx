@@ -41,8 +41,8 @@ const CaseStudyDetail = () => {
 
       <section className="gradient-hero-solid text-white" style={{ paddingTop: "calc(64px + clamp(2rem, 5vw, 4rem))" }}>
         <div className="container-narrow pb-[clamp(3rem,6vw,5rem)]">
-          <Link to="/resources/case-studies" className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white">
-            <ArrowLeft className="h-4 w-4" /> Back to Case Studies
+          <Link to="/resources" className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white">
+            <ArrowLeft className="h-4 w-4" /> Back to Explore resources
           </Link>
           <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-secondary">
             <BarChart3 className="h-4 w-4" /> Startup Case Study

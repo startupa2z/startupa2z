@@ -17,6 +17,10 @@ const BusinessDetail = lazy(() => import("./pages/BusinessDetail.tsx"));
 const Events = lazy(() => import("./pages/Events.tsx"));
 const EventDetail = lazy(() => import("./pages/EventDetail.tsx"));
 const Resources = lazy(() => import("./pages/Resources.tsx"));
+const Insights = lazy(() => import("./pages/Insights.tsx"));
+const InsightDetail = lazy(() => import("./pages/InsightDetail.tsx"));
+const SFTechWeek = lazy(() => import("./pages/SFTechWeek.tsx"));
+const SFTechWeekNoteDetail = lazy(() => import("./pages/SFTechWeekNoteDetail.tsx"));
 const EventSummaries = lazy(() => import("./pages/EventSummaries.tsx"));
 const FounderPlaybookDetail = lazy(() => import("./pages/FounderPlaybookDetail.tsx"));
 const FounderPlaybooks = lazy(() => import("./pages/FounderPlaybooks.tsx"));
@@ -56,6 +60,10 @@ const App = () => (
           <Route path="/events/:slug" element={<EventDetail />} />
           <Route path="/community" element={<Navigate to="/events" replace />} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/resources/insights" element={<Insights />} />
+          <Route path="/resources/insights/sf-tech-week-2026" element={<SFTechWeek />} />
+          <Route path="/resources/insights/sf-tech-week-2026/:slug" element={<SFTechWeekNoteDetail />} />
+          <Route path="/resources/insights/:slug" element={<InsightDetail />} />
           <Route path="/resources/event-summaries" element={<EventSummaries />} />
           <Route path="/resources/founder-playbooks" element={<FounderPlaybooks />} />
           <Route path="/resources/founder-playbooks/:slug" element={<FounderPlaybookDetail />} />
